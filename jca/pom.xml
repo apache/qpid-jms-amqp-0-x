@@ -117,7 +117,7 @@
     <!-- test dependencies -->
     <dependency>
       <groupId>org.apache.qpid</groupId>
-      <artifactId>qpid-test-utils</artifactId>
+      <artifactId>qpid-jms-amqp-0-x-test-utils</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
