@@ -150,6 +150,7 @@ public class AMQTopic extends AMQDestination implements Topic
         return connection.getClientID() + ":" + subscriptionName;
     }
 
+    @Override
     public String getTopicName() throws JMSException
     {
         if (getRoutingKey() != null)
@@ -179,6 +180,7 @@ public class AMQTopic extends AMQDestination implements Topic
         }
     }
 
+    @Override
     public String getRoutingKey()
     {
         if (super.getRoutingKey() != null)
@@ -191,17 +193,19 @@ public class AMQTopic extends AMQDestination implements Topic
         }
         else
         {
-            setRoutingKey("");
+            setRoutingKey("");  // Side effect
             setSubject("");
             return super.getRoutingKey();
         }
     }
 
+    @Override
     public boolean isNameRequired()
     {
         return !isDurable();
     }
 
+    @Override
     public boolean equals(Object o)
     {
         if (getDestSyntax() == DestSyntax.ADDR)
@@ -216,6 +220,7 @@ public class AMQTopic extends AMQDestination implements Topic
         }
     }
 
+    @Override
     public int hashCode()
     {
         if (getDestSyntax() == DestSyntax.ADDR)
