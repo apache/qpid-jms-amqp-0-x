@@ -17,7 +17,7 @@
 # under the License.
 #
 
-#Java
+# Java
 *.class
 velocity.log*
 release
@@ -34,3 +34,19 @@ derby.log
 *.iml
 *.ipr
 *.iws
+
+# other
+*~
+*.swp
+/build/
+*.pyc
+*.pyo
+target
+.DS_Store
+
+# Eclipse IDE files
+.project
+.classpath
+.settings
+.cproject
+eclipse-classes
