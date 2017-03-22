@@ -219,7 +219,7 @@ public class TestFileUtils
             }
 
             OutputStream out = new FileOutputStream(dst);
-            
+
             try
             {
                 // Transfer bytes from in to out
