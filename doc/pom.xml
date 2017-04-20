@@ -25,13 +25,13 @@
 
     <parent>
         <groupId>org.apache.qpid</groupId>
-        <artifactId>qpid-java-build</artifactId>
+        <artifactId>qpid-jms-amqp-0-x-parent</artifactId>
         <version>7.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>qpid-java-doc</artifactId>
-    <name>Apache Qpid for Java Docbook</name>
-    <description>Java Qpid Docbook</description>
+    <name>Apache Qpid JMS AMQP 0-x Docbook</name>
+    <description>Apache Qpid JMS AMQP 0-x Docbook</description>
     <packaging>pom</packaging>
 
     <properties>
@@ -72,10 +72,8 @@
     </properties>
 
     <modules>
-        <module>java-broker</module>
         <module>jms-client-0-8</module>
         <module>jms-client-0-10</module>
-        <module>java-perftests</module>
     </modules>
 
     <build>
