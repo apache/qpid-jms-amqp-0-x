@@ -62,9 +62,9 @@
   </mailingLists>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/qpid/qpid-jms-amqp-0-x/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/qpid/qpid-jms-amqp-0-x/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/qpid/qpid-jms-amqp-0-x/trunk</url>
+    <connection>scm:git:https://git-wip-us.apache.org/repos/asf/qpid-jms-amqp-0-x.git</connection>
+    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/qpid-jms-amqp-0-x.git</developerConnection>
+    <url>https://git-wip-us.apache.org/repos/asf/qpid-jms-amqp-0-x.git</url>
   </scm>
 
   <distributionManagement>
