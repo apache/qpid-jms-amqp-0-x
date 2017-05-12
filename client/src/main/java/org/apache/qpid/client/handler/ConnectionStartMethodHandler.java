@@ -21,6 +21,8 @@
 package org.apache.qpid.client.handler;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.security.sasl.Sasl;
@@ -46,6 +48,7 @@ import org.apache.qpid.framing.FieldTableFactory;
 import org.apache.qpid.framing.ProtocolVersion;
 import org.apache.qpid.jms.ConnectionURL;
 import org.apache.qpid.properties.ConnectionStartProperties;
+import org.apache.qpid.transport.ConnectionSettings;
 
 public class ConnectionStartMethodHandler implements StateAwareMethodListener<ConnectionStartBody>
 {
@@ -97,6 +100,7 @@ public class ConnectionStartMethodHandler implements StateAwareMethodListener<Co
             {
                 // Used to hold the SASL mechanism to authenticate with.
                 String mechanism;
+                final ConnectionSettings connectionSettings = session.getAMQConnection().getConnectionSettings();
 
                 if (body.getMechanisms()== null)
                 {
@@ -104,7 +108,8 @@ public class ConnectionStartMethodHandler implements StateAwareMethodListener<Co
                 }
                 else
                 {
-                    mechanism = chooseMechanism(body.getMechanisms());
+                    String restriction = connectionSettings.getSaslMechs();
+                    mechanism = chooseMechanism(body.getMechanisms(), restriction);
                     _log.debug("mechanism = " + mechanism);
                 }
 
@@ -116,8 +121,24 @@ public class ConnectionStartMethodHandler implements StateAwareMethodListener<Co
                 byte[] saslResponse;
                 try
                 {
+                    final Map<String, ?> saslProps;
+                    if (connectionSettings.isUseSASLEncryption())
+                    {
+                        saslProps = Collections.singletonMap(Sasl.QOP, "auth-conf");
+                    }
+                    else
+                    {
+                        saslProps = null;
+                    }
+
+                    String saslProtocol = connectionSettings.getSaslProtocol();
+                    String saslServerName = connectionSettings.getSaslServerName();
+                    if(saslServerName == null)
+                    {
+                        saslServerName = connectionSettings.getHost();
+                    }
                     SaslClient sc =
-                        Sasl.createSaslClient(new String[] { mechanism }, null, "AMQP", "localhost", null,
+                        Sasl.createSaslClient(new String[] { mechanism }, null, saslProtocol, saslServerName, saslProps,
                             createCallbackHandler(mechanism, session));
                     if (sc == null)
                     {
@@ -198,10 +219,10 @@ public class ConnectionStartMethodHandler implements StateAwareMethodListener<Co
         }
     }
 
-    private String chooseMechanism(byte[] availableMechanisms) throws UnsupportedEncodingException
+    private String chooseMechanism(byte[] availableMechanisms, final String restriction) throws UnsupportedEncodingException
     {
         final String mechanisms = new String(availableMechanisms, "utf8");
-        return CallbackHandlerRegistry.getInstance().selectMechanism(mechanisms);
+        return CallbackHandlerRegistry.getInstance().selectMechanism(mechanisms, restriction);
     }
 
     private AMQCallbackHandler createCallbackHandler(String mechanism, AMQProtocolSession protocolSession)

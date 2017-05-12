@@ -243,17 +243,15 @@
 							supported.</para>
 					</entry>
 				</row>
-				<!-- 0-10 only
 				<row>
 					<entry> sasl_mechs </entry>
 					<entry> - </entry>
-					<entry> For secure applications, we suggest CRAM-MD5, DIGEST-MD5, or GSSAPI. The
-						ANONYMOUS method is not secure. The PLAIN method is secure only when used
-						together with SSL. For Kerberos, sasl_mechs must be set to GSSAPI,
-						sasl_protocol must be set to the principal for the qpidd broker, e.g.
-						qpidd/, and sasl_server must be set to the host for the SASL server, e.g.
-						sasl.com. SASL External is supported using SSL certification, e.g.
-							<literal>ssl='true'&amp;sasl_mechs='EXTERNAL'</literal>
+					<entry> A comma separated list of SASL mechanisms which may be used.  If not present then
+						any method offered by the broker may be used.
+						For secure applications, we suggest SCRAM-SHA-256. The
+						ANONYMOUS mechanism is not secure. The PLAIN mechanism is secure only when used
+						together with SSL. SASL External is supported using SSL certification, e.g.
+						<literal>ssl='true'&amp;sasl_mechs='EXTERNAL'</literal>
 					</entry>
 				</row>
 				<row>
@@ -274,10 +272,9 @@
 				<row>
 					<entry> sasl_server </entry>
 					<entry> - </entry>
-					<entry> For Kerberos, sasl_mechs must be set to GSSAPI, sasl_server must be set
+					<entry> For Kerberos, sasl_server must be set
 						to the host for the SASL server, e.g. <literal>sasl.com</literal>. </entry>
 				</row>
-				-->
 				<row>
 					<entry> ssl </entry>
 					<entry> Boolean </entry>
