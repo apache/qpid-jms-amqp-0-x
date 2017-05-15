@@ -101,6 +101,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
 
     private static final int FAST_CHANNEL_ACCESS_MASK = 0xFFFFFFF0;
     private volatile ByteBufferSender _sender;
+    private ConnectionSettings _connectionSettings;
 
     public AMQProtocolSession(AMQProtocolHandler protocolHandler, AMQConnection connection)
     {
@@ -117,11 +118,17 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
 
     public void init(ConnectionSettings settings)
     {
+        _connectionSettings = settings;
         // start the process of setting up the connection. This is the first place that
         // data is written to the server.
-        initialiseTuneParameters(settings);
+        initialiseTuneParameters();
 
         _protocolHandler.writeFrame(new ProtocolInitiation(_connection.getProtocolVersion()));
+    }
+
+    public ConnectionSettings getConnectionSettings()
+    {
+        return _connectionSettings;
     }
 
     public ConnectionTuneParameters getConnectionTuneParameters()
@@ -129,11 +136,11 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         return _connectionTuneParameters;
     }
 
-    private void initialiseTuneParameters(ConnectionSettings settings)
+    private void initialiseTuneParameters()
     {
         _connectionTuneParameters = new ConnectionTuneParameters();
-        _connectionTuneParameters.setHeartbeat(settings.getHeartbeatInterval08());
-        _connectionTuneParameters.setHeartbeatTimeoutFactor(settings.getHeartbeatTimeoutFactor());
+        _connectionTuneParameters.setHeartbeat(getConnectionSettings().getHeartbeatInterval08());
+        _connectionTuneParameters.setHeartbeatTimeoutFactor(getConnectionSettings().getHeartbeatTimeoutFactor());
     }
 
     public void tuneConnection(ConnectionTuneParameters params)
@@ -148,11 +155,11 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         initHeartbeats(params.getHeartbeat(), params.getHeartbeatTimeoutFactor());
     }
 
-    void initHeartbeats(int delay, float timeoutFactor)
+    private void initHeartbeats(int delay, float timeoutFactor)
     {
         if (delay > 0)
         {
-            NetworkConnection network = getProtocolHandler().getNetworkConnection();
+            NetworkConnection network = _protocolHandler.getNetworkConnection();
             network.setMaxWriteIdleMillis(1000L*delay);
             int readerIdle = (int)(delay * timeoutFactor);
             network.setMaxReadIdleMillis(1000L * readerIdle);
@@ -219,6 +226,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         }
     }
 
+    @Override
     public void contentHeaderReceived(int channelId, ContentHeaderBody contentHeader) throws QpidException
     {
         final UnprocessedMessage_0_8 msg = (UnprocessedMessage_0_8) ((channelId & FAST_CHANNEL_ACCESS_MASK) == 0 ? _channelId2UnprocessedMsgArray[channelId]
@@ -241,6 +249,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         }
     }
 
+    @Override
     public void contentBodyReceived(final int channelId, ContentBody contentBody) throws QpidException
     {
         UnprocessedMessage_0_8 msg;
@@ -280,6 +289,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         }
     }
 
+    @Override
     public void heartbeatBodyReceived(int channelId, HeartbeatBody body) throws QpidException
     {
         _protocolHandler.heartbeatBodyReceived();
@@ -310,6 +320,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         return _connection.getSession(channelId);
     }
 
+    @Override
     public void writeFrame(AMQDataBlock frame)
     {
         _protocolHandler.writeFrame(frame);
@@ -414,11 +425,13 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         _methodDispatcher = ClientMethodDispatcherImpl.newMethodDispatcher(pv, this);
   }
 
+    @Override
     public ProtocolVersion getProtocolVersion()
     {
         return _protocolVersion;
     }
 
+    @Override
     public MethodRegistry getMethodRegistry()
     {
         return _methodRegistry;
@@ -441,6 +454,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         session.setFlowControl(active);
     }
 
+    @Override
     public void methodFrameReceived(final int channel, final AMQMethodBody amqMethodBody) throws QpidException
     {
         _protocolHandler.methodBodyReceived(channel, amqMethodBody);
@@ -451,6 +465,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
         _protocolHandler.propagateExceptionToAllWaiters(error);
     }
 
+    @Override
     public void setSender(ByteBufferSender sender)
     {
         _sender = sender;
@@ -461,15 +476,6 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
     public String toString()
     {
         return "AMQProtocolSession[" + _connection + ']';
-    }
-
-    /**
-     * The handler from which this session was created and which is used to handle protocol events. We send failover
-     * events to the handler.
-     */
-    protected AMQProtocolHandler getProtocolHandler()
-    {
-        return _protocolHandler;
     }
 
     protected AMQConnection getConnection()

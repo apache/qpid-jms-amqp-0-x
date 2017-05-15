@@ -100,7 +100,7 @@ public class ConnectionStartMethodHandler implements StateAwareMethodListener<Co
             {
                 // Used to hold the SASL mechanism to authenticate with.
                 String mechanism;
-                final ConnectionSettings connectionSettings = session.getAMQConnection().getConnectionSettings();
+                final ConnectionSettings connectionSettings = session.getConnectionSettings();
 
                 if (body.getMechanisms()== null)
                 {
