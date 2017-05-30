@@ -61,6 +61,10 @@
             distributed to those who you wish to send messages to you) and to have the private key associated with the
             certificate so that you can decrypt messages sent to you.
         </para>
+        <para>
+            This feature requires the Java Cryptography Extension (JCE) Unlimited Strength policy files are installed
+            in the JVM.
+        </para>
     </section>
 
     <section xml:id="JMS-Client-Message-Encryption-Sending">

@@ -45,7 +45,9 @@
     <para>The Client has minimal set of external dependencies. </para>
     <para> It requires: <itemizedlist>
         <listitem>
-          <para>JDK 1.7 or higher.</para>
+          <para>JDK 1.7 or higher.<footnote><para>The Java Cryptography Extension (JCE)
+            Unlimited Strength policy files are required for the  <link xmlns:xlink="http://www.w3.org/1999/xlink"  linkend="JMS-Client-Message-Encryption">Message Encryption</link>
+            feature.</para></footnote></para>
         </listitem>
         <listitem>
           <para>JMS 1.1 specification (such as geronimo-jms_1.1_spec JAR)</para>
