@@ -30,11 +30,11 @@ import java.util.Map;
 import javax.security.sasl.SaslClient;
 import javax.security.sasl.SaslException;
 
-import org.apache.qpid.configuration.CommonProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.qpid.configuration.ClientProperties;
+import org.apache.qpid.configuration.CommonProperties;
 import org.apache.qpid.properties.ConnectionStartProperties;
 
 
@@ -134,6 +134,16 @@ public class ClientDelegate extends ConnectionDelegate
     @Override
     public void connectionTune(Connection conn, ConnectionTune tune)
     {
+        try
+        {
+            verifySaslNegotiationComplete(conn);
+        }
+        catch (SaslException e)
+        {
+            conn.exception(e);
+            return;
+        }
+
         int heartbeatInterval = _connectionSettings.getHeartbeatInterval010();
         float heartbeatTimeoutFactor = _connectionSettings.getHeartbeatTimeoutFactor();
         int actualHeartbeatInterval = calculateHeartbeatInterval(heartbeatInterval,
@@ -224,5 +234,31 @@ public class ClientDelegate extends ConnectionDelegate
     public ConnectionSettings getConnectionSettings()
     {
         return _connectionSettings;
+    }
+
+    private void verifySaslNegotiationComplete(Connection connection) throws SaslException
+    {
+        SaslClient client = connection.getSaslClient();
+        if (client != null)
+        {
+            if (!client.isComplete())
+            {
+                throw new SaslException("SASL negotiation has not been completed - cannot proceed with connection open");
+            }
+
+            String mechanismName = client.getMechanismName();
+            try
+            {
+                client.dispose();
+            }
+            catch (SaslException e)
+            {
+                LOGGER.warn("Disposal of client sasl for mechanism '{}' has failed", mechanismName, e);
+            }
+            finally
+            {
+                connection.setSaslClient(null);
+            }
+        }
     }
 }

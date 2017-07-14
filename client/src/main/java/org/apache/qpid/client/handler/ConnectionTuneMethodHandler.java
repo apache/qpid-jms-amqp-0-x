@@ -20,9 +20,13 @@
  */
 package org.apache.qpid.client.handler;
 
+import javax.security.sasl.SaslClient;
+import javax.security.sasl.SaslException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.qpid.QpidException;
 import org.apache.qpid.client.ConnectionTuneParameters;
 import org.apache.qpid.client.protocol.AMQProtocolSession;
 import org.apache.qpid.client.state.AMQState;
@@ -47,9 +51,12 @@ public class ConnectionTuneMethodHandler implements StateAwareMethodListener<Con
     protected ConnectionTuneMethodHandler()
     { }
 
-    public void methodReceived(AMQProtocolSession session, ConnectionTuneBody frame, int channelId)
+    public void methodReceived(AMQProtocolSession session, ConnectionTuneBody frame, int channelId) throws QpidException
     {
         _logger.debug("ConnectionTune frame received");
+
+        verifySaslNegotiationComplete(session);
+
         final MethodRegistry methodRegistry = session.getMethodRegistry();
 
         ConnectionTuneParameters params = session.getConnectionTuneParameters();
@@ -86,5 +93,31 @@ public class ConnectionTuneMethodHandler implements StateAwareMethodListener<Con
         session.writeFrame(openBody.generateFrame(channelId));
     }
 
+    private void verifySaslNegotiationComplete(final AMQProtocolSession session) throws QpidException
+    {
+        SaslClient client = session.getSaslClient();
+        if (client == null)
+        {
+            throw new QpidException("No SASL client set up - cannot proceed with connection open");
+        }
 
+        if (!client.isComplete())
+        {
+            throw new QpidException("SASL negotiation has not been completed - cannot proceed with connection open");
+        }
+
+        String mechanismName = client.getMechanismName();
+        try
+        {
+            client.dispose();
+        }
+        catch (SaslException e)
+        {
+            _logger.warn("Disposal of client sasl for mechanism '{}' has failed", mechanismName, e);
+        }
+        finally
+        {
+            session.setSaslClient(null);
+        }
+    }
 }
