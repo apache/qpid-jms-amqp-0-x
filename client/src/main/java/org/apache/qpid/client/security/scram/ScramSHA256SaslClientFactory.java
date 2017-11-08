@@ -21,6 +21,7 @@
 package org.apache.qpid.client.security.scram;
 
 import java.util.Map;
+import java.util.UUID;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.SaslClient;
@@ -46,7 +47,7 @@ public class ScramSHA256SaslClientFactory implements SaslClientFactory
                 {
                     throw new SaslException("CallbackHandler must not be null");
                 }
-                return new ScramSHA256SaslClient(cbh);
+                return new ScramSHA256SaslClient(cbh, UUID.randomUUID().toString());
             }
 
         }

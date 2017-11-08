@@ -27,7 +27,6 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.UUID;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -53,7 +52,7 @@ public abstract class AbstractScramSaslClient implements SaslClient
     private final String _hmacName;
 
     private String _username;
-    private final String _clientNonce = UUID.randomUUID().toString();
+    private final String _clientNonce;
     private String _serverNonce;
     private byte[] _salt;
     private int _iterationCount;
@@ -77,13 +76,14 @@ public abstract class AbstractScramSaslClient implements SaslClient
     public AbstractScramSaslClient(final CallbackHandler cbh,
                                    final String mechanism,
                                    final String digestName,
-                                   final String hmacName)
+                                   final String hmacName,
+                                   final String clientNonce)
     {
         _callbackHandler = cbh;
         _mechanism = mechanism;
         _digestName = digestName;
         _hmacName = hmacName;
-
+        _clientNonce = clientNonce;
     }
 
     @Override
@@ -131,7 +131,15 @@ public abstract class AbstractScramSaslClient implements SaslClient
         {
             throw new SaslException("Server final message did not contain verifier");
         }
-        byte[] serverSignature = Strings.decodeBase64(parts[0].substring(2));
+        byte[] serverSignature;
+        try
+        {
+            serverSignature = Strings.decodeBase64(parts[0].substring(2));
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new SaslException("Server signature did not match");
+        }
         if(!Arrays.equals(_serverSignature, serverSignature))
         {
             throw new SaslException("Server signature did not match");
@@ -289,7 +297,7 @@ public abstract class AbstractScramSaslClient implements SaslClient
             NameCallback nameCallback = new NameCallback("Username?");
             _callbackHandler.handle(new Callback[] { nameCallback });
             _username = nameCallback.getName();
-            buf.append(saslPrep(_username));
+            buf.append(escapeUsername(saslPrep(_username)));
             buf.append(",r=");
             buf.append(_clientNonce);
             _clientFirstMessageBare = buf.toString();
@@ -314,6 +322,11 @@ public abstract class AbstractScramSaslClient implements SaslClient
             throw new SaslException("Can only encode names and passwords which are restricted to ASCII characters");
         }
 
+        return name;
+    }
+
+    private String escapeUsername(String name)
+    {
         name = name.replace("=", "=3D");
         name = name.replace(",", "=2C");
         return name;

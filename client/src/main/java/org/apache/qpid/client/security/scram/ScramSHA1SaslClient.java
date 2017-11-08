@@ -27,8 +27,8 @@ public class ScramSHA1SaslClient extends AbstractScramSaslClient
 
     public static final String MECHANISM = "SCRAM-SHA-1";
 
-    public ScramSHA1SaslClient(final CallbackHandler cbh)
+    public ScramSHA1SaslClient(final CallbackHandler cbh, final String clientNonce)
     {
-        super(cbh, MECHANISM, "SHA-1", "HmacSHA1");
+        super(cbh, MECHANISM, "SHA-1", "HmacSHA1", clientNonce);
     }
 }
