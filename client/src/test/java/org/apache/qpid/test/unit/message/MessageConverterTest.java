@@ -97,13 +97,6 @@ public class MessageConverterTest extends QpidTestCase
 
     }
 
-    public void testMessageConversion() throws Exception
-    {
-        Message newMessage = new NonQpidMessage();
-        setMessageProperties(newMessage);
-        mesagePropertiesTest(testTextMessage, newMessage);
-    }
-
     private void setMessageProperties(Message message) throws JMSException
     {
         message.setJMSCorrelationID(JMS_CORR_ID);
