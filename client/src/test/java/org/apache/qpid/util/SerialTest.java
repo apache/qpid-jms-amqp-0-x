@@ -21,6 +21,9 @@
 package org.apache.qpid.util;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.qpid.test.utils.QpidTestCase;
 
 /**
@@ -43,36 +46,4 @@ public class SerialTest extends QpidTestCase
         assertTrue(Serial.gt(0xFFFFFFFF + 1, 0xFFFFFFFF));
         assertTrue(Serial.lt(0xFFFFFFFF, 0xFFFFFFFF + 1));
     }
-
-    /**
-     * Test the first Corollary of RFC 1982
-     * For any sequence number s and any integer n such that addition of n
-     * to s is well defined, (s + n) >= s.  Further (s + n) == s only when
-     * n == 0, in all other defined cases, (s + n) > s.
-     */
-    public void testCorollary1()
-    {
-        int wrapcount = 0;
-
-        int s = 0;
-
-        for (int i = 0; i < 67108664; i++)
-        {
-            for (int n = 1; n < 4096; n += 512)
-            {
-                assertTrue("Serial.gt returned false for: (" + (s + n) + " > " + s + "), n=" + n, Serial.gt(s + n, s));
-                assertTrue("Serial.lt returned false for: (" + s + " < " + (s + n) + "), n=" + n, Serial.lt(s, s + n));
-            }
-
-            s += 1024;
-
-            if (s == 0)
-            {
-                wrapcount += 1;
-            }
-        }
-
-        assertTrue(wrapcount > 0);
-    }
-
 }
