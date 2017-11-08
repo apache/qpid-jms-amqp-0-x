@@ -252,12 +252,13 @@ public class AMQMessageDelegate_0_8 extends AbstractAMQMessageDelegate
 
     public byte[] getJMSCorrelationIDAsBytes() throws JMSException
     {
-        return getContentHeaderProperties().getCorrelationIdAsString().getBytes();
+        final AMQShortString correlationId = getContentHeaderProperties().getCorrelationId();
+        return correlationId == null ? null : correlationId.getBytes();
     }
 
     public void setJMSCorrelationIDAsBytes(byte[] bytes) throws JMSException
     {
-        getContentHeaderProperties().setCorrelationId(new String(bytes));
+        getContentHeaderProperties().setCorrelationId(new AMQShortString(bytes));
     }
 
     public void setJMSCorrelationID(String correlationId) throws JMSException

@@ -21,6 +21,7 @@
 
 package org.apache.qpid.client.message;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -252,15 +253,13 @@ public class AMQMessageDelegate_0_10 extends AbstractAMQMessageDelegate
 
     public void setJMSCorrelationID(String correlationId) throws JMSException
     {
-
-        setJMSCorrelationIDAsBytes(correlationId == null ? null : correlationId.getBytes());
+        setJMSCorrelationIDAsBytes(correlationId == null ? null : correlationId.getBytes(StandardCharsets.UTF_8));
     }
 
     public String getJMSCorrelationID() throws JMSException
     {
-
         byte[] correlationIDAsBytes = getJMSCorrelationIDAsBytes();
-        return correlationIDAsBytes == null ? null : new String(correlationIDAsBytes);
+        return correlationIDAsBytes == null ? null : new String(correlationIDAsBytes, StandardCharsets.UTF_8);
     }
 
     public Destination getJMSReplyTo()
