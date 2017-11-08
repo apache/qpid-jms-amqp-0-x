@@ -28,8 +28,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.qpid.QpidException;
 import org.apache.qpid.AMQTimeoutException;
+import org.apache.qpid.QpidException;
 import org.apache.qpid.client.failover.FailoverException;
 
 /**
@@ -167,7 +167,11 @@ public abstract class BlockingWaiter<T>
 
                         if (nanoTimeout <= 0 && !_ready && _error == null)
                         {
-                            _error = new AMQTimeoutException("Server did not respond in a timely fashion", null);
+                            final String errorMsg = String.format(
+                                    "Waiting for receive timed out after %d ms. Possible reasons include JVM garbage"
+                                    + " collection, slow connection, busy broker, ...",
+                                    timeout);
+                            _error = new AMQTimeoutException(errorMsg, null);
                             _ready = true;
                         }
                     }
