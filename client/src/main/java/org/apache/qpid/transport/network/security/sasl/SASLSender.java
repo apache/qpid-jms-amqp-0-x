@@ -21,6 +21,7 @@
 package org.apache.qpid.transport.network.security.sasl;
 
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.security.sasl.SaslException;
@@ -28,7 +29,6 @@ import javax.security.sasl.SaslException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.transport.ByteBufferSender;
 import org.apache.qpid.transport.SenderException;
 
@@ -71,13 +71,7 @@ public class SASLSender extends SASLEncryptor implements ByteBufferSender
        delegate.flush();
     }
 
-    @Override
-    public boolean isDirectBufferPreferred()
-    {
-        return false;
-    }
-
-    public void send(QpidByteBuffer buf)
+    public void send(ByteBuffer buf)
     {
         if (closed.get())
         {
@@ -98,7 +92,7 @@ public class SASLSender extends SASLEncryptor implements ByteBufferSender
                     byte[] out = getSaslClient().wrap(appData, 0, length);
                     LOGGER.debug("out.length {}", out.length);
 
-                    delegate.send(QpidByteBuffer.wrap(out));
+                    delegate.send(ByteBuffer.wrap(out));
                 }
                 catch (SaslException e)
                 {
@@ -111,7 +105,6 @@ public class SASLSender extends SASLEncryptor implements ByteBufferSender
         {
             delegate.send(buf);
         }
-        buf.dispose();
     }
 
 

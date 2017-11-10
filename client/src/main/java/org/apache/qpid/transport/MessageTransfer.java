@@ -21,19 +21,14 @@ package org.apache.qpid.transport;
  */
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.transport.codec.Decoder;
 import org.apache.qpid.transport.codec.Encoder;
-
-import org.apache.qpid.util.Strings;
 import org.apache.qpid.transport.network.Frame;
+import org.apache.qpid.util.Strings;
 
 
 public final class MessageTransfer extends Method {
@@ -71,22 +66,13 @@ public final class MessageTransfer extends Method {
     private MessageAcceptMode acceptMode;
     private MessageAcquireMode acquireMode;
     private Header header;
-    private Collection<QpidByteBuffer> _body;
+    private ByteBuffer _body;
 
 
     public MessageTransfer() {}
 
     public MessageTransfer(String destination, MessageAcceptMode acceptMode, MessageAcquireMode acquireMode, Header header, java.nio.ByteBuffer body, Option ... options)
     {
-        this(destination,
-             acceptMode,
-             acquireMode,
-             header,
-             Collections.singletonList(QpidByteBuffer.wrap(body)),
-             options);
-    }
-
-    public MessageTransfer(String destination, MessageAcceptMode acceptMode, MessageAcquireMode acquireMode, Header header, Collection<QpidByteBuffer> body, Option ... _options) {
         if(destination != null) {
             setDestination(destination);
         }
@@ -99,13 +85,13 @@ public final class MessageTransfer extends Method {
         setHeader(header);
         setBody(body);
 
-        for (int i=0; i < _options.length; i++) {
-            switch (_options[i]) {
+        for (int i=0; i < options.length; i++) {
+            switch (options[i]) {
             case SYNC: this.setSync(true); break;
             case BATCH: this.setBatch(true); break;
             case UNRELIABLE: this.setUnreliable(true); break;
             case NONE: break;
-            default: throw new IllegalArgumentException("invalid option: " + _options[i]);
+            default: throw new IllegalArgumentException("invalid option: " + options[i]);
             }
         }
 
@@ -209,19 +195,13 @@ public final class MessageTransfer extends Method {
     }
 
     @Override
-    public final Collection<QpidByteBuffer> getBody() {
-        if (this._body == null)
-        {
-            return null;
-        }
-        else
-        {
-            return Collections.unmodifiableCollection(_body);
-        }
+    public final ByteBuffer getBody()
+    {
+        return _body;
     }
 
     @Override
-    public final void setBody(Collection<QpidByteBuffer> body)
+    public final void setBody(ByteBuffer body)
     {
         if (body == null)
         {
@@ -230,14 +210,8 @@ public final class MessageTransfer extends Method {
         }
         else
         {
-            _body = new ArrayList<>(body.size());
-            int size = 0;
-            for (QpidByteBuffer buf : body)
-            {
-                size += buf.remaining();
-                _body.add(buf.duplicate());
-            }
-            _bodySize = size;
+            _body = body.duplicate();
+            _bodySize = _body.remaining();
         }
     }
 
@@ -247,25 +221,16 @@ public final class MessageTransfer extends Method {
         return _bodySize;
     }
 
-    public final MessageTransfer body(List<QpidByteBuffer> body)
+    public final byte[] getBodyBytes()
     {
-        setBody(body);
-        return this;
-    }
-
-    public final byte[] getBodyBytes() {
-        Collection<QpidByteBuffer> body = getBody();
         byte[] bytes = new byte[getBodySize()];
-        for(QpidByteBuffer buf : body)
-        {
-            buf.duplicate().get(bytes);
-        }
+        _body.duplicate().get(bytes);
         return bytes;
     }
 
     public final void setBody(byte[] body)
     {
-        setBody(Collections.singletonList(QpidByteBuffer.wrap(body)));
+        setBody(ByteBuffer.wrap(body));
     }
 
     public final String getBodyString() {
@@ -338,10 +303,7 @@ public final class MessageTransfer extends Method {
     {
         if (_body != null)
         {
-            for (QpidByteBuffer buf : _body)
-            {
-                buf.dispose();
-            }
+            _body = null;
         }
     }
 }

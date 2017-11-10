@@ -27,8 +27,9 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 
 public class ConfirmSelectBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -64,7 +65,7 @@ public class ConfirmSelectBody extends AMQMethodBodyImpl implements EncodableAMQ
         return 1;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeBitfield( buffer, _nowait ? (byte)1 : (byte)0 );
     }
@@ -83,7 +84,7 @@ public class ConfirmSelectBody extends AMQMethodBodyImpl implements EncodableAMQ
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer,
+    public static void process(final ByteBuffer buffer,
                                final ServerChannelMethodProcessor dispatcher)
     {
         boolean nowait = (buffer.get() & 0x01) == 0x01;

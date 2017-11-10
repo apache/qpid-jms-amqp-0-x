@@ -27,8 +27,9 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 
 public class BasicRecoverBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -72,7 +73,7 @@ public class BasicRecoverBody extends AMQMethodBodyImpl implements EncodableAMQD
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeBitfield( buffer, _bitfield0 );
     }
@@ -91,7 +92,7 @@ public class BasicRecoverBody extends AMQMethodBodyImpl implements EncodableAMQD
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer in,
+    public static void process(final ByteBuffer in,
                                final ProtocolVersion protocolVersion,
                                final ServerChannelMethodProcessor dispatcher)
     {

@@ -27,8 +27,9 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 
 public class TxCommitBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -61,7 +62,7 @@ public class TxCommitBody extends AMQMethodBodyImpl implements EncodableAMQDataB
         return 0;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
     }
 

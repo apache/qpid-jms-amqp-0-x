@@ -27,8 +27,10 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class BasicGetOkBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -103,7 +105,7 @@ public class BasicGetOkBody extends AMQMethodBodyImpl implements EncodableAMQDat
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeLong( buffer, _deliveryTag );
         writeBitfield( buffer, _bitfield0 );
@@ -138,14 +140,14 @@ public class BasicGetOkBody extends AMQMethodBodyImpl implements EncodableAMQDat
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer,
+    public static void process(final ByteBuffer buffer,
                                final ClientChannelMethodProcessor dispatcher)
     {
         long deliveryTag = buffer.getLong();
         boolean redelivered = (buffer.get() & 0x01) != 0;
         AMQShortString exchange = AMQShortString.readAMQShortString(buffer);
         AMQShortString routingKey = AMQShortString.readAMQShortString(buffer);
-        long messageCount = buffer.getUnsignedInt();
+        long messageCount = ByteBufferUtils.getUnsignedInt(buffer);
         if(!dispatcher.ignoreAllButCloseOk())
         {
             dispatcher.receiveBasicGetOk(deliveryTag, redelivered, exchange, routingKey, messageCount);

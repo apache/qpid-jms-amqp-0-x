@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.client.failover.FailoverException;
 import org.apache.qpid.client.message.AMQMessageDelegate_0_8;
 import org.apache.qpid.client.message.AbstractJMSMessage;
@@ -239,7 +238,7 @@ public class BasicMessageProducer_0_8 extends BasicMessageProducer
 
                 final int headerLength = contentHeaderProperties.getPropertyListSize() + 2;
                 byte[] unencryptedBytes = new byte[headerLength + size];
-                QpidByteBuffer output = QpidByteBuffer.wrap(unencryptedBytes);
+                ByteBuffer output = ByteBuffer.wrap(unencryptedBytes);
                 output.putShort((short) (contentHeaderProperties.getPropertyFlags() & 0xffff));
                 contentHeaderProperties.writePropertyListPayload(output);
 

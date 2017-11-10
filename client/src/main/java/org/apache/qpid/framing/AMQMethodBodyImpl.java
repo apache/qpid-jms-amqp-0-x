@@ -20,13 +20,15 @@
  */
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.protocol.AMQVersionAwareProtocolSession;
 import org.apache.qpid.transport.ByteBufferSender;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public abstract class AMQMethodBodyImpl implements AMQMethodBody
 {
@@ -74,17 +76,16 @@ public abstract class AMQMethodBodyImpl implements AMQMethodBody
     {
 
         final int size = getSize();
-        QpidByteBuffer buf = QpidByteBuffer.allocate(sender.isDirectBufferPreferred(), size);
-        buf.putUnsignedShort(getClazz());
-        buf.putUnsignedShort(getMethod());
+        ByteBuffer buf = ByteBuffer.allocate(size);
+        ByteBufferUtils.putUnsignedShort(buf, getClazz());
+        ByteBufferUtils.putUnsignedShort(buf, getMethod());
         writeMethodPayload(buf);
         buf.flip();
         sender.send(buf);
-        buf.dispose();
         return size;
     }
 
-    abstract protected void writeMethodPayload(QpidByteBuffer buffer);
+    abstract protected void writeMethodPayload(ByteBuffer buffer);
 
 
     protected int getSizeOf(AMQShortString string)
@@ -92,18 +93,18 @@ public abstract class AMQMethodBodyImpl implements AMQMethodBody
         return EncodingUtils.encodedShortStringLength(string);
     }
 
-    protected void writeByte(QpidByteBuffer buffer, byte b)
+    protected void writeByte(ByteBuffer buffer, byte b)
     {
         buffer.put(b);
     }
 
-    protected void writeAMQShortString(QpidByteBuffer buffer, AMQShortString string)
+    protected void writeAMQShortString(ByteBuffer buffer, AMQShortString string)
     {
         EncodingUtils.writeShortStringBytes(buffer, string);
     }
 
 
-    protected void writeInt(QpidByteBuffer buffer, int i)
+    protected void writeInt(ByteBuffer buffer, int i)
     {
         buffer.putInt(i);
     }
@@ -114,12 +115,12 @@ public abstract class AMQMethodBodyImpl implements AMQMethodBody
         return EncodingUtils.encodedFieldTableLength(table);  //To change body of created methods use File | Settings | File Templates.
     }
 
-    protected void writeFieldTable(QpidByteBuffer buffer, FieldTable table)
+    protected void writeFieldTable(ByteBuffer buffer, FieldTable table)
     {
         EncodingUtils.writeFieldTableBytes(buffer, table);
     }
 
-    protected void writeLong(QpidByteBuffer buffer, long l)
+    protected void writeLong(ByteBuffer buffer, long l)
     {
         buffer.putLong(l);
     }
@@ -130,34 +131,34 @@ public abstract class AMQMethodBodyImpl implements AMQMethodBody
         return (response == null) ? 4 : response.length + 4;
     }
 
-    protected void writeBytes(QpidByteBuffer buffer, byte[] data)
+    protected void writeBytes(ByteBuffer buffer, byte[] data)
     {
         EncodingUtils.writeBytes(buffer,data);
     }
 
-    protected void writeShort(QpidByteBuffer buffer, short s)
+    protected void writeShort(ByteBuffer buffer, short s)
     {
         buffer.putShort(s);
     }
 
-    protected void writeBitfield(QpidByteBuffer buffer, byte bitfield0)
+    protected void writeBitfield(ByteBuffer buffer, byte bitfield0)
     {
         buffer.put(bitfield0);
     }
 
-    protected void writeUnsignedShort(QpidByteBuffer buffer, int s)
+    protected void writeUnsignedShort(ByteBuffer buffer, int s)
     {
-        buffer.putUnsignedShort(s);
+        ByteBufferUtils.putUnsignedShort(buffer, s);
     }
 
-    protected void writeUnsignedInteger(QpidByteBuffer buffer, long i)
+    protected void writeUnsignedInteger(ByteBuffer buffer, long i)
     {
-        buffer.putUnsignedInt(i);
+        ByteBufferUtils.putUnsignedInt(buffer, i);
     }
 
-    protected void writeUnsignedByte(QpidByteBuffer buffer, short unsignedByte)
+    protected void writeUnsignedByte(ByteBuffer buffer, short unsignedByte)
     {
-        buffer.putUnsignedByte(unsignedByte);
+        ByteBufferUtils.putUnsignedByte(buffer, unsignedByte);
     }
 
 }

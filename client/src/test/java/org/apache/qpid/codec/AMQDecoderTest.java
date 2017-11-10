@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.framing.AMQBody;
 import org.apache.qpid.framing.AMQDataBlock;
 import org.apache.qpid.framing.AMQFrame;
@@ -138,7 +137,7 @@ public class AMQDecoderTest extends QpidTestCase
         {
             assertEquals(ContentBody.TYPE, ((AMQFrame) frames.get(0)).getBodyFrame().getFrameType());
             ContentBody decodedBody = (ContentBody) ((AMQFrame) frames.get(0)).getBodyFrame();
-            final ByteBuffer byteBuffer = decodedBody.getPayload().asByteBuffer().duplicate();
+            final ByteBuffer byteBuffer = decodedBody.getPayload().duplicate();
             byte[] bodyBytes = new byte[byteBuffer.remaining()];
             byteBuffer.get(bodyBytes);
             assertTrue("Body was corrupted", Arrays.equals(payload, bodyBytes));
@@ -246,16 +245,10 @@ public class AMQDecoderTest extends QpidTestCase
 
     private static class TestSender implements ByteBufferSender
     {
-        private final Collection<QpidByteBuffer> _sentBuffers = new ArrayList<>();
+        private final Collection<ByteBuffer> _sentBuffers = new ArrayList<>();
 
         @Override
-        public boolean isDirectBufferPreferred()
-        {
-            return false;
-        }
-
-        @Override
-        public void send(final QpidByteBuffer msg)
+        public void send(final ByteBuffer msg)
         {
             _sentBuffers.add(msg.duplicate());
             msg.position(msg.limit());
@@ -273,7 +266,7 @@ public class AMQDecoderTest extends QpidTestCase
 
         }
 
-        public Collection<QpidByteBuffer> getSentBuffers()
+        public Collection<ByteBuffer> getSentBuffers()
         {
             return _sentBuffers;
         }

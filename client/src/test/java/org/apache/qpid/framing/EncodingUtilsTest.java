@@ -20,41 +20,27 @@
 
 package org.apache.qpid.framing;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.test.utils.QpidTestCase;
 
 
 public class EncodingUtilsTest extends QpidTestCase
 {
     private static final int BUFFER_SIZE = 10;
-    private static final int POOL_SIZE = 20;
 
-    private QpidByteBuffer _buffer;
+    private ByteBuffer _buffer;
 
     @Override
     protected void setUp() throws Exception
     {
         super.setUp();
-        QpidByteBuffer.initialisePool(BUFFER_SIZE, POOL_SIZE);
-        _buffer = QpidByteBuffer.allocateDirect(BUFFER_SIZE);
-    }
-
-    @Override
-    public void tearDown() throws Exception
-    {
-        try
-        {
-            _buffer.dispose();
-        }
-        finally
-        {
-            super.tearDown();
-        }
+        _buffer = ByteBuffer.allocate(BUFFER_SIZE);
     }
 
     public void testReadLongAsShortStringWhenDigitsAreSpecified() throws Exception
     {
-        _buffer.putUnsignedByte((short)3);
+        _buffer.put((byte)3);
         _buffer.put((byte)'9');
         _buffer.put((byte)'2');
         _buffer.put((byte)'0');
@@ -64,7 +50,7 @@ public class EncodingUtilsTest extends QpidTestCase
 
     public void testReadLongAsShortStringWhenNonDigitCharacterIsSpecified() throws Exception
     {
-        _buffer.putUnsignedByte((short)2);
+        _buffer.put((byte)2);
         _buffer.put((byte)'1');
         _buffer.put((byte)'a');
         _buffer.flip();

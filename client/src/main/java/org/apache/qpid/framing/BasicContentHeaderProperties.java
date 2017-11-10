@@ -20,11 +20,13 @@
  */
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.transport.ByteBufferSender;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class BasicContentHeaderProperties
 {
@@ -80,7 +82,7 @@ public class BasicContentHeaderProperties
     private static final int APPLICATION_ID_MASK = 1 << 3;
     private static final int CLUSTER_ID_MASK = 1 << 2;
 
-    private QpidByteBuffer _encodedForm;
+    private ByteBuffer _encodedForm;
 
 
     public BasicContentHeaderProperties(BasicContentHeaderProperties other)
@@ -224,11 +226,11 @@ public class BasicContentHeaderProperties
         return _propertyFlags;
     }
 
-    public synchronized long writePropertyListPayload(QpidByteBuffer buffer)
+    public synchronized long writePropertyListPayload(ByteBuffer buffer)
     {
         if(useEncodedForm())
         {
-            buffer.putCopyOf(_encodedForm);
+            ByteBufferUtils.copyTo(_encodedForm, buffer);
             return _encodedForm.remaining();
 
         }
@@ -317,10 +319,10 @@ public class BasicContentHeaderProperties
         }
     }
 
-    public int read(QpidByteBuffer input)
+    public int read(ByteBuffer input)
     {
 
-        _propertyFlags = input.getUnsignedShort();
+        _propertyFlags = ByteBufferUtils.getUnsignedShort(input);
         int length = 2;
         if ((_propertyFlags & (CONTENT_TYPE_MASK)) != 0)
         {
@@ -459,25 +461,22 @@ public class BasicContentHeaderProperties
     {
         if(useEncodedForm())
         {
-            final QpidByteBuffer duplicate = _encodedForm.duplicate();
-            sender.send(duplicate);
-            duplicate.dispose();
+            sender.send(_encodedForm.duplicate());
             return _encodedForm.remaining();
         }
         else
         {
             int propertyListSize = getPropertyListSize();
-            QpidByteBuffer buf = QpidByteBuffer.allocate(sender.isDirectBufferPreferred(), propertyListSize);
+            ByteBuffer buf = ByteBuffer.allocate(propertyListSize);
             writePropertyListPayload(buf);
             buf.flip();
             sender.send(buf);
-            buf.dispose();
             return propertyListSize;
         }
 
     }
 
-    public synchronized void populatePropertiesFromBuffer(QpidByteBuffer buffer, int propertyFlags, int size) throws AMQFrameDecodingException
+    public synchronized void populatePropertiesFromBuffer(ByteBuffer buffer, int propertyFlags, int size) throws AMQFrameDecodingException
     {
         _propertyFlags = propertyFlags;
 
@@ -485,20 +484,14 @@ public class BasicContentHeaderProperties
         {
             _logger.debug("Property flags: " + _propertyFlags);
         }
-        if(_encodedForm != null)
-        {
-            _encodedForm.dispose();
-        }
-        _encodedForm = buffer.view(0,size);
+        _encodedForm = ByteBufferUtils.view(buffer, 0, size);
 
-        final QpidByteBuffer byteBuffer = _encodedForm.slice();
-        decode(byteBuffer);
-        byteBuffer.dispose();
+        decode(_encodedForm.slice());
         buffer.position(buffer.position()+size);
 
     }
 
-    private void decode(QpidByteBuffer buffer) throws AMQFrameDecodingException
+    private void decode(ByteBuffer buffer) throws AMQFrameDecodingException
     {
         if ((_propertyFlags & (CONTENT_TYPE_MASK)) != 0)
         {
@@ -512,11 +505,10 @@ public class BasicContentHeaderProperties
 
         if ((_propertyFlags & HEADERS_MASK) != 0)
         {
-            long length = buffer.getUnsignedInt();
+            long length = ByteBufferUtils.getUnsignedInt(buffer);
 
-            QpidByteBuffer buf = buffer.view(0, (int)length);
+            ByteBuffer buf = ByteBufferUtils.view(buffer, 0, (int) length);
             _headers = new FieldTable(buf);
-            buf.dispose();
             buffer.position(buffer.position()+(int)length);
         }
 
@@ -958,7 +950,6 @@ public class BasicContentHeaderProperties
     {
         if(_encodedForm != null)
         {
-            _encodedForm.dispose();
             _encodedForm = null;
         }
     }

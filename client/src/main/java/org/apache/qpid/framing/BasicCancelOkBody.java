@@ -27,8 +27,9 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 
 public class BasicCancelOkBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -68,7 +69,7 @@ public class BasicCancelOkBody extends AMQMethodBodyImpl implements EncodableAMQ
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeAMQShortString( buffer, _consumerTag );
     }
@@ -87,7 +88,7 @@ public class BasicCancelOkBody extends AMQMethodBodyImpl implements EncodableAMQ
         return buf.toString();
     }
 
-    public static void process(QpidByteBuffer in,
+    public static void process(ByteBuffer in,
                                final ClientChannelMethodProcessor dispatcher)
     {
         AMQShortString consumerTag = AMQShortString.readAMQShortString(in);

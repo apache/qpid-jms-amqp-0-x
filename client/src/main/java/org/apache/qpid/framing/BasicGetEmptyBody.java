@@ -27,8 +27,9 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 
 public class BasicGetEmptyBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -68,7 +69,7 @@ public class BasicGetEmptyBody extends AMQMethodBodyImpl implements EncodableAMQ
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeAMQShortString( buffer, _clusterId );
     }
@@ -87,7 +88,7 @@ public class BasicGetEmptyBody extends AMQMethodBodyImpl implements EncodableAMQ
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer,
+    public static void process(final ByteBuffer buffer,
                                final ClientChannelMethodProcessor dispatcher)
     {
         AMQShortString clusterId = AMQShortString.readAMQShortString(buffer);

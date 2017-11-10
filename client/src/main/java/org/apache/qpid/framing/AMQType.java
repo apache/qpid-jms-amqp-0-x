@@ -21,9 +21,10 @@
 package org.apache.qpid.framing;
 
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 /**
  * AMQType is a type that represents the different possible AMQP field table types. It provides operations for each
@@ -51,12 +52,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             EncodingUtils.writeLongStringBytes(buffer, (String) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return EncodingUtils.readLongString(buffer);
         }
@@ -98,14 +99,14 @@ public enum AMQType
         }
 
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             buffer.putLong( (Long) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
-            return buffer.getUnsignedInt();
+            return ByteBufferUtils.getUnsignedInt(buffer);
         }
     },
 
@@ -130,7 +131,7 @@ public enum AMQType
         }
 
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             BigDecimal bd = (BigDecimal) value;
 
@@ -143,7 +144,7 @@ public enum AMQType
             buffer.putInt(unscaled);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             byte places = buffer.get();
 
@@ -175,12 +176,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             buffer.putLong ((Long) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return buffer.getLong();
         }
@@ -233,7 +234,7 @@ public enum AMQType
             return (FieldTable) value;
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             // Ensure that the value is a FieldTable.
             if (!(value instanceof FieldTable))
@@ -253,7 +254,7 @@ public enum AMQType
          *
          * @return An instance of the type.
          */
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             try
             {
@@ -295,7 +296,7 @@ public enum AMQType
                     return FieldArray.asFieldArray((Collection)value);
                 }
 
-                public void writeValueImpl(Object value, QpidByteBuffer buffer)
+                public void writeValueImpl(Object value, ByteBuffer buffer)
                 {
 
                     if (!(value instanceof FieldArray))
@@ -316,7 +317,7 @@ public enum AMQType
                  *
                  * @return An instance of the type.
                  */
-                public Object readValueFromBuffer(QpidByteBuffer buffer)
+                public Object readValueFromBuffer(ByteBuffer buffer)
                 {
                     // Read size of field table then all name/value pairs.
                     return FieldArray.readFromBuffer(buffer);
@@ -343,10 +344,10 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         { }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return null;
         }
@@ -372,12 +373,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             EncodingUtils.writeLongstr(buffer, (byte[]) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return EncodingUtils.readLongstr(buffer);
         }
@@ -402,12 +403,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             EncodingUtils.writeLongStringBytes(buffer, (String) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return EncodingUtils.readLongString(buffer);
         }
@@ -433,12 +434,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             EncodingUtils.writeLongStringBytes(buffer, (String) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return EncodingUtils.readLongString(buffer);
         }
@@ -468,12 +469,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             EncodingUtils.writeBoolean(buffer, (Boolean) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return buffer.get() == 1;
         }
@@ -503,13 +504,13 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             char charVal = (Character) value;
             buffer.put((byte) charVal);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return (char) buffer.get();
         }
@@ -539,12 +540,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             buffer.put((Byte) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return buffer.get();
         }
@@ -578,12 +579,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             buffer.putShort((Short) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return buffer.getShort();
         }
@@ -620,11 +621,11 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             buffer.putInt((Integer) value);
         }
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return buffer.getInt();
         }
@@ -666,12 +667,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             buffer.putLong ((Long) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return buffer.getLong();
         }
@@ -701,12 +702,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             buffer.putFloat ((Float) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return buffer.getFloat();
         }
@@ -740,12 +741,12 @@ public enum AMQType
             }
         }
 
-        public void writeValueImpl(Object value, QpidByteBuffer buffer)
+        public void writeValueImpl(Object value, ByteBuffer buffer)
         {
             buffer.putDouble((Double) value);
         }
 
-        public Object readValueFromBuffer(QpidByteBuffer buffer)
+        public Object readValueFromBuffer(ByteBuffer buffer)
         {
             return buffer.getDouble();
         }
@@ -805,13 +806,13 @@ public enum AMQType
         return AMQTypedValue.createAMQTypedValue(this, toNativeValue(value));
     }
 
-    public void writeToBuffer(Object value, QpidByteBuffer buffer)
+    public void writeToBuffer(Object value, ByteBuffer buffer)
     {
         buffer.put(identifier());
         writeValueImpl(value, buffer);
     }
 
-    abstract void writeValueImpl(Object value, QpidByteBuffer buffer);
+    abstract void writeValueImpl(Object value, ByteBuffer buffer);
 
     /**
      * Reads an instance of the type from a specified byte buffer.
@@ -820,5 +821,5 @@ public enum AMQType
      *
      * @return An instance of the type.
      */
-    abstract Object readValueFromBuffer(QpidByteBuffer buffer);
+    abstract Object readValueFromBuffer(ByteBuffer buffer);
 }

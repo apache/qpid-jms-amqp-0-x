@@ -27,8 +27,10 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class QueueDeclareOkBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -82,7 +84,7 @@ public class QueueDeclareOkBody extends AMQMethodBodyImpl implements EncodableAM
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeAMQShortString( buffer, _queue );
         writeUnsignedInteger( buffer, _messageCount );
@@ -109,12 +111,12 @@ public class QueueDeclareOkBody extends AMQMethodBodyImpl implements EncodableAM
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer,
+    public static void process(final ByteBuffer buffer,
                                final ClientChannelMethodProcessor dispatcher)
     {
         AMQShortString queue = AMQShortString.readAMQShortString(buffer);
-        long messageCount = buffer.getUnsignedInt();
-        long consumerCount = buffer.getUnsignedInt();
+        long messageCount = ByteBufferUtils.getUnsignedInt(buffer);
+        long consumerCount = ByteBufferUtils.getUnsignedInt(buffer);
         if(!dispatcher.ignoreAllButCloseOk())
         {
             dispatcher.receiveQueueDeclareOk(queue, messageCount, consumerCount);

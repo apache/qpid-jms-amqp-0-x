@@ -20,12 +20,21 @@
  */
 package org.apache.qpid.codec;
 
+import java.nio.ByteBuffer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
-import org.apache.qpid.framing.*;
+import org.apache.qpid.framing.AMQFrameDecodingException;
+import org.apache.qpid.framing.AMQProtocolVersionException;
+import org.apache.qpid.framing.ContentBody;
+import org.apache.qpid.framing.ContentHeaderBody;
+import org.apache.qpid.framing.HeartbeatBody;
+import org.apache.qpid.framing.MethodProcessor;
+import org.apache.qpid.framing.ProtocolInitiation;
+import org.apache.qpid.framing.ProtocolVersion;
 import org.apache.qpid.protocol.ErrorCodes;
+import org.apache.qpid.util.ByteBufferUtils;
 
 /**
  * AMQDecoder delegates the decoding of AMQP either to a data block decoder, or in the case of new connections, to a
@@ -91,7 +100,7 @@ public abstract class AMQDecoder<T extends MethodProcessor>
         return _methodProcessor;
     }
 
-    protected final int decode(final QpidByteBuffer buf) throws AMQFrameDecodingException
+    protected final int decode(final ByteBuffer buf) throws AMQFrameDecodingException
     {
         // If this is the first read then we may be getting a protocol initiation back if we tried to negotiate
         // an unsupported version
@@ -124,7 +133,7 @@ public abstract class AMQDecoder<T extends MethodProcessor>
         return buf.hasRemaining() ? required : 0;
     }
 
-    protected int processAMQPFrames(final QpidByteBuffer buf) throws AMQFrameDecodingException
+    protected int processAMQPFrames(final ByteBuffer buf) throws AMQFrameDecodingException
     {
         final int required = decodable(buf);
         if (required == 0)
@@ -134,7 +143,7 @@ public abstract class AMQDecoder<T extends MethodProcessor>
         return required;
     }
 
-    protected int decodable(final QpidByteBuffer in) throws AMQFrameDecodingException
+    protected int decodable(final ByteBuffer in) throws AMQFrameDecodingException
     {
         final int remainingAfterAttributes = in.remaining() - FRAME_HEADER_SIZE;
         // type, channel, body length and end byte
@@ -160,13 +169,13 @@ public abstract class AMQDecoder<T extends MethodProcessor>
 
     }
 
-    protected void processInput(final QpidByteBuffer in)
+    protected void processInput(final ByteBuffer in)
             throws AMQFrameDecodingException, AMQProtocolVersionException
     {
         final byte type = in.get();
 
-        final int channel = in.getUnsignedShort();
-        final long bodySize = in.getUnsignedInt();
+        final int channel = ByteBufferUtils.getUnsignedShort(in);
+        final long bodySize = ByteBufferUtils.getUnsignedInt(in);
 
         // bodySize can be zero
         if ((channel < 0) || (bodySize < 0))
@@ -188,7 +197,7 @@ public abstract class AMQDecoder<T extends MethodProcessor>
 
     }
 
-    protected void processFrame(final int channel, final byte type, final long bodySize, final QpidByteBuffer in)
+    protected void processFrame(final int channel, final byte type, final long bodySize, final ByteBuffer in)
             throws AMQFrameDecodingException
     {
         switch (type)
@@ -211,9 +220,7 @@ public abstract class AMQDecoder<T extends MethodProcessor>
     }
 
 
-    abstract void processMethod(int channelId,
-                               QpidByteBuffer in)
-            throws AMQFrameDecodingException;
+    abstract void processMethod(int channelId, ByteBuffer in) throws AMQFrameDecodingException;
 
     AMQFrameDecodingException newUnknownMethodException(final int classId,
                                                         final int methodId,

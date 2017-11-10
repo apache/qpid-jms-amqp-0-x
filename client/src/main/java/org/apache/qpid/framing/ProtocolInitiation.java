@@ -21,11 +21,11 @@
 package org.apache.qpid.framing;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.transport.ByteBufferSender;
 
 public class ProtocolInitiation extends AMQDataBlock implements EncodableAMQDataBlock
@@ -61,7 +61,7 @@ public class ProtocolInitiation extends AMQDataBlock implements EncodableAMQData
              pv.equals(ProtocolVersion.v0_91) ? 1 : pv.getMinorVersion());
     }
 
-    public ProtocolInitiation(QpidByteBuffer in)
+    public ProtocolInitiation(ByteBuffer in)
     {
         _protocolHeader = new byte[4];
         in.get(_protocolHeader);
@@ -90,7 +90,7 @@ public class ProtocolInitiation extends AMQDataBlock implements EncodableAMQData
         data[5] = _protocolInstance;
         data[6] = _protocolMajor;
         data[7] = _protocolMinor;
-        sender.send(QpidByteBuffer.wrap(data));
+        sender.send(ByteBuffer.wrap(data));
         return 8l;
     }
 
@@ -149,7 +149,7 @@ public class ProtocolInitiation extends AMQDataBlock implements EncodableAMQData
          * @param in input buffer
          * @return number of extra octets of data required data to decode the PI frame fully
          */
-        public int decodable(QpidByteBuffer in)
+        public int decodable(ByteBuffer in)
         {
             return (in.remaining() >= 8) ? 0 : 8 - in.remaining();
         }

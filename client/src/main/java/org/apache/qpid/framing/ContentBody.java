@@ -23,27 +23,21 @@ package org.apache.qpid.framing;
 import java.nio.ByteBuffer;
 
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.protocol.AMQVersionAwareProtocolSession;
 import org.apache.qpid.transport.ByteBufferSender;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class ContentBody implements AMQBody
 {
     public static final byte TYPE = 3;
 
-    private QpidByteBuffer _payload;
+    private ByteBuffer _payload;
 
 
     public ContentBody(ByteBuffer payload)
     {
-        _payload = QpidByteBuffer.wrap(payload.duplicate());
-    }
-
-    public ContentBody(QpidByteBuffer payload)
-    {
         _payload = payload.duplicate();
     }
-
 
     public byte getFrameType()
     {
@@ -66,9 +60,7 @@ public class ContentBody implements AMQBody
     {
         if(_payload != null)
         {
-            final QpidByteBuffer duplicate = _payload.duplicate();
-            sender.send(duplicate);
-            duplicate.dispose();
+            sender.send(_payload.duplicate());
             return _payload.remaining();
         }
         else
@@ -77,7 +69,7 @@ public class ContentBody implements AMQBody
         }
     }
 
-    public QpidByteBuffer getPayload()
+    public ByteBuffer getPayload()
     {
         return _payload;
     }
@@ -86,23 +78,20 @@ public class ContentBody implements AMQBody
     {
         if (_payload != null)
         {
-            _payload.dispose();
             _payload = null;
         }
     }
 
-    public static void process(final QpidByteBuffer in,
+    public static void process(final ByteBuffer in,
                                final ChannelMethodProcessor methodProcessor, final long bodySize)
     {
-
-        QpidByteBuffer payload = in.view(0, (int) bodySize);
+        ByteBuffer payload = ByteBufferUtils.view(in, 0, (int) bodySize);
 
         if(!methodProcessor.ignoreAllButCloseOk())
         {
             methodProcessor.receiveMessageContent(payload);
         }
 
-        payload.dispose();
         in.position(in.position()+(int)bodySize);
     }
 

@@ -20,7 +20,7 @@
  */
 package org.apache.qpid.framing;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import java.nio.ByteBuffer;
 
 public class ContentHeaderPropertiesFactory
 {
@@ -36,7 +36,7 @@ public class ContentHeaderPropertiesFactory
     }
 
     public BasicContentHeaderProperties createContentHeaderProperties(int classId, int propertyFlags,
-                                                                      QpidByteBuffer buffer, int size)
+                                                                      ByteBuffer buffer, int size)
              throws AMQFrameDecodingException
     {
         BasicContentHeaderProperties properties;

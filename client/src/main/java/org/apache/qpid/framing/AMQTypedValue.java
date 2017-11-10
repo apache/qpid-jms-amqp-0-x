@@ -21,11 +21,10 @@
 package org.apache.qpid.framing;
 
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 
 /**
  * AMQTypedValue combines together a native Java Object value, and an {@link AMQType}, as a fully typed AMQP parameter
@@ -40,7 +39,7 @@ public abstract class AMQTypedValue
 
     public abstract Object getValue();
 
-    public abstract void writeToBuffer(QpidByteBuffer buffer);
+    public abstract void writeToBuffer(ByteBuffer buffer);
 
     public abstract int getEncodingSize();
 
@@ -64,7 +63,7 @@ public abstract class AMQTypedValue
             _value = type.toNativeValue(value);
         }
 
-        private GenericTypedValue(AMQType type, QpidByteBuffer buffer)
+        private GenericTypedValue(AMQType type, ByteBuffer buffer)
         {
             _type = type;
             _value = type.readValueFromBuffer(buffer);
@@ -81,7 +80,7 @@ public abstract class AMQTypedValue
             return _value;
         }
 
-        public void writeToBuffer(QpidByteBuffer buffer)
+        public void writeToBuffer(ByteBuffer buffer)
         {
             _type.writeToBuffer(_value, buffer);
         }
@@ -128,7 +127,7 @@ public abstract class AMQTypedValue
             _value = value;
         }
 
-        public LongTypedValue(QpidByteBuffer buffer)
+        public LongTypedValue(ByteBuffer buffer)
         {
             _value = buffer.getLong();
         }
@@ -144,7 +143,7 @@ public abstract class AMQTypedValue
             return _value;
         }
 
-        public void writeToBuffer(QpidByteBuffer buffer)
+        public void writeToBuffer(ByteBuffer buffer)
         {
             buffer.put(AMQType.LONG.identifier());
             buffer.putLong(_value);
@@ -183,7 +182,7 @@ public abstract class AMQTypedValue
             return _value;
         }
 
-        public void writeToBuffer(QpidByteBuffer buffer)
+        public void writeToBuffer(ByteBuffer buffer)
         {
             buffer.put(AMQType.INT.identifier());
             buffer.putInt(_value);
@@ -196,7 +195,7 @@ public abstract class AMQTypedValue
     }
 
 
-    public static AMQTypedValue readFromBuffer(QpidByteBuffer buffer)
+    public static AMQTypedValue readFromBuffer(ByteBuffer buffer)
     {
         AMQType type = AMQTypeMap.getType(buffer.get());
 

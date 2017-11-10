@@ -21,16 +21,16 @@
 package org.apache.qpid.framing;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
-import org.apache.qpid.test.utils.QpidTestCase;
 import org.junit.Assert;
 
 import org.apache.qpid.AMQPInvalidClassException;
+import org.apache.qpid.test.utils.QpidTestCase;
 
 public class FieldTableTest extends QpidTestCase
 {
@@ -465,7 +465,7 @@ public class FieldTableTest extends QpidTestCase
         outerTable.setFieldTable("innerTable", innerTable);
 
         // Write the outer table into the buffer.
-        QpidByteBuffer buf = QpidByteBuffer.allocate(EncodingUtils.encodedFieldTableLength(outerTable));
+        ByteBuffer buf = ByteBuffer.allocate(EncodingUtils.encodedFieldTableLength(outerTable));
 
         outerTable.writeToBuffer(buf);
 
@@ -594,7 +594,7 @@ public class FieldTableTest extends QpidTestCase
         table.setString("null-string", null);
 
 
-        QpidByteBuffer buf = QpidByteBuffer.allocate((int) table.getEncodedSize() + 4);
+        ByteBuffer buf = ByteBuffer.allocate((int) table.getEncodedSize() + 4);
         table.writeToBuffer(buf);
 
         buf.flip();
@@ -916,7 +916,7 @@ public class FieldTableTest extends QpidTestCase
         assertEquals("unexpected data length", 24, length);
 
         //Create a second FieldTable from the encoded bytes
-        FieldTable tableFromBytes = new FieldTable(QpidByteBuffer.wrap(data));
+        FieldTable tableFromBytes = new FieldTable(ByteBuffer.wrap(data));
 
         //Create a final FieldTable and addAll() from the table created with encoded bytes
         FieldTable destinationTable = new FieldTable();

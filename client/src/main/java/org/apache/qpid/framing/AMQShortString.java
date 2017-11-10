@@ -28,8 +28,6 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
-
 /**
  * A short string is a representation of an AMQ Short String
  * Short strings differ from the Java String class by being limited to on ASCII characters (0-127)
@@ -123,34 +121,6 @@ public final class AMQShortString implements Comparable<AMQShortString>
         }
     }
 
-    public static AMQShortString readAMQShortString(QpidByteBuffer buffer)
-    {
-        int length = ((int) buffer.get()) & 0xff;
-        if(length == 0)
-        {
-            return null;
-        }
-        else
-        {
-            if (length > MAX_LENGTH)
-            {
-                throw new IllegalArgumentException("Cannot create AMQShortString with number of octets over 255!");
-            }
-            if(length > buffer.remaining())
-            {
-                throw new IllegalArgumentException("Cannot create AMQShortString with length "
-                                                   + length + " from a ByteBuffer with only "
-                                                   + buffer.remaining()
-                                                   + " bytes.");
-
-            }
-            byte[] data = new byte[length];
-            buffer.get(data);
-            return new AMQShortString(data, 0, length);
-        }
-    }
-
-
     public AMQShortString(byte[] data, final int offset, final int length)
     {
         if (length > MAX_LENGTH)
@@ -197,7 +167,7 @@ public final class AMQShortString implements Comparable<AMQShortString>
         }
     }
 
-    public void writeToBuffer(QpidByteBuffer buffer)
+    public void writeToBuffer(ByteBuffer buffer)
     {
         final int size = length();
         buffer.put((byte)size);

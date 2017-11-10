@@ -21,6 +21,7 @@
 package org.apache.qpid.framing;
 
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -36,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.qpid.AMQPInvalidClassException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class FieldTable
 {
@@ -44,7 +45,7 @@ public class FieldTable
     private static final String STRICT_AMQP_NAME = "STRICT_AMQP";
     private static final boolean STRICT_AMQP = Boolean.valueOf(System.getProperty(STRICT_AMQP_NAME, "false"));
 
-    private QpidByteBuffer _encodedForm;
+    private ByteBuffer _encodedForm;
     private Map<AMQShortString, AMQTypedValue> _properties = null;
     private long _encodedSize;
     private static final int INITIAL_HASHMAP_CAPACITY = 16;
@@ -73,15 +74,15 @@ public class FieldTable
         }
     }
 
-    public FieldTable(QpidByteBuffer input, int len)
+    public FieldTable(ByteBuffer input, int len)
     {
         this();
-        _encodedForm = input.view(0,len);
+        _encodedForm = ByteBufferUtils.view(input, 0, len);
         input.position(input.position()+len);
         _encodedSize = len;
     }
 
-    public FieldTable(QpidByteBuffer buffer)
+    public FieldTable(ByteBuffer buffer)
     {
         this();
         _encodedForm = buffer.duplicate();
@@ -813,7 +814,7 @@ public class FieldTable
 
     // *************************  Byte Buffer Processing
 
-    public void writeToBuffer(QpidByteBuffer buffer)
+    public void writeToBuffer(ByteBuffer buffer)
     {
         final boolean trace = _logger.isDebugEnabled();
 
@@ -826,7 +827,7 @@ public class FieldTable
             }
         }
 
-        buffer.putUnsignedInt(getEncodedSize());
+        ByteBufferUtils.putUnsignedInt(buffer, getEncodedSize());
 
         putDataInBuffer(buffer);
     }
@@ -837,14 +838,14 @@ public class FieldTable
         if(_encodedForm == null)
         {
             byte[] data = new byte[(int) getEncodedSize()];
-            QpidByteBuffer buf = QpidByteBuffer.wrap(data);
+            ByteBuffer buf = ByteBuffer.wrap(data);
             putDataInBuffer(buf);
             return data;
         }
         else
         {
             byte[] encodedCopy = new byte[_encodedForm.remaining()];
-            _encodedForm.copyTo(encodedCopy);
+            ByteBufferUtils.copyTo(_encodedForm, encodedCopy);
             return encodedCopy;
         }
 
@@ -933,7 +934,6 @@ public class FieldTable
 
             if (_encodedForm != null)
             {
-                _encodedForm.dispose();
                 _encodedForm = null;
             }
         }
@@ -953,7 +953,6 @@ public class FieldTable
 
             if (_encodedForm != null)
             {
-                _encodedForm.dispose();
                 _encodedForm = null;
             }
         }
@@ -1084,7 +1083,6 @@ public class FieldTable
         initMapIfNecessary();
         if (_encodedForm != null)
         {
-            _encodedForm.dispose();
             _encodedForm = null;
         }
         _properties.clear();
@@ -1100,14 +1098,11 @@ public class FieldTable
         return _properties.keySet();
     }
 
-    private void putDataInBuffer(QpidByteBuffer buffer)
+    private void putDataInBuffer(ByteBuffer buffer)
     {
         if (_encodedForm != null)
         {
-            byte[] encodedCopy = new byte[_encodedForm.remaining()];
-            _encodedForm.copyTo(encodedCopy);
-
-            buffer.put(encodedCopy);
+            ByteBufferUtils.copyTo(_encodedForm, buffer);
         }
         else if (_properties != null)
         {
@@ -1137,7 +1132,7 @@ public class FieldTable
     private void setFromBuffer() throws AMQFrameDecodingException
     {
 
-        final QpidByteBuffer slice = _encodedForm.slice();
+        final ByteBuffer slice = _encodedForm.slice();
 
         if (_encodedSize > 0)
         {
@@ -1156,7 +1151,6 @@ public class FieldTable
             while (slice.hasRemaining());
 
         }
-        slice.dispose();
     }
 
     public int hashCode()

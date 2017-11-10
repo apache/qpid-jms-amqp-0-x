@@ -27,8 +27,10 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class ConnectionCloseBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -90,7 +92,7 @@ public class ConnectionCloseBody extends AMQMethodBodyImpl implements EncodableA
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeUnsignedShort( buffer, _replyCode );
         writeAMQShortString( buffer, _replyText );
@@ -121,12 +123,12 @@ public class ConnectionCloseBody extends AMQMethodBodyImpl implements EncodableA
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer, final MethodProcessor dispatcher)
+    public static void process(final ByteBuffer buffer, final MethodProcessor dispatcher)
     {
-        int replyCode = buffer.getUnsignedShort();
+        int replyCode = ByteBufferUtils.getUnsignedShort(buffer);
         AMQShortString replyText = AMQShortString.readAMQShortString(buffer);
-        int classId = buffer.getUnsignedShort();
-        int methodId = buffer.getUnsignedShort();
+        int classId = ByteBufferUtils.getUnsignedShort(buffer);
+        int methodId = ByteBufferUtils.getUnsignedShort(buffer);
         dispatcher.receiveConnectionClose(replyCode, replyText, classId, methodId);
     }
 }

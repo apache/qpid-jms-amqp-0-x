@@ -22,9 +22,9 @@ package org.apache.qpid.framing;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.protocol.AMQVersionAwareProtocolSession;
 import org.apache.qpid.transport.ByteBufferSender;
 
@@ -84,7 +84,7 @@ public class HeartbeatBody implements AMQBody
     }
 
     public static void process(final int channel,
-                            final QpidByteBuffer in,
+                            final ByteBuffer in,
                             final MethodProcessor processor,
                             final long bodySize)
     {

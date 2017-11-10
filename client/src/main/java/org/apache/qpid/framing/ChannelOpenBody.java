@@ -27,8 +27,9 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 
 public class ChannelOpenBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -57,7 +58,7 @@ public class ChannelOpenBody extends AMQMethodBodyImpl implements EncodableAMQDa
         return 1;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeAMQShortString( buffer, null );
     }
@@ -73,7 +74,7 @@ public class ChannelOpenBody extends AMQMethodBodyImpl implements EncodableAMQDa
     }
 
     public static void process(final int channelId,
-                                final QpidByteBuffer buffer,
+                                final ByteBuffer buffer,
                                 final ServerMethodProcessor dispatcher)
     {
         AMQShortString.readAMQShortString(buffer);

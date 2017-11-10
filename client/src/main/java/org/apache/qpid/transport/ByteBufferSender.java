@@ -20,13 +20,11 @@
  */
 package org.apache.qpid.transport;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import java.nio.ByteBuffer;
 
 public interface ByteBufferSender
 {
-    boolean isDirectBufferPreferred();
-
-    void send(QpidByteBuffer msg);
+    void send(ByteBuffer msg);
 
     void flush();
 

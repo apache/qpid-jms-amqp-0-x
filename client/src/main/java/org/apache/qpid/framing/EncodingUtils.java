@@ -20,12 +20,13 @@
  */
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class EncodingUtils
 {
@@ -119,7 +120,7 @@ public class EncodingUtils
         }
     }
 
-    public static void writeLongAsShortString(QpidByteBuffer buffer, long l)
+    public static void writeLongAsShortString(ByteBuffer buffer, long l)
     {
         String s = Long.toString(l);
         byte[] encodedString = new byte[1+s.length()];
@@ -134,7 +135,7 @@ public class EncodingUtils
     }
 
 
-    public static void writeShortStringBytes(QpidByteBuffer buffer, AMQShortString s)
+    public static void writeShortStringBytes(ByteBuffer buffer, AMQShortString s)
     {
         if (s != null)
         {
@@ -147,18 +148,18 @@ public class EncodingUtils
         }
     }
 
-    public static void writeLongStringBytes(QpidByteBuffer buffer, String s)
+    public static void writeLongStringBytes(ByteBuffer buffer, String s)
     {
         if (s != null)
         {
             int len = getUTF8Length(s);
-            buffer.putUnsignedInt((long) len);
+            ByteBufferUtils.putUnsignedInt(buffer, (long) len);
             buffer.put(asUTF8Bytes(s));
 
         }
         else
         {
-            buffer.putUnsignedInt((long) 0);
+            ByteBufferUtils.putUnsignedInt(buffer, (long) 0);
         }
     }
 
@@ -167,7 +168,7 @@ public class EncodingUtils
         return 4;
     }
 
-    public static void writeFieldTableBytes(QpidByteBuffer buffer, FieldTable table)
+    public static void writeFieldTableBytes(ByteBuffer buffer, FieldTable table)
     {
         if (table != null)
         {
@@ -175,26 +176,26 @@ public class EncodingUtils
         }
         else
         {
-            buffer.putUnsignedInt((long) 0);
+            ByteBufferUtils.putUnsignedInt(buffer, (long) 0);
         }
     }
 
-    public static void writeLongstr(QpidByteBuffer buffer, byte[] data)
+    public static void writeLongstr(ByteBuffer buffer, byte[] data)
     {
         if (data != null)
         {
-            buffer.putUnsignedInt((long) data.length);
+            ByteBufferUtils.putUnsignedInt(buffer, (long) data.length);
             buffer.put(data);
         }
         else
         {
-            buffer.putUnsignedInt((long) 0);
+            ByteBufferUtils.putUnsignedInt(buffer, (long) 0);
         }
     }
 
-    public static FieldTable readFieldTable(QpidByteBuffer input) throws AMQFrameDecodingException
+    public static FieldTable readFieldTable(ByteBuffer input) throws AMQFrameDecodingException
     {
-        long length = input.getUnsignedInt();
+        long length = ByteBufferUtils.getUnsignedInt(input);
         if (length == 0)
         {
             return null;
@@ -206,7 +207,7 @@ public class EncodingUtils
     }
 
 
-    public static String readLongString(QpidByteBuffer buffer)
+    public static String readLongString(ByteBuffer buffer)
     {
         long length = ((long)(buffer.getInt())) & 0xFFFFFFFFL;
         if (length == 0)
@@ -222,7 +223,7 @@ public class EncodingUtils
         }
     }
 
-    public static byte[] readLongstr(QpidByteBuffer buffer)
+    public static byte[] readLongstr(ByteBuffer buffer)
     {
         long length = ((long)(buffer.getInt())) & 0xFFFFFFFFL;
         if (length == 0)
@@ -242,7 +243,7 @@ public class EncodingUtils
 
     // AMQP_BOOLEAN_PROPERTY_PREFIX
 
-    public static void writeBoolean(QpidByteBuffer buffer, boolean aBoolean)
+    public static void writeBoolean(ByteBuffer buffer, boolean aBoolean)
     {
         buffer.put(aBoolean ? (byte)1 : (byte)0);
     }
@@ -282,9 +283,9 @@ public class EncodingUtils
         return 8;
     }
 
-    public static byte[] readBytes(QpidByteBuffer buffer)
+    public static byte[] readBytes(ByteBuffer buffer)
     {
-        long length = buffer.getUnsignedInt();
+        long length = ByteBufferUtils.getUnsignedInt(buffer);
         if (length == 0)
         {
             return null;
@@ -298,17 +299,17 @@ public class EncodingUtils
         }
     }
 
-    public static void writeBytes(QpidByteBuffer buffer, byte[] data)
+    public static void writeBytes(ByteBuffer buffer, byte[] data)
     {
         if (data != null)
         {
             // TODO: check length fits in an unsigned byte
-            buffer.putUnsignedInt((long)data.length);
+            ByteBufferUtils.putUnsignedInt(buffer, data.length);
             buffer.put(data);
         }
         else
         {
-            buffer.putUnsignedInt(0L);
+            ByteBufferUtils.putUnsignedInt(buffer, 0L);
         }
     }
 
@@ -318,9 +319,9 @@ public class EncodingUtils
         return encodedByteLength();
     }
 
-    public static long readLongAsShortString(QpidByteBuffer buffer) throws AMQFrameDecodingException
+    public static long readLongAsShortString(ByteBuffer buffer) throws AMQFrameDecodingException
     {
-        short length = buffer.getUnsignedByte();
+        short length = ByteBufferUtils.getUnsignedByte(buffer);
         short pos = 0;
         if (length == 0)
         {

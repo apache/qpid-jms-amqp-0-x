@@ -27,8 +27,10 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class BasicQosBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -86,7 +88,7 @@ public class BasicQosBody extends AMQMethodBodyImpl implements EncodableAMQDataB
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeUnsignedInteger( buffer, _prefetchSize );
         writeUnsignedShort( buffer, _prefetchCount );
@@ -113,12 +115,12 @@ public class BasicQosBody extends AMQMethodBodyImpl implements EncodableAMQDataB
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer,
+    public static void process(final ByteBuffer buffer,
                                final ServerChannelMethodProcessor dispatcher)
     {
 
-        long prefetchSize = buffer.getUnsignedInt();
-        int prefetchCount = buffer.getUnsignedShort();
+        long prefetchSize = ByteBufferUtils.getUnsignedInt(buffer);
+        int prefetchCount = ByteBufferUtils.getUnsignedShort(buffer);
         boolean global = (buffer.get() & 0x01) == 0x01;
         if(!dispatcher.ignoreAllButCloseOk())
         {

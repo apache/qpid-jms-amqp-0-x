@@ -23,6 +23,7 @@ import static org.apache.qpid.transport.util.Functions.mod;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLSocket;
@@ -30,7 +31,6 @@ import javax.net.ssl.SSLSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.thread.Threading;
 import org.apache.qpid.transport.ByteBufferSender;
 import org.apache.qpid.transport.SenderClosedException;
@@ -117,13 +117,7 @@ public final class IoSender implements Runnable, ByteBufferSender
         return result;
     }
 
-    @Override
-    public boolean isDirectBufferPreferred()
-    {
-        return false;
-    }
-
-    public void send(QpidByteBuffer buf)
+    public void send(ByteBuffer buf)
     {
         checkNotAlreadyClosed();
 

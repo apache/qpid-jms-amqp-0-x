@@ -20,8 +20,10 @@
  */
 package org.apache.qpid.framing;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.transport.ByteBufferSender;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class AMQFrame extends AMQDataBlock implements EncodableAMQDataBlock
 {
@@ -48,7 +50,7 @@ public class AMQFrame extends AMQDataBlock implements EncodableAMQDataBlock
     }
 
 
-    private static final QpidByteBuffer FRAME_END_BYTE_BUFFER = QpidByteBuffer.allocateDirect(1);
+    private static final ByteBuffer FRAME_END_BYTE_BUFFER = ByteBuffer.allocate(1);
     static
     {
         FRAME_END_BYTE_BUFFER.put(FRAME_END_BYTE);
@@ -58,14 +60,13 @@ public class AMQFrame extends AMQDataBlock implements EncodableAMQDataBlock
     @Override
     public long writePayload(final ByteBufferSender sender)
     {
-        QpidByteBuffer frameHeader = QpidByteBuffer.allocate(sender.isDirectBufferPreferred(), HEADER_SIZE);
+        ByteBuffer frameHeader = ByteBuffer.allocate(HEADER_SIZE);
 
         frameHeader.put(_bodyFrame.getFrameType());
-        frameHeader.putUnsignedShort(_channel);
-        frameHeader.putUnsignedInt((long) _bodyFrame.getSize());
+        ByteBufferUtils.putUnsignedShort(frameHeader, _channel);
+        ByteBufferUtils.putUnsignedInt(frameHeader, _bodyFrame.getSize());
         frameHeader.flip();
         sender.send(frameHeader);
-        frameHeader.dispose();
         long size = 8 + _bodyFrame.writePayload(sender);
 
         sender.send(FRAME_END_BYTE_BUFFER.duplicate());

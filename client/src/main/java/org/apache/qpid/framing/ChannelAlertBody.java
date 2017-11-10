@@ -27,8 +27,10 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class ChannelAlertBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -83,7 +85,7 @@ public class ChannelAlertBody extends AMQMethodBodyImpl implements EncodableAMQD
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeUnsignedShort( buffer, _replyCode );
         writeAMQShortString( buffer, _replyText );
@@ -110,12 +112,12 @@ public class ChannelAlertBody extends AMQMethodBodyImpl implements EncodableAMQD
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer,
+    public static void process(final ByteBuffer buffer,
                                final ClientChannelMethodProcessor dispatcher)
             throws AMQFrameDecodingException
     {
 
-        int replyCode = buffer.getUnsignedShort();
+        int replyCode = ByteBufferUtils.getUnsignedShort(buffer);
         AMQShortString replyText = AMQShortString.readAMQShortString(buffer);
         FieldTable details = EncodingUtils.readFieldTable(buffer);
         if(!dispatcher.ignoreAllButCloseOk())

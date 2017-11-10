@@ -27,8 +27,10 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class ConnectionTuneOkBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -81,7 +83,7 @@ public class ConnectionTuneOkBody extends AMQMethodBodyImpl implements Encodable
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeUnsignedShort( buffer, _channelMax );
         writeUnsignedInteger( buffer, _frameMax );
@@ -108,12 +110,12 @@ public class ConnectionTuneOkBody extends AMQMethodBodyImpl implements Encodable
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer, final ServerMethodProcessor dispatcher)
+    public static void process(final ByteBuffer buffer, final ServerMethodProcessor dispatcher)
     {
 
-        int channelMax = buffer.getUnsignedShort();
-        long frameMax = buffer.getUnsignedInt();
-        int heartbeat = buffer.getUnsignedShort();
+        int channelMax = ByteBufferUtils.getUnsignedShort(buffer);
+        long frameMax = ByteBufferUtils.getUnsignedInt(buffer);
+        int heartbeat = ByteBufferUtils.getUnsignedShort(buffer);
         if(!dispatcher.ignoreAllButCloseOk())
         {
             dispatcher.receiveConnectionTuneOk(channelMax, frameMax, heartbeat);

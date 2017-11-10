@@ -23,10 +23,6 @@ package org.apache.qpid.transport.util;
 import static java.lang.Math.min;
 
 import java.nio.ByteBuffer;
-import java.util.Collection;
-
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
-import org.apache.qpid.util.ByteBufferUtils;
 
 
 /**
@@ -72,32 +68,6 @@ public final class Functions
 
     public static final String str(ByteBuffer buf, int limit,int start)
     {
-        return str(QpidByteBuffer.wrap(buf), limit, start);
-    }
-
-    public static final String str(QpidByteBuffer buf)
-    {
-        return str(buf, buf.remaining());
-    }
-
-    public static final String str(QpidByteBuffer buf, int limit)
-    {
-        return str(buf, limit, buf.position());
-    }
-
-    public static final String str(Collection<QpidByteBuffer> buf, int limit, int start)
-    {
-        return str(ByteBufferUtils.combine(buf),limit,start);
-    }
-
-
-    public static final String str(Collection<QpidByteBuffer> buf, int limit)
-    {
-        return str(buf, limit, 0);
-    }
-
-    public static final String str(QpidByteBuffer buf, int limit, int start)
-    {
         StringBuilder str = new StringBuilder();
         str.append('"');
 
@@ -139,10 +109,6 @@ public final class Functions
     {
         return hex(bytes, limit, "");
     }
-    public static String hex(QpidByteBuffer bytes, int limit)
-    {
-        return hex(bytes, limit, "");
-    }
 
     public static String hex(byte[] bytes, int limit, CharSequence separator)
     {
@@ -163,25 +129,4 @@ public final class Functions
         }
         return sb.toString();
     }
-
-    public static String hex(QpidByteBuffer bytes, int limit, CharSequence separator)
-    {
-        limit = Math.min(limit, bytes == null ? 0 : bytes.remaining());
-        StringBuilder sb = new StringBuilder(3 + limit*2);
-        for(int i = 0; i < limit; i++)
-        {
-            sb.append(HEX_CHARACTERS[(((int)(bytes.get(bytes.position()+i))) & 0xf0)>>4]);
-            sb.append(HEX_CHARACTERS[(((int)bytes.get(bytes.position()+i)) & 0x0f)]);
-            if(i != bytes.remaining() - 1)
-            {
-                sb.append(separator);
-            }
-        }
-        if(bytes != null && bytes.remaining()>limit)
-        {
-            sb.append("...");
-        }
-        return sb.toString();
-    }
-
 }

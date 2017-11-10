@@ -22,12 +22,11 @@ package org.apache.qpid.codec;
 
 import java.nio.ByteBuffer;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
 import org.apache.qpid.framing.*;
 
 public class ClientDecoder extends AMQDecoder<ClientMethodProcessor<? extends ClientChannelMethodProcessor>>
 {
-    private QpidByteBuffer _incompleteBuffer;
+    private ByteBuffer _incompleteBuffer;
 
     /**
      * Creates a new AMQP decoder.
@@ -43,14 +42,12 @@ public class ClientDecoder extends AMQDecoder<ClientMethodProcessor<? extends Cl
     {
         if (_incompleteBuffer == null)
         {
-            QpidByteBuffer qpidByteBuffer = QpidByteBuffer.wrap(incomingBuffer);
-            final int required = decode(qpidByteBuffer);
+            final int required = decode(incomingBuffer);
             if (required != 0)
             {
-                _incompleteBuffer = QpidByteBuffer.allocate(qpidByteBuffer.remaining() + required);
-                _incompleteBuffer.put(qpidByteBuffer);
+                _incompleteBuffer = ByteBuffer.allocate(incomingBuffer.remaining() + required);
+                _incompleteBuffer.put(incomingBuffer);
             }
-            qpidByteBuffer.dispose();
         }
         else
         {
@@ -61,33 +58,29 @@ public class ClientDecoder extends AMQDecoder<ClientMethodProcessor<? extends Cl
             else
             {
                 _incompleteBuffer.flip();
-                final QpidByteBuffer aggregatedBuffer =
-                        QpidByteBuffer.allocate(_incompleteBuffer.remaining() + incomingBuffer.remaining());
+                final ByteBuffer aggregatedBuffer =
+                        ByteBuffer.allocate(_incompleteBuffer.remaining() + incomingBuffer.remaining());
                 aggregatedBuffer.put(_incompleteBuffer);
                 aggregatedBuffer.put(incomingBuffer);
                 aggregatedBuffer.flip();
                 final int required = decode(aggregatedBuffer);
 
-                _incompleteBuffer.dispose();
                 if (required != 0)
                 {
-                    _incompleteBuffer = QpidByteBuffer.allocate(aggregatedBuffer.remaining() + required);
+                    _incompleteBuffer = ByteBuffer.allocate(aggregatedBuffer.remaining() + required);
                     _incompleteBuffer.put(aggregatedBuffer);
                 }
                 else
                 {
                     _incompleteBuffer = null;
                 }
-                aggregatedBuffer.dispose();
             }
         }
         // post-condition: assert(!incomingBuffer.hasRemaining());
     }
 
     @Override
-    void processMethod(int channelId,
-                       QpidByteBuffer in)
-            throws AMQFrameDecodingException
+    void processMethod(int channelId, ByteBuffer in) throws AMQFrameDecodingException
     {
         ClientMethodProcessor<? extends ClientChannelMethodProcessor> methodProcessor = getMethodProcessor();
         ClientChannelMethodProcessor channelMethodProcessor = methodProcessor.getChannelMethodProcessor(channelId);

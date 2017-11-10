@@ -20,7 +20,7 @@
  */
 package org.apache.qpid.framing;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import java.nio.ByteBuffer;
 
 public interface ChannelMethodProcessor
 {
@@ -32,7 +32,7 @@ public interface ChannelMethodProcessor
 
     void receiveChannelCloseOk();
 
-    void receiveMessageContent(QpidByteBuffer data);
+    void receiveMessageContent(ByteBuffer data);
 
     void receiveMessageHeader(BasicContentHeaderProperties properties, long bodySize);
 

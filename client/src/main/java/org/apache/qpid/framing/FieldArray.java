@@ -21,6 +21,7 @@
 package org.apache.qpid.framing;
 
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class FieldArray<T> extends AbstractCollection<T>
 {
@@ -104,7 +105,7 @@ public class FieldArray<T> extends AbstractCollection<T>
         }
     }
 
-    public void writeToBuffer(final QpidByteBuffer buffer)
+    public void writeToBuffer(final ByteBuffer buffer)
     {
         buffer.putInt(getEncodingSize());
         for( T obj : this)
@@ -113,17 +114,16 @@ public class FieldArray<T> extends AbstractCollection<T>
         }
     }
 
-    public static FieldArray<?> readFromBuffer(final QpidByteBuffer buffer)
+    public static FieldArray<?> readFromBuffer(final ByteBuffer buffer)
     {
         ArrayList<Object> result = new ArrayList<>();
         int size = buffer.getInt();
-        QpidByteBuffer slicedBuffer = buffer.view(0,size);
+        ByteBuffer slicedBuffer = ByteBufferUtils.view(buffer, 0, size);
         buffer.position(buffer.position()+size);
         while(slicedBuffer.hasRemaining())
         {
             result.add(AMQTypedValue.readFromBuffer(slicedBuffer).getValue());
         }
-        slicedBuffer.dispose();
         return new FieldArray<>(result);
     }
 }

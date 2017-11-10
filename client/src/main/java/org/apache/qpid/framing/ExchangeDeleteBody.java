@@ -27,8 +27,10 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class ExchangeDeleteBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -97,7 +99,7 @@ public class ExchangeDeleteBody extends AMQMethodBodyImpl implements EncodableAM
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeUnsignedShort( buffer, _ticket );
         writeAMQShortString( buffer, _exchange );
@@ -127,11 +129,11 @@ public class ExchangeDeleteBody extends AMQMethodBodyImpl implements EncodableAM
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer,
+    public static void process(final ByteBuffer buffer,
                                final ServerChannelMethodProcessor dispatcher)
     {
 
-        int ticket = buffer.getUnsignedShort();
+        int ticket = ByteBufferUtils.getUnsignedShort(buffer);
         AMQShortString exchange = AMQShortString.readAMQShortString(buffer);
         byte bitfield = buffer.get();
         boolean ifUnused = (bitfield & 0x01) == 0x01;

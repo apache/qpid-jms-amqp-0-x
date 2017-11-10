@@ -27,8 +27,10 @@
 
 package org.apache.qpid.framing;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.QpidException;
-import org.apache.qpid.bytebuffer.QpidByteBuffer;
+import org.apache.qpid.util.ByteBufferUtils;
 
 public class QueueUnbindBody extends AMQMethodBodyImpl implements EncodableAMQDataBlock, AMQMethodBody
 {
@@ -99,7 +101,7 @@ public class QueueUnbindBody extends AMQMethodBodyImpl implements EncodableAMQDa
         return size;
     }
 
-    public void writeMethodPayload(QpidByteBuffer buffer)
+    public void writeMethodPayload(ByteBuffer buffer)
     {
         writeUnsignedShort( buffer, _ticket );
         writeAMQShortString( buffer, _queue );
@@ -134,11 +136,11 @@ public class QueueUnbindBody extends AMQMethodBodyImpl implements EncodableAMQDa
         return buf.toString();
     }
 
-    public static void process(final QpidByteBuffer buffer,
+    public static void process(final ByteBuffer buffer,
                                final ServerChannelMethodProcessor dispatcher) throws AMQFrameDecodingException
     {
 
-        int ticket = buffer.getUnsignedShort();
+        int ticket = ByteBufferUtils.getUnsignedShort(buffer);
         AMQShortString queue = AMQShortString.readAMQShortString(buffer);
         AMQShortString exchange = AMQShortString.readAMQShortString(buffer);
         AMQShortString routingKey = AMQShortString.readAMQShortString(buffer);
