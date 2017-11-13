@@ -20,32 +20,29 @@
 
   <parent>
     <groupId>org.apache.qpid</groupId>
-    <artifactId>qpid-jms-amqp-0-x-parent</artifactId>
+    <artifactId>apache-qpid-jms-amqp-0-x-parent</artifactId>
     <version>6.3.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>qpid-client-examples</artifactId>
-  <name>Apache Qpid Client for AMQP 0-9-1/0-10 Examples</name>
-  <description>JMS client examples.</description>
+  <name>Apache Qpid JMS AMQP 0-x Examples</name>
+  <description>Apache Qpid JMS AMQP 0-x Examples</description>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.qpid</groupId>
       <artifactId>qpid-client</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jms_1.1_spec</artifactId>
-      <version>${geronimo-jms-1-1-version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j-version}</version>
     </dependency>
   </dependencies>
 

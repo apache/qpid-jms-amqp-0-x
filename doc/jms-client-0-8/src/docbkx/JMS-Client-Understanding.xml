@@ -65,7 +65,7 @@
         </imageobject>
       </mediaobject>
     </figure>
-    <para>Note that the Apache Qpid Broker for Java does not present a JNDI interface to the application.</para>
+    <para>Note that the Apache Qpid Broker-J does not present a JNDI interface to the application.</para>
   </section>
   <section xml:id="JMS-Client-0-8-Client-Understanding-Connection">
     <title>Connection</title>
@@ -343,7 +343,7 @@ amqp://guest:guest@clientid/?brokerlist='localhost:5671?client_cert_path='/path/
       and a <emphasis>routing key</emphasis> included with each message.</para>
     <para>To understand how this mechanism is used to deliver messages to queues and topics, see
         <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="${qpidJavaBrokerBook}Java-Broker-Concepts-Exchanges.html">Exchanges</link>
-      within the Apache Qpid Broker for Java book.</para>
+      within the Apache Qpid Broker-J book.</para>
     <para>It is important to understand that when synchronous publish is not exlicitly enabled,
       <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="${oracleJeeDocUrl}javax/jms/MessageProducer.html#send(javax.jms.Message)">MessageProducer#send()</link> is <emphasis>asynchronous</emphasis> in nature. When #send()
       returns to the application, the application cannot be certain if the Broker has received the
@@ -387,7 +387,7 @@ amqp://guest:guest@clientid/?brokerlist='localhost:5671?client_cert_path='/path/
         requires support for the corresponding feature by the Broker.</para>
       <para>To enable or disable from the client, use the Connection URL option <link linkend="JMS-Client-0-8-Connection-URL-ConnectionOptions-CloseWhenNoRoute"><literal>closeWhenNoRoute</literal></link>.</para>
       <para>See <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="${qpidJavaBrokerBook}Java-Broker-Runtime-Close-Connection-When-No-Route.html">
-          Closing client connections on unroutable mandatory messages</link> within the Apache Qpid Broker for Java
+          Closing client connections on unroutable mandatory messages</link> within the Apache Qpid Broker-J
         book for full details of the functioning of this feature.</para>
     </section>
     <section xml:id="JMS-Client-0-8-Client-Understanding-MessageProducer-ImmediateMessage">
@@ -414,7 +414,7 @@ amqp://guest:guest@clientid/?brokerlist='localhost:5671?client_cert_path='/path/
         feature requires support for the corresponding feature by the Broker.</para>
       <para>To control the timeout use System property <link linkend="JMS-Client-0-8-System-Properties-FlowControlWaitFailure"><literal>qpid.flow_control_wait_failure</literal></link>. To control the frequency with
         which warnings are logged whilst a Session is blocked, use System property <link linkend="JMS-Client-0-8-System-Properties-FlowControlWaitNotifyPeriod"><literal>qpid.flow_control_wait_notify_period</literal></link></para>
-      <para>See <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="${qpidJavaBrokerBook}Java-Broker-Runtime-Disk-Space-Management.html#Qpid-Producer-Flow-Control"> Producer Flow Control</link> within the Apache Qpid Broker for Java book for full details of the
+      <para>See <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="${qpidJavaBrokerBook}Java-Broker-Runtime-Disk-Space-Management.html#Qpid-Producer-Flow-Control"> Producer Flow Control</link> within the Apache Qpid Broker-Java book for full details of the
         functioning of this feature.</para>
     </section>
   </section>
@@ -480,7 +480,7 @@ amqp://guest:guest@clientid/?brokerlist='localhost:5671?client_cert_path='/path/
       <para>When using this feature, the application must either set system property <link linkend="JMS-Client-0-8-System-Properties-RejectBehaviour">qpid.reject.behaviour</link> or
         the Binding URL option <link linkend="JMS-Client-0-8-Binding-URL-Options-RejectBehaviour"><literal>rejectbehaviour</literal></link> to the value
         <literal>server</literal>.</para>
-      <para>See <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="${qpidJavaBrokerBook}Java-Broker-Runtime-Handling-Undeliverable-Messages.html#Java-Broker-Runtime-Handling-Undeliverable-Messages-Maximum-Delivery-Count"> Handling Undeliverable Messages</link> within the Apache Qpid Broker for Java book for full details of
+      <para>See <link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="${qpidJavaBrokerBook}Java-Broker-Runtime-Handling-Undeliverable-Messages.html#Java-Broker-Runtime-Handling-Undeliverable-Messages-Maximum-Delivery-Count"> Handling Undeliverable Messages</link> within the Apache Qpid Broker-J book for full details of
         the functioning of this feature.</para>
       <note>
         <para>The optional JMS message header <literal>JMSXDeliveryCount</literal> is

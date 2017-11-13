@@ -53,7 +53,7 @@
         </para>
         <para>
             In order to send an encrypted message it is necessary to know the Certificates of the intended recipients.
-            Certificates can be distributed either through out-of-band mechanisms, or the Apache Qpid Broker for Java can be used
+            Certificates can be distributed either through out-of-band mechanisms, or the Apache Qpid Broker-J can be used
             to distribute them to clients.
         </para>
         <para>
@@ -87,7 +87,7 @@
             <programlisting>amqp://username:password@clientid/test?brokerlist='tcp://localhost:5672?encryption_trust_store='/home/qpid/certificates.jks'&amp;encryption_trust_store_password='password''</programlisting>
             <para>
                 Alternatively, where available, you can configure the broker to distribute certificates from a trust
-                store (this is currently only available in the Apache Qpid Broker for Java). In order to use this method, the broker
+                store (this is currently only available in the Apache Qpid Broker-J). In order to use this method, the broker
                 details in the connection url must contain the correctly configured
                 <link linkend="JMS-Client-0-8-Connection-URL-BrokerOptions-EncryptionRemoteTrustStore">encryption_remote_trust_store</link>
                 option. Such a connection URL might look somthing like:
@@ -187,7 +187,7 @@
         <section xml:id="JMS-Client-Message-Encryption-Example-Introduction">
             <title>Introduction</title>
             <para>
-                In this example we will setup the Qpid Broker for Java and two clients who will send each other encrypted messages.
+                In this example we will setup the Qpid Broker-J and two clients who will send each other encrypted messages.
                 The clients will use self signed certificates and the certificates will be distributed by the Broker.
             </para>
         </section>
