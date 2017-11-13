@@ -88,12 +88,18 @@
         </row>
         <row>
           <entry>AMQTimeoutException</entry>
-          <entry>Server did not respond in a timely fashion; Request Timeout</entry>
-          <entry><para>Indicates that the broker did not respond to a request sent by the client in
-              a reasonable length of time. The timeout is governed by <link linkend="JMS-Client-0-8-System-Properties-SyncOpTimeout"><literal>qpid.sync_op_timeout</literal></link>.</para><para>This can be a symptom
-              of a heavily loaded broker that cannot respond or the Broker may have failed in
-              unexpected manner. Check the broker and the host on which it runs and performance of
-              its storage.</para></entry>
+          <entry>The server's response was not received within the time-out period of %d ms.</entry>
+          <entry>
+            <para>Indicates that the Broker's response to the request sent by the client was not received
+              within a timely fashion. The timeout is governed by
+              <link linkend="JMS-Client-0-8-System-Properties-SyncOpTimeout">
+                <literal>qpid.sync_op_timeout</literal>
+              </link>.
+            </para>
+            <para>This can be a symptom of a heavily loaded Broker, an overloaded network or a client JVM itself which
+              is too overloaded to process incoming responses. Check for unreasonably long garbage collection pauses.
+            </para>
+          </entry>
         </row>
         <row>
           <entry>AMQSecurityException</entry>

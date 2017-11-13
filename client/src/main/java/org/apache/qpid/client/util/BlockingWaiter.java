@@ -168,8 +168,9 @@ public abstract class BlockingWaiter<T>
                         if (nanoTimeout <= 0 && !_ready && _error == null)
                         {
                             final String errorMsg = String.format(
-                                    "Waiting for receive timed out after %d ms. Possible reasons include JVM garbage"
-                                    + " collection, slow connection, busy broker, ...",
+                                    "The server's response was not received within the time-out period of %d ms. "
+                                    + "Possible reasons include: the server may be too busy, the network may be "
+                                    + "overloaded, or this JVM itself may be too busy to process the response.",
                                     timeout);
                             _error = new AMQTimeoutException(errorMsg, null);
                             _ready = true;
