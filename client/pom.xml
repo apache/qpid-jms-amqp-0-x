@@ -20,7 +20,7 @@
 
   <parent>
     <groupId>org.apache.qpid</groupId>
-    <artifactId>apache-qpid-jms-amqp-0-x-parent</artifactId>
+    <artifactId>qpid-jms-amqp-0-x-parent</artifactId>
     <version>6.3.0-SNAPSHOT</version>
   </parent>
 
