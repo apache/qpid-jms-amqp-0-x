@@ -246,7 +246,7 @@
 				<row>
 					<entry> sasl_mechs </entry>
 					<entry> - </entry>
-					<entry> A comma separated list of SASL mechanisms which may be used.  If not present then
+					<entry> A space separated list of SASL mechanisms which may be used.  If not present then
 						any method offered by the broker may be used.
 						For secure applications, we suggest SCRAM-SHA-256. The
 						ANONYMOUS mechanism is not secure. The PLAIN mechanism is secure only when used
