@@ -65,7 +65,6 @@ public class InputHandler implements ExceptionHandlingByteBufferReceiver, FrameS
     }
     private final NetworkEventReceiver receiver;
 
-    private final boolean _useDirect;
     private State state;
     private ByteBuffer input = null;
     private int needed;
@@ -76,11 +75,10 @@ public class InputHandler implements ExceptionHandlingByteBufferReceiver, FrameS
     private int channel;
 
 
-    public InputHandler(NetworkEventReceiver receiver, final boolean useDirect)
+    public InputHandler(NetworkEventReceiver receiver)
     {
         this.receiver = receiver;
         this.state = PROTO_HDR;
-        _useDirect = useDirect;
 
         switch (state)
         {
@@ -138,7 +136,7 @@ public class InputHandler implements ExceptionHandlingByteBufferReceiver, FrameS
             {
                 if (input == null)
                 {
-                    input = _useDirect ? ByteBuffer.allocateDirect(needed) : ByteBuffer.allocate(needed);
+                    input = ByteBuffer.allocate(needed);
                 }
                 input.put(buf);
                 needed -= remaining;

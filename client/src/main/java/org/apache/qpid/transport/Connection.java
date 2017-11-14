@@ -229,7 +229,7 @@ public class Connection extends ConnectionInvoker
             securityLayer = SecurityLayerFactory.newInstance(getConnectionSettings());
 
             IoNetworkTransport transport = new IoNetworkTransport();
-            final InputHandler inputHandler = new InputHandler(new Assembler(this), false);
+            final InputHandler inputHandler = new InputHandler(new Assembler(this));
             addFrameSizeObserver(inputHandler);
             ExceptionHandlingByteBufferReceiver secureReceiver = securityLayer.receiver(inputHandler);
             if(secureReceiver instanceof ConnectionListener)

@@ -74,29 +74,4 @@ public class GZIPUtilsTest extends QpidTestCase
     {
         assertNull(GZIPUtils.compressBufferToArray(null));
     }
-
-    public void testNonHeapBuffers() throws Exception
-    {
-
-        byte[] data = new byte[1024];
-        Arrays.fill(data, (byte)'a');
-        ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
-        directBuffer.put(data);
-        directBuffer.flip();
-
-        byte[] compressed = GZIPUtils.compressBufferToArray(directBuffer);
-
-        assertTrue("Compression didn't compress", compressed.length < data.length);
-
-        directBuffer.clear();
-        directBuffer.position(1);
-        directBuffer = directBuffer.slice();
-        directBuffer.put(compressed);
-        directBuffer.flip();
-
-        byte[] uncompressed = GZIPUtils.uncompressBufferToArray(directBuffer);
-
-        assertTrue("Compression not reversible", Arrays.equals(data,uncompressed));
-
-    }
 }
