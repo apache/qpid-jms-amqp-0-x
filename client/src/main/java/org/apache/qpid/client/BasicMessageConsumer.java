@@ -781,6 +781,7 @@ public abstract class BasicMessageConsumer<U> extends Closeable implements Messa
     protected void preDeliver(AbstractJMSMessage msg)
     {
         _session.setInRecovery(false);
+        msg.setAMQSession(_session);
 
         switch (_acknowledgeMode)
         {
@@ -793,9 +794,6 @@ public abstract class BasicMessageConsumer<U> extends Closeable implements Messa
                 _session.addUnacknowledgedMessage(msg.getDeliveryTag());
                 break;
             case Session.CLIENT_ACKNOWLEDGE:
-                // we set the session so that when the user calls acknowledge() it can call the method on session
-                // to send out the appropriate frame
-                msg.setAMQSession(_session);
                 _session.addUnacknowledgedMessage(msg.getDeliveryTag());
                 _session.markDirty();
                 break;

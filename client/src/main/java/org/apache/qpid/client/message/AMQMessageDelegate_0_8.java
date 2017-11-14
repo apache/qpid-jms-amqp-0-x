@@ -34,14 +34,18 @@ import javax.jms.JMSException;
 import javax.jms.MessageNotWriteableException;
 import javax.jms.Queue;
 
+import org.apache.qpid.QpidException;
+import org.apache.qpid.client.AMQAnyDestination;
 import org.apache.qpid.client.AMQDestination;
 import org.apache.qpid.client.AMQQueue;
 import org.apache.qpid.client.AMQSession;
 import org.apache.qpid.client.AMQSession_0_8;
 import org.apache.qpid.client.AMQTopic;
 import org.apache.qpid.client.CustomJMSXProperty;
+import org.apache.qpid.exchange.ExchangeDefaults;
 import org.apache.qpid.framing.AMQShortString;
 import org.apache.qpid.framing.BasicContentHeaderProperties;
+import org.apache.qpid.messaging.Address;
 import org.apache.qpid.url.AMQBindingURL;
 import org.apache.qpid.url.BindingURL;
 
@@ -297,15 +301,17 @@ public class AMQMessageDelegate_0_8 extends AbstractAMQMessageDelegate
                     else if(replyToEncoding.contains("/"))
                     {
                         String[] parts = replyToEncoding.split("/",2);
-                        dest = new NonBURLReplyToDestination(parts[0], parts[1]);
-
-
+                        dest = new NonBURLReplyToDestination(ExchangeDefaults.DIRECT_EXCHANGE_CLASS, parts[0], parts[1]);
                     }
                     else
                     {
-                        if(getAMQSession().isQueueBound(replyToEncoding, null, null))
+                        if (getAMQSession().isQueueBound(null, replyToEncoding, null))
                         {
-                            dest = new NonBURLReplyToDestination(replyToEncoding, "");
+                            dest = new NonBURLReplyToDestination(ExchangeDefaults.DIRECT_EXCHANGE_CLASS, "", replyToEncoding);
+                        }
+                        else if (isExchangeExist(replyToEncoding))
+                        {
+                            dest = new NonBURLReplyToDestination(ExchangeDefaults.DIRECT_EXCHANGE_CLASS, replyToEncoding, "");
                         }
                         else
                         {
@@ -319,6 +325,32 @@ public class AMQMessageDelegate_0_8 extends AbstractAMQMessageDelegate
             }
 
             return dest;
+        }
+    }
+
+    private boolean isExchangeExist(final String replyToEncoding)
+    {
+        try
+        {
+            AMQDestination amqDestination = new AMQDestination()
+            {
+                @Override
+                public String getAddressName()
+                {
+                    return replyToEncoding;
+                }
+
+                @Override
+                public boolean isNameRequired()
+                {
+                    return false;
+                }
+            };
+            return getAMQSession().isExchangeExist(amqDestination, false);
+        }
+        catch (Exception e)
+        {
+            return false;
         }
     }
 
@@ -660,7 +692,7 @@ public class AMQMessageDelegate_0_8 extends AbstractAMQMessageDelegate
         public DefaultRouterDestination(final String replyToEncoding)
         {
             super("",
-                  "direct",
+                  ExchangeDefaults.DIRECT_EXCHANGE_CLASS,
                   replyToEncoding,
                   replyToEncoding);
         }
@@ -682,10 +714,12 @@ public class AMQMessageDelegate_0_8 extends AbstractAMQMessageDelegate
     {
         private static final long serialVersionUID = 122897705932489259L;
 
-        public NonBURLReplyToDestination(final String exchange, final String routingKey)
+        public NonBURLReplyToDestination(final String exchangeClass,
+                                         final String exchange,
+                                         final String routingKey)
         {
             super(exchange,
-                  null,
+                  exchangeClass,
                   routingKey,
                   routingKey);
         }

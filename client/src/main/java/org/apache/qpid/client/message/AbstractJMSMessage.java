@@ -34,8 +34,6 @@ public abstract class AbstractJMSMessage implements org.apache.qpid.jms.Message
 {
 
 
-    /** If the acknowledge mode is CLIENT_ACKNOWLEDGE the session is required */
-
     private AMQMessageDelegate _delegate;
     private boolean _redelivered;
     private boolean _receivedFromServer;
@@ -398,12 +396,6 @@ public abstract class AbstractJMSMessage implements org.apache.qpid.jms.Message
 
 
 
-    /**
-     * The session is set when CLIENT_ACKNOWLEDGE mode is used so that the CHANNEL ACK can be sent when the user calls
-     * acknowledge()
-     *
-     * @param s the AMQ session that delivered this message
-     */
     public void setAMQSession(AMQSession s)
     {
         _delegate.setAMQSession(s);
