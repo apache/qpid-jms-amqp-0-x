@@ -689,6 +689,11 @@ public class AMQMessageDelegate_0_8 extends AbstractAMQMessageDelegate
     {
         private static final long serialVersionUID = -5042408431861384536L;
 
+        // For Externalizable contract
+        public DefaultRouterDestination()
+        {
+        }
+
         public DefaultRouterDestination(final String replyToEncoding)
         {
             super("",
@@ -713,6 +718,11 @@ public class AMQMessageDelegate_0_8 extends AbstractAMQMessageDelegate
     private static class NonBURLReplyToDestination extends AMQDestination implements Queue
     {
         private static final long serialVersionUID = 122897705932489259L;
+
+        // For Externalizable contract
+        public NonBURLReplyToDestination()
+        {
+        }
 
         public NonBURLReplyToDestination(final String exchangeClass,
                                          final String exchange,

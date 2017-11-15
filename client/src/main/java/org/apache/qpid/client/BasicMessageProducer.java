@@ -48,7 +48,7 @@ public abstract class BasicMessageProducer extends Closeable implements org.apac
 {
 
 
-    enum PublishMode { ASYNC_PUBLISH_ALL, SYNC_PUBLISH_PERSISTENT, SYNC_PUBLISH_ALL };
+    enum PublishMode { ASYNC_PUBLISH_ALL, SYNC_PUBLISH_PERSISTENT, SYNC_PUBLISH_ALL }
 
     private final Logger _logger ;
 
@@ -491,17 +491,18 @@ public abstract class BasicMessageProducer extends Closeable implements org.apac
         }
 
         AMQDestination amqDestination = (AMQDestination) destination;
-        if (!_session.isResolved(amqDestination))
+        if (_session.isResolved(amqDestination) || amqDestination.neverDeclare())
         {
-            try
-            {
-                declareDestination(amqDestination);
-            }
-            catch(Exception e)
-            {
-                throw JMSExceptionHelper.chainJMSException(new InvalidDestinationException(
-                        "Error validating destination"), e);
-            }
+            return;
+        }
+        try
+        {
+            declareDestination(amqDestination);
+        }
+        catch(Exception e)
+        {
+            throw JMSExceptionHelper.chainJMSException(new InvalidDestinationException(
+                    "Error validating destination"), e);
         }
     }
 
