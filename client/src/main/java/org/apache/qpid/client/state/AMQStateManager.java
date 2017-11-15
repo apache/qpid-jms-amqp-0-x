@@ -166,9 +166,14 @@ public class AMQStateManager implements AMQMethodListener
             _logger.info("No Waiters for error. Saving as last error:" + error.getMessage());
             _lastException = error;
         }
+        propagateExceptionToStateWaiters(error);
+    }
+
+    public void propagateExceptionToStateWaiters(final Exception error)
+    {
         for (StateWaiter waiter : _waiters)
         {
-            if(_logger.isDebugEnabled())
+            if (_logger.isDebugEnabled())
             {
                 _logger.debug("Notifying waiter " + waiter + " for error:" + error.getMessage());
             }

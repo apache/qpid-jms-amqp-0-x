@@ -508,6 +508,7 @@ public class AMQProtocolHandler implements ExceptionHandlingByteBufferReceiver, 
         {
             _logger.error("Exception processing frame", e);
             propagateExceptionToFrameListeners(e);
+            _stateManager.propagateExceptionToStateWaiters(e);
             exception(e);
         }
         finally
@@ -551,7 +552,7 @@ public class AMQProtocolHandler implements ExceptionHandlingByteBufferReceiver, 
         catch (QpidException e)
         {
             propagateExceptionToFrameListeners(e);
-
+            _stateManager.propagateExceptionToStateWaiters(e);
             exception(e);
         }
 
