@@ -520,7 +520,7 @@
                         # TRIMMED 3RD PARTY DEPENDENCY INFORMATION FOR MODIFICATION CHECKS
                         #
                       </header>
-                      <path path="${project.build.outputDirectory}/META-INF/DEPENDENCIES" />
+                      <path path="${project.build.directory}/maven-shared-archive-resources/META-INF/DEPENDENCIES" />
                     </concat>
 
                     <replaceregexp file="${dependency-verification-output-file}" flags="gm" replace="">
