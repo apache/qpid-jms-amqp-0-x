@@ -24,7 +24,7 @@
     <formats>
         <format>tar.gz</format>
     </formats>
-    <baseDirectory>apache-qpid-jms-0-x-${project.version}-src</baseDirectory>
+    <baseDirectory>apache-qpid-jms-amqp-0-x-${project.version}-src</baseDirectory>
     <fileSets>
         <!-- main project directory structure -->
         <fileSet>
