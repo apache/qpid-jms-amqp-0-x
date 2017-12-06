@@ -1050,6 +1050,7 @@ public class AMQSession_0_10 extends AMQSession<BasicMessageConsumer_0_10, Basic
 
     public void setCurrentException(SessionException se)
     {
+        QpidException amqe;
         synchronized (_currentExceptionLock)
         {
             ExecutionException ee = se.getException();
@@ -1058,7 +1059,7 @@ public class AMQSession_0_10 extends AMQSession<BasicMessageConsumer_0_10, Basic
             {
                 code = ee.getErrorCode().getValue();
             }
-            QpidException amqe = new AMQException(code, _isHardError, se.getMessage(), se.getCause());
+            amqe = new AMQException(code, _isHardError, se.getMessage(), se.getCause());
             _currentException = amqe;
         }
         if (!_isHardError)
@@ -1067,17 +1068,17 @@ public class AMQSession_0_10 extends AMQSession<BasicMessageConsumer_0_10, Basic
             stopDispatcherThread();
             try
             {
-                closed(_currentException);
+                closed(amqe);
             }
             catch(Exception e)
             {
                 _logger.warn("Error closing session", e);
             }
-            getAMQConnection().exceptionReceived(_currentException);
+            getAMQConnection().exceptionReceived(amqe);
         }
         else
         {
-            getAMQConnection().closed(_currentException);
+            getAMQConnection().closed(amqe);
         }
     }
 
