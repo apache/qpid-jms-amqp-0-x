@@ -309,7 +309,7 @@ public class AddressBasedDestinationTest extends JmsTestBase
     @Test
     public void testCreateExchangeWithArgs() throws Exception
     {
-        assumeThat("Not supported by Broker-J", isCppBroker(), is(equalTo(true)));
+        assumeThat("QPID-3392: Not supported by Broker-J", isCppBroker(), is(equalTo(true)));
         createExchangeImpl(true, false, false);
     }
 
@@ -321,6 +321,10 @@ public class AddressBasedDestinationTest extends JmsTestBase
     @Test
     public void testCreateExchangeWithNonsenseArgs() throws Exception
     {
+        assumeThat("Broker-J is required",
+                   getBrokerAdmin().getBrokerType(),
+                   is(equalTo(BrokerAdmin.BrokerType.BROKERJ)));
+
         createExchangeImpl(true, true, false);
     }
 
@@ -782,7 +786,7 @@ public class AddressBasedDestinationTest extends JmsTestBase
     @Test
     public void testSessionCreateTopicWithExchangeArgs() throws Exception
     {
-        assumeThat("Not supported by Broker-J", isCppBroker(), is(equalTo(true)));
+        assumeThat("QPID-3392: Not supported by Broker-J", isCppBroker(), is(equalTo(true)));
         sessionCreateTopicImpl(true);
     }
 
@@ -1195,6 +1199,10 @@ public class AddressBasedDestinationTest extends JmsTestBase
     @Test
     public void testDeleteOptions() throws Exception
     {
+        assumeThat("Broker-J is required",
+                   getBrokerAdmin().getBrokerType(),
+                   is(equalTo(BrokerAdmin.BrokerType.BROKERJ)));
+
         Session jmsSession = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
         // default (create never, assert never) -------------------
@@ -1733,11 +1741,6 @@ public class AddressBasedDestinationTest extends JmsTestBase
         {
             System.clearProperty(ClientProperties.DEST_SYNTAX);
         }
-    }
-
-    private String getProtocol()
-    {
-        return System.getProperty(ClientProperties.AMQP_VERSION, "0-10");
     }
 
     private boolean isBroker010()

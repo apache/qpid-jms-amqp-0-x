@@ -122,6 +122,7 @@
                 <configuration>
                     <systemPropertyVariables>
                        <qpid.amqp.version>${qpid.amqp.version}</qpid.amqp.version>
+                        <qpid.dest_syntax>BURL</qpid.dest_syntax>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

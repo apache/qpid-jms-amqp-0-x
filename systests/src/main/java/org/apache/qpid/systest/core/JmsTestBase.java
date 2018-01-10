@@ -24,6 +24,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assume.assumeThat;
 
+import java.util.Map;
+
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
@@ -36,6 +38,8 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.qpid.configuration.ClientProperties;
+
 
 public abstract class JmsTestBase extends BrokerAdminUsingTestBase
 {
@@ -47,22 +51,28 @@ public abstract class JmsTestBase extends BrokerAdminUsingTestBase
     @Before
     public void setUpTestBase()
     {
-        assumeThat(String.format("BrokerAdmin is not available. Skipping the test %s#%s",
-                                 getClass().getName(),
-                                 _testName.getMethodName()),
-                   getBrokerAdmin(), is(notNullValue()));
         LOGGER.debug("Test receive timeout is {} milliseconds", getReceiveTimeout());
     }
 
-
     protected Connection getConnection() throws JMSException, NamingException
     {
+        return getBrokerAdmin().getConnection();
+    }
+
+    @Override
+    public BrokerAdmin getBrokerAdmin()
+    {
+        BrokerAdmin admin = super.getBrokerAdmin();
         assumeThat(String.format("BrokerAdmin is not available. Skipping the test %s#%s",
                                  getClass().getName(),
                                  _testName.getMethodName()),
-                   getBrokerAdmin(), is(notNullValue()));
+                   admin, is(notNullValue()));
+        return admin;
+    }
 
-        return getBrokerAdmin().getConnection();
+    protected Connection getConnection(final Map<String, String> options) throws JMSException
+    {
+        return getBrokerAdmin().getConnection(options);
     }
 
     protected static long getReceiveTimeout()
@@ -84,5 +94,15 @@ public abstract class JmsTestBase extends BrokerAdminUsingTestBase
     protected QueueConnection getQueueConnection() throws JMSException, NamingException
     {
         return (QueueConnection) getConnection();
+    }
+
+    protected String getProtocol()
+    {
+        return System.getProperty(ClientProperties.AMQP_VERSION, "0-10");
+    }
+
+    protected String getTestQueueName()
+    {
+        return getTestName();
     }
 }

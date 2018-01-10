@@ -236,6 +236,12 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
         return createConnection(_virtualHostNodeName);
     }
 
+    @Override
+    public Connection getConnection(final Map<String, String> options) throws JMSException
+    {
+        return createConnection(_virtualHostNodeName, options);
+    }
+
     private void startBroker(final Class testClass)
     {
         try
@@ -632,16 +638,29 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
 
     private Connection createConnection(String virtualHostName) throws JMSException
     {
+        return createConnection(virtualHostName, null);
+    }
+
+    private Connection createConnection(String virtualHostName,
+                                        final Map<String, String> options) throws JMSException
+    {
         final Hashtable<Object, Object> initialContextEnvironment = new Hashtable<>();
         initialContextEnvironment.put(Context.INITIAL_CONTEXT_FACTORY,
                                       "org.apache.qpid.jndi.PropertiesFileInitialContextFactory");
         final String factoryName = "connectionFactory";
         String urlTemplate = "amqp://:@%s/%s?brokerlist='tcp://localhost:%d?failover='nofailover''";
-        String url = String.format(urlTemplate,
-                                   "spawn_broker_admin",
-                                   virtualHostName,
-                                   getBrokerAddress(PortType.AMQP).getPort());
-        initialContextEnvironment.put("connectionfactory." + factoryName, url);
+        StringBuilder url = new StringBuilder(String.format(urlTemplate,
+                                                            "spawn_broker_admin",
+                                                            virtualHostName,
+                                                            getBrokerAddress(PortType.AMQP).getPort()));
+        if (options != null)
+        {
+            for (Map.Entry<String, String> option : options.entrySet())
+            {
+                url.append("&").append(option.getKey()).append("='").append(option.getValue()).append("'");
+            }
+        }
+        initialContextEnvironment.put("connectionfactory." + factoryName, url.toString());
         try
         {
             InitialContext initialContext = new InitialContext(initialContextEnvironment);

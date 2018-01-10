@@ -22,6 +22,7 @@ package org.apache.qpid.systest.core;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -47,6 +48,7 @@ public interface BrokerAdmin
     BrokerType getBrokerType();
 
     Connection getConnection() throws JMSException;
+    Connection getConnection(Map<String, String> options) throws JMSException;
 
     enum PortType
     {
