@@ -40,10 +40,10 @@ public class Booter
                                                           + File.separator
                                                           + "repository";
     private static final String REMOTE_REPO_URL = System.getProperty(
-            "qpid.systests.end_to_end_conversion.remoteRepository",
+            "qpid.systests.maven_remote_repository",
             "https://repo.maven.apache.org/maven2/");
     private static final String LOCAL_REPO =
-            System.getProperty("qpid.systests.end_to_end_conversion.localRepository", FALLBACK_LOCAL_REPO_URL);
+            System.getProperty("qpid.systests.maven_local_repository", FALLBACK_LOCAL_REPO_URL);
 
     public static RepositorySystem newRepositorySystem()
     {
