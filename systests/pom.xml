@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.qpid</groupId>
+        <artifactId>qpid-jms-amqp-0-x-parent</artifactId>
+        <version>6.4.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>qpid-client-systests</artifactId>
+    <name>Apache Qpid JMS AMQP 0-x System Tests</name>
+    <description>Apache Qpid JMS AMQP 0-x System Tests</description>
+
+    <properties>
+        <qpid.amqp.version>0-10</qpid.amqp.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.qpid</groupId>
+            <artifactId>qpid-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-connector-basic</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-transport-file</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-transport-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-integration</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                       <qpid.amqp.version>${qpid.amqp.version}</qpid.amqp.version>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>broker-j</id>
+
+            <properties>
+                <qpid-broker-j-version>7.0.0</qpid-broker-j-version>
+                <qpid.systest.broker_admin>org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin</qpid.systest.broker_admin>
+                <qpid.systest.java8.executable>/usr/bin/java</qpid.systest.java8.executable>
+                <qpid.systest.virtualhost.blueprint>{"type":"BDB","globalAddressDomains":"[]"}</qpid.systest.virtualhost.blueprint>
+                <qpid.systest.brokerj.dependencies>org.apache.qpid:qpid-broker:${qpid-broker-j-version},org.apache.qpid:qpid-broker-core:${qpid-broker-j-version},org.apache.qpid:qpid-bdbstore:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-amqp-0-8-protocol:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-amqp-0-10-protocol:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-amqp-msg-conv-0-8-to-0-10:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-management-amqp:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-access-control:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-derby-store:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-jdbc-provider-bone:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-jdbc-store:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-logging-logback:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-management-amqp:${qpid-broker-j-version},org.apache.qpid:qpid-broker-plugins-memory-store:${qpid-broker-j-version},org.apache.qpid:qpid-bdbstore:${qpid-broker-j-version}</qpid.systest.brokerj.dependencies>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <qpid.systest.brokerj.dependencies>${qpid.systest.brokerj.dependencies}</qpid.systest.brokerj.dependencies>
+                                <qpid.systest.java8.executable>${qpid.systest.java8.executable}</qpid.systest.java8.executable>
+                                <qpid.systest.build.classpath.file>${project.build.directory}/qpid.build.classpath.txt</qpid.systest.build.classpath.file>
+                                <qpid.systest.initialConfigurationLocation>classpath:broker-j-config-with-logging.json</qpid.systest.initialConfigurationLocation>
+                                <qpid.systest.broker_admin>${qpid.systest.broker_admin}</qpid.systest.broker_admin>
+                                <qpid.systest.virtualhostnode.type>JSON</qpid.systest.virtualhostnode.type>
+                                <qpid.systest.virtualhost.blueprint>${qpid.systest.virtualhost.blueprint}</qpid.systest.virtualhost.blueprint>
+                                <qpid.systest.logback.logs_dir>${project.basedir}${file.separator}target${file.separator}surefire-reports</qpid.systest.logback.logs_dir>
+                                <qpid.systest.broker.clean.between.tests>true</qpid.systest.broker.clean.between.tests>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-java8-check</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireFilesExist>
+                                            <files>
+                                                <file>${qpid.systest.java8.executable}</file>
+                                            </files>
+                                        </requireFilesExist>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
