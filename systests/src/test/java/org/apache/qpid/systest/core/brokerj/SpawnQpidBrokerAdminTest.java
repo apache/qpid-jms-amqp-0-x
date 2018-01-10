@@ -268,10 +268,6 @@ public class SpawnQpidBrokerAdminTest
 
     private void assumeBrokerCanBeStarted()
     {
-        assumeThat(String.format("Java 8 executable property (%s) is not set", SYSTEST_PROPERTY_JAVA8_EXECUTABLE),
-                   System.getProperty(SYSTEST_PROPERTY_JAVA8_EXECUTABLE), is(notNullValue()));
-        assumeThat("Java 8 executable does not exist",
-                   new File(System.getProperty(SYSTEST_PROPERTY_JAVA8_EXECUTABLE)).exists(), is(equalTo(true)));
         assumeThat(String.format("Broker-J classpath property (%s) is not set", SYSTEST_PROPERTY_BUILD_CLASSPATH_FILE),
                    System.getProperty(SYSTEST_PROPERTY_BUILD_CLASSPATH_FILE), is(notNullValue()));
         assumeThat(String.format("Broker dependencies property (%s) is not set", SYSTEST_PROPERTY_BROKERJ_DEPENDECIES),
