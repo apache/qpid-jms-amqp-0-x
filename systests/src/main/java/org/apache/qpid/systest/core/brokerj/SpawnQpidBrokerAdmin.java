@@ -219,6 +219,12 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
     }
 
     @Override
+    public String getVirtualHostName()
+    {
+        return _virtualHostNodeName;
+    }
+
+    @Override
     public String getType()
     {
         return SpawnQpidBrokerAdmin.class.getSimpleName();

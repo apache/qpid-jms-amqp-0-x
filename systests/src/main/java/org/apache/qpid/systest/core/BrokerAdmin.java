@@ -43,10 +43,11 @@ public interface BrokerAdmin
 
     String getValidUsername();
     String getValidPassword();
+    String getVirtualHostName();
 
     String getType();
-    BrokerType getBrokerType();
 
+    BrokerType getBrokerType();
     Connection getConnection() throws JMSException;
     Connection getConnection(Map<String, String> options) throws JMSException;
 
