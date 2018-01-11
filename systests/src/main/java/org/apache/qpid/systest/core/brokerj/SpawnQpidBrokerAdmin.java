@@ -149,17 +149,20 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
         {
             String qualifiedTestName;
             String loggerName;
+            String logLevel;
             if (method == null)
             {
                 qualifiedTestName = testClass.getName();
                 loggerName = testClass.getSimpleName();
+                logLevel = "INFO";
             }
             else
             {
+                logLevel = "DEBUG";
                 qualifiedTestName = String.format("%s.%s", testClass.getName(), method.getName());
                 loggerName = method.getName();
             }
-            createBrokerSocketLoggerAndRulesAndDeleteOldLogger(loggerName, qualifiedTestName);
+            createBrokerSocketLoggerAndRulesAndDeleteOldLogger(loggerName, qualifiedTestName, logLevel);
         }
         super.setClassQualifiedTestName(testClass, method);
     }
@@ -432,7 +435,9 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
         }
     }
 
-    private void createBrokerSocketLoggerAndRulesAndDeleteOldLogger(String loggerName, String classQualifiedTestName)
+    private void createBrokerSocketLoggerAndRulesAndDeleteOldLogger(String loggerName,
+                                                                    String classQualifiedTestName,
+                                                                    final String qpidLogLevel)
     {
         try
         {
@@ -454,7 +459,7 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
                 createBrokerLoggerRule(loggerName,
                                        "Qpid",
                                        "org.apache.qpid.*",
-                                       "DEBUG",
+                                       qpidLogLevel,
                                        amqpManagementFacade,
                                        connection);
                 createBrokerLoggerRule(loggerName,

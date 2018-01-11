@@ -49,7 +49,7 @@
     }, {
       "name" : "Qpid",
       "type" : "NameAndLevel",
-      "level" : "DEBUG",
+      "level" : "INFO",
       "loggerName" : "org.apache.qpid.*"
     }, {
       "name" : "Operational",
