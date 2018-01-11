@@ -27,16 +27,14 @@ import java.util.Map;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 @SuppressWarnings("unused")
 public interface BrokerAdmin
 {
-    void create(final Class testClass);
-    void start(final Class testClass, final Method method);
-    void stop(final Class testClass, final Method method);
-    void destroy(final Class testClass);
-    ListenableFuture<Void> restart();
+    void beforeTestClass(final Class testClass);
+    void beforeTestMethod(final Class testClass, final Method method);
+    void afterTestMethod(final Class testClass, final Method method);
+    void afterTestClass(final Class testClass);
+    void restart();
 
     InetSocketAddress getBrokerAddress(PortType portType);
     boolean supportsPersistence();
@@ -44,8 +42,6 @@ public interface BrokerAdmin
     String getValidUsername();
     String getValidPassword();
     String getVirtualHostName();
-
-    String getType();
 
     BrokerType getBrokerType();
     Connection getConnection() throws JMSException;

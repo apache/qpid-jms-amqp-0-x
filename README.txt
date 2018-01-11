@@ -30,6 +30,14 @@ Execute system tests against Broker-J using Java 7 and specifying a path to Java
 
   mvn verify -Pbroker-j -Dqpid.systest.java8.executable=/usr/java/jdk1.8.0_121/bin/java
 
+Execute system tests against cpp broker available on PATH
+
+  mvn verify -Pcpp
+
+Execute system tests against cpp broker by providing path to broker executable explicitly
+
+  mvn verify -Pcpp -Dqpid.systest.broker.executable=-Dqpid.systest.broker.executable=/home/alex/qpid/qpidd
+
 Execute the unit tests and then produce the code coverage report
 
   mvn test jacoco:report

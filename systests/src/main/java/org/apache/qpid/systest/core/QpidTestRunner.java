@@ -51,7 +51,7 @@ public class QpidTestRunner extends BlockJUnit4ClassRunner
     {
         if (_brokerAdmin != null)
         {
-            _brokerAdmin.create(_testClass);
+            _brokerAdmin.beforeTestClass(_testClass);
         }
         try
         {
@@ -61,7 +61,7 @@ public class QpidTestRunner extends BlockJUnit4ClassRunner
         {
             if (_brokerAdmin != null)
             {
-                _brokerAdmin.destroy(_testClass);
+                _brokerAdmin.afterTestClass(_testClass);
             }
         }
     }
@@ -71,7 +71,7 @@ public class QpidTestRunner extends BlockJUnit4ClassRunner
     {
         if (_brokerAdmin != null)
         {
-            _brokerAdmin.start(_testClass, method.getMethod());
+            _brokerAdmin.beforeTestMethod(_testClass, method.getMethod());
         }
         try
         {
@@ -81,7 +81,7 @@ public class QpidTestRunner extends BlockJUnit4ClassRunner
         {
             if (_brokerAdmin != null)
             {
-                _brokerAdmin.stop(_testClass, method.getMethod());
+                _brokerAdmin.afterTestMethod(_testClass, method.getMethod());
             }
         }
     }

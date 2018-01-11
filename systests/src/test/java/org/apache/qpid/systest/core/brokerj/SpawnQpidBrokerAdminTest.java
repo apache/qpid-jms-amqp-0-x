@@ -27,6 +27,7 @@ import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_
 import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_PROPERTY_VIRTUALHOSTNODE_TYPE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 
@@ -55,11 +56,20 @@ public class SpawnQpidBrokerAdminTest
         SpawnQpidBrokerAdmin spawnQpidBrokerAdmin = new SpawnQpidBrokerAdmin();
         try
         {
-            spawnQpidBrokerAdmin.start(SpawnQpidBrokerAdminTest.class);
+            spawnQpidBrokerAdmin.beforeTestClass(SpawnQpidBrokerAdminTest.class);
+            Connection managementConnection = spawnQpidBrokerAdmin.createManagementConnection();
+            try
+            {
+                assertConnection(managementConnection);
+            }
+            finally
+            {
+                managementConnection.close();
+            }
         }
         finally
         {
-            spawnQpidBrokerAdmin.shutdown();
+            spawnQpidBrokerAdmin.afterTestClass(SpawnQpidBrokerAdminTest.class);
         }
     }
 
@@ -72,7 +82,7 @@ public class SpawnQpidBrokerAdminTest
         SpawnQpidBrokerAdmin spawnQpidBrokerAdmin = new SpawnQpidBrokerAdmin();
         try
         {
-            spawnQpidBrokerAdmin.start(SpawnQpidBrokerAdminTest.class);
+            spawnQpidBrokerAdmin.beforeTestClass(SpawnQpidBrokerAdminTest.class);
 
             spawnQpidBrokerAdmin.createVirtualHost("test");
             try
@@ -91,7 +101,7 @@ public class SpawnQpidBrokerAdminTest
         }
         finally
         {
-            spawnQpidBrokerAdmin.shutdown();
+            spawnQpidBrokerAdmin.afterTestClass(SpawnQpidBrokerAdminTest.class);
         }
     }
 
@@ -104,7 +114,7 @@ public class SpawnQpidBrokerAdminTest
         SpawnQpidBrokerAdmin spawnQpidBrokerAdmin = new SpawnQpidBrokerAdmin();
         try
         {
-            spawnQpidBrokerAdmin.start(SpawnQpidBrokerAdminTest.class);
+            spawnQpidBrokerAdmin.beforeTestClass(SpawnQpidBrokerAdminTest.class);
 
             final String virtualHostName = "test";
             spawnQpidBrokerAdmin.createVirtualHost(virtualHostName);
@@ -113,7 +123,7 @@ public class SpawnQpidBrokerAdminTest
                 Connection connection = getConnection(virtualHostName, spawnQpidBrokerAdmin);
                 try
                 {
-                    connection.createSession(true, Session.SESSION_TRANSACTED).close();
+                    assertConnection(connection);
                 }
                 finally
                 {
@@ -127,7 +137,7 @@ public class SpawnQpidBrokerAdminTest
         }
         finally
         {
-            spawnQpidBrokerAdmin.shutdown();
+            spawnQpidBrokerAdmin.afterTestClass(SpawnQpidBrokerAdminTest.class);
         }
     }
 
@@ -140,7 +150,7 @@ public class SpawnQpidBrokerAdminTest
         SpawnQpidBrokerAdmin spawnQpidBrokerAdmin = new SpawnQpidBrokerAdmin();
         try
         {
-            spawnQpidBrokerAdmin.start(SpawnQpidBrokerAdminTest.class);
+            spawnQpidBrokerAdmin.beforeTestClass(SpawnQpidBrokerAdminTest.class);
 
             // create and delete VH twice
             spawnQpidBrokerAdmin.createVirtualHost("test");
@@ -152,7 +162,7 @@ public class SpawnQpidBrokerAdminTest
         }
         finally
         {
-            spawnQpidBrokerAdmin.shutdown();
+            spawnQpidBrokerAdmin.afterTestClass(SpawnQpidBrokerAdminTest.class);
         }
     }
 
@@ -166,7 +176,7 @@ public class SpawnQpidBrokerAdminTest
         SpawnQpidBrokerAdmin spawnQpidBrokerAdmin = new SpawnQpidBrokerAdmin();
         try
         {
-            spawnQpidBrokerAdmin.start(SpawnQpidBrokerAdminTest.class);
+            spawnQpidBrokerAdmin.beforeTestClass(SpawnQpidBrokerAdminTest.class);
 
             try
             {
@@ -219,7 +229,7 @@ public class SpawnQpidBrokerAdminTest
         }
         finally
         {
-            spawnQpidBrokerAdmin.shutdown();
+            spawnQpidBrokerAdmin.afterTestClass(SpawnQpidBrokerAdminTest.class);
         }
     }
 
@@ -271,5 +281,10 @@ public class SpawnQpidBrokerAdminTest
                    System.getProperty(SYSTEST_PROPERTY_BROKERJ_DEPENDENCIES), is(notNullValue()));
         assumeThat(String.format("Broker-J initial configuration property (%s) is not set", SYSTEST_PROPERTY_INITIAL_CONFIGURATION_LOCATION),
                    System.getProperty(SYSTEST_PROPERTY_INITIAL_CONFIGURATION_LOCATION), is(notNullValue()));
+    }
+
+    private void assertConnection(final Connection connection) throws JMSException
+    {
+        connection.createSession(true, Session.SESSION_TRANSACTED).close();
     }
 }

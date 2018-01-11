@@ -30,6 +30,10 @@
     <name>Apache Qpid JMS AMQP 0-x System Tests</name>
     <description>Apache Qpid JMS AMQP 0-x System Tests</description>
 
+    <properties>
+        <qpid.systest.broker.clean.between.tests>true</qpid.systest.broker.clean.between.tests>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -161,7 +165,6 @@
             <properties>
                 <qpid.amqp.version>0-10</qpid.amqp.version>
                 <surefire.working.directory>${project.build.directory}${file.separator}surefire-reports${file.separator}${qpid.amqp.version}</surefire.working.directory>
-                <qpid.systest.broker.clean.between.tests>true</qpid.systest.broker.clean.between.tests>
                 <qpid-broker-j-version>7.0.0</qpid-broker-j-version>
                 <qpid.systest.broker_admin>org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin</qpid.systest.broker_admin>
                 <qpid.systest.java8.executable>java</qpid.systest.java8.executable>
@@ -192,6 +195,44 @@
                 </plugins>
             </build>
         </profile>
+
+
+        <!--
+            Profile 'cpp is used to run system tests against Qpid cpp broker.
+
+            A path to cpp broker executable is required to run the tests.
+            It can be set with a property 'qpid.systest.broker.executable'.
+            For example, -Dqpid.systest.broker.executable=/home/alex/bin/qpidd
+
+            Examples of running tests:
+             mvn verify -Pcpp
+             mvn verify -Pcpp -Dqpid.systest.broker.executable=/home/alex/bin/qpidd
+        -->
+        <profile>
+            <id>cpp</id>
+
+            <properties>
+                <qpid.systest.broker.executable>qpidd</qpid.systest.broker.executable>
+                <qpid.systest.broker_admin>org.apache.qpid.systest.core.cpp.SpawnQpidBrokerAdmin</qpid.systest.broker_admin>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <qpid.systest.broker.executable>${qpid.systest.broker.executable}</qpid.systest.broker.executable>
+                                <qpid.systest.broker_admin>${qpid.systest.broker_admin}</qpid.systest.broker_admin>
+                                <qpid.systest.broker.clean.between.tests>${qpid.systest.broker.clean.between.tests}</qpid.systest.broker.clean.between.tests>
+                                <qpid.systest.logback.logs_dir>${project.build.directory}${file.separator}surefire-reports${file.separator}</qpid.systest.logback.logs_dir>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>
