@@ -48,7 +48,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,7 +79,7 @@ import org.apache.qpid.systest.core.util.SystemUtils;
 public class SpawnQpidBrokerAdmin implements BrokerAdmin
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpawnQpidBrokerAdmin.class);
-    private static final String BROKER_LOG_PREFIX = "BROKER";
+    private static final String BROKER_LOG_PREFIX = "BRK";
     private static final String SYSTEST_PROPERTY_PREFIX = "qpid.systest.";
     private static final String SYSTEST_PROPERTY_BROKER_READY = "qpid.systest.broker.ready";
     private static final String SYSTEST_PROPERTY_BROKER_STOPPED = "qpid.systest.broker.stopped";
@@ -89,14 +88,22 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
     private static final String SYSTEST_PROPERTY_SPAWN_BROKER_STARTUP_TIME = "qpid.systest.broker_startup_time";
     private static final String SYSTEST_PROPERTY_BROKER_CLEAN_BETWEEN_TESTS = "qpid.systest.broker.clean.between.tests";
     private static final String SYSTEST_PROPERTY_JAVA_EXECUTABLE = "qpid.systest.java8.executable";
+    private static final String SYSTEST_PROPERTY_LOGBACK_CONTEXT = "qpid.systest.logback.context";
+    private static final String SYSTEST_PROPERTY_REMOTE_DEBUGGER = "qpid.systest.remote_debugger";
+    private static final String SYSTEST_PROPERTY_LOGBACK_ORIGIN = "qpid.systest.logback.origin";
+    private static final String SYSTEST_PROPERTY_LOGBACK_SOCKET_PORT = "qpid.systest.logback.socket.port";
+
+    private static final String BROKER_TYPE_LOGBACK_SOCKET_LOGGER =
+            "org.apache.qpid.server.logging.logback.BrokerLogbackSocketLogger";
+    private static final String BROKER_TYPE_NAME_AND_LEVEL_LOG_INCLUSION_RULE =
+            "org.apache.qpid.server.logging.logback.BrokerNameAndLevelLogInclusionRule";
+    private static final String BROKER_TYPE_VIRTUAL_HOST_NODE = "org.apache.qpid.VirtualHostNode";
 
     static final String SYSTEST_PROPERTY_VIRTUALHOSTNODE_TYPE = "qpid.systest.virtualhostnode.type";
     static final String SYSTEST_PROPERTY_VIRTUALHOST_BLUEPRINT = "qpid.systest.virtualhost.blueprint";
     static final String SYSTEST_PROPERTY_INITIAL_CONFIGURATION_LOCATION = "qpid.systest.initialConfigurationLocation";
     static final String SYSTEST_PROPERTY_BUILD_CLASSPATH_FILE = "qpid.systest.build.classpath.file";
     static final String SYSTEST_PROPERTY_BROKERJ_DEPENDENCIES = "qpid.systest.brokerj.dependencies";
-
-    private final static AtomicLong BROKER_INSTANCE_COUNTER = new AtomicLong();
 
     private volatile List<ListeningPort> _ports;
     private volatile Process _process;
@@ -123,7 +130,9 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
         createVirtualHost(virtualHostNodeName);
         _virtualHostNodeName = virtualHostNodeName;
         LOGGER.info("========================= executing test : {}#{}", testClass.getSimpleName(), method.getName());
-        setClassQualifiedTestName(testClass.getName() + "." + method.getName());
+        String qualifiedTestName = String.format("%s.%s", testClass.getName(), method.getName());
+        createBrokerSocketLoggerAndRulesAndDeleteOldLogger(method.getName() + "Logger", qualifiedTestName);
+        setClassQualifiedTestName(qualifiedTestName);
         LOGGER.info("========================= start executing test : {}#{}",
                     testClass.getSimpleName(),
                     method.getName());
@@ -136,7 +145,9 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
         LOGGER.info("========================= stop executing test : {}#{}",
                     testClass.getSimpleName(),
                     method.getName());
-        setClassQualifiedTestName(testClass.getName());
+        String qualifiedTestName = testClass.getName();
+        createBrokerSocketLoggerAndRulesAndDeleteOldLogger(testClass.getSimpleName(), qualifiedTestName);
+        setClassQualifiedTestName(qualifiedTestName);
         LOGGER.info("========================= cleaning up test environment for test : {}#{}",
                     testClass.getSimpleName(),
                     method.getName());
@@ -171,8 +182,7 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
             case AMQP:
                 for (ListeningPort p : _ports)
                 {
-                    if (p.getProtocol() == null
-                        && (p.getTransport().contains("TCP") /*|| p.getTransport().contains("SSL") */))
+                    if (p.getProtocol() == null && (p.getTransport().contains("TCP")))
                     {
                         port = p.getPort();
                         break;
@@ -323,24 +333,24 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
             if (jvmProperty.startsWith(SYSTEST_PROPERTY_PREFIX)
                 || jvmProperty.equalsIgnoreCase("java.io.tmpdir"))
             {
-                jvmArguments.add("-D" + jvmProperty + "=" + jvmProperties.getProperty(jvmProperty));
+                jvmArguments.add(String.format("-D%s=%s", jvmProperty, jvmProperties.getProperty(jvmProperty)));
             }
         }
 
         jvmArguments.add(0, System.getProperty(SYSTEST_PROPERTY_JAVA_EXECUTABLE, "java"));
         jvmArguments.add(1, "-cp");
         jvmArguments.add(2, classpath);
-        jvmArguments.add("-Dqpid.systest.logback.socket.port="
-                         + LogbackSocketPortNumberDefiner.getLogbackSocketPortNumber());
-        jvmArguments.add("-Dqpid.systest.logback.logs_dir=" + System.getProperty("qpid.systest.logback.logs_dir",
-                                                                                 "${qpid.work_dir}"));
-        jvmArguments.add(String.format("-Dqpid.systest.logback.origin=%s-%d",
+        jvmArguments.add(String.format("-D%s=%d",
+                                       SYSTEST_PROPERTY_LOGBACK_SOCKET_PORT,
+                                       LogbackSocketPortNumberDefiner.getLogbackSocketPortNumber()));
+        jvmArguments.add(String.format("-D%s=%s-%s",
+                                       SYSTEST_PROPERTY_LOGBACK_ORIGIN,
                                        BROKER_LOG_PREFIX,
-                                       BROKER_INSTANCE_COUNTER.getAndIncrement()));
-        jvmArguments.add("-Dqpid.systest.logback.context=" + testClass.getName());
-        if (System.getProperty("qpid.systest.remote_debugger") != null)
+                                       testClass.getSimpleName()));
+        jvmArguments.add(String.format("-D%s=%s", SYSTEST_PROPERTY_LOGBACK_CONTEXT, testClass.getName()));
+        if (System.getProperty(SYSTEST_PROPERTY_REMOTE_DEBUGGER) != null)
         {
-            jvmArguments.add(System.getProperty("qpid.systest.remote_debugger"));
+            jvmArguments.add(System.getProperty(SYSTEST_PROPERTY_REMOTE_DEBUGGER));
         }
         jvmArguments.add("org.apache.qpid.server.Main");
         jvmArguments.add("-prop");
@@ -504,7 +514,7 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
                 try
                 {
                     new AmqpManagementFacade().createEntityUsingAmqpManagement(virtualHostNodeName,
-                                                                               "org.apache.qpid.VirtualHostNode",
+                                                                               BROKER_TYPE_VIRTUAL_HOST_NODE,
                                                                                attributes,
                                                                                session);
                 }
@@ -541,7 +551,7 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
                 try
                 {
                     new AmqpManagementFacade().deleteEntityUsingAmqpManagement(virtualHostNodeName,
-                                                                               "org.apache.qpid.VirtualHostNode",
+                                                                               BROKER_TYPE_VIRTUAL_HOST_NODE,
                                                                                session);
                 }
                 catch (AmqpManagementFacade.OperationUnsuccessfulException e)
@@ -598,7 +608,7 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
         try
         {
             new AmqpManagementFacade().updateEntityUsingAmqpManagement(virtualHostNodeName,
-                                                                       "org.apache.qpid.VirtualHostNode",
+                                                                       BROKER_TYPE_VIRTUAL_HOST_NODE,
                                                                        attributes,
                                                                        session);
         }
@@ -606,6 +616,160 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
         {
             throw new BrokerAdminException(String.format("Cannot update test virtual host '%s'", virtualHostNodeName),
                                            e);
+        }
+        finally
+        {
+            session.close();
+        }
+    }
+
+    private void createBrokerSocketLoggerAndRulesAndDeleteOldLogger(String loggerName, String classQualifiedTestName)
+    {
+        try
+        {
+            AmqpManagementFacade amqpManagementFacade = new AmqpManagementFacade();
+            Connection connection = createConnection("$management");
+            try
+            {
+                connection.start();
+
+                String oldLogger = findOldLogger(amqpManagementFacade, connection);
+                if (oldLogger != null)
+                {
+                    removeBrokerLogger(oldLogger, amqpManagementFacade, connection);
+                }
+
+                createBrokerSocketLogger(loggerName, classQualifiedTestName, amqpManagementFacade, connection);
+
+                createBrokerLoggerRule(loggerName, "Root", "ROOT", "INFO", amqpManagementFacade, connection);
+                createBrokerLoggerRule(loggerName,
+                                       "Qpid",
+                                       "org.apache.qpid.*",
+                                       "DEBUG",
+                                       amqpManagementFacade,
+                                       connection);
+                createBrokerLoggerRule(loggerName,
+                                       "Operational",
+                                       "qpid.message.*",
+                                       "INFO",
+                                       amqpManagementFacade,
+                                       connection);
+                createBrokerLoggerRule(loggerName,
+                                       "Statistics",
+                                       "qpid.statistics.*",
+                                       "INFO",
+                                       amqpManagementFacade,
+                                       connection);
+            }
+            finally
+            {
+                connection.close();
+            }
+        }
+        catch (JMSException e)
+        {
+            throw new BrokerAdminException(String.format("Cannot create broker socket logger and rules for '%s'",
+                                                         classQualifiedTestName), e);
+        }
+    }
+
+    private String findOldLogger(final AmqpManagementFacade amqpManagementFacade, final Connection connection)
+            throws JMSException
+    {
+        String oldLoggerName = null;
+        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        try
+        {
+            List<Map<String, Object>> loggers =
+                    amqpManagementFacade.managementQueryObjects(BROKER_TYPE_LOGBACK_SOCKET_LOGGER,
+                                                                session);
+            for (Map<String, Object> logger : loggers)
+            {
+                if ("BrokerLogbackSocket".equals(logger.get("qpid-type")))
+                {
+                    if (oldLoggerName == null)
+                    {
+                        oldLoggerName = (String) logger.get("name");
+                    }
+                    else
+                    {
+                        throw new BrokerAdminException("More than one BrokerLogbackSocket is configured on Broker");
+                    }
+                }
+            }
+        }
+        finally
+        {
+            session.close();
+        }
+        return oldLoggerName;
+    }
+
+    private void removeBrokerLogger(final String loggerName,
+                                    final AmqpManagementFacade amqpManagementFacade,
+                                    final Connection connection) throws JMSException
+    {
+        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        try
+        {
+            amqpManagementFacade.deleteEntityUsingAmqpManagement(loggerName,
+                                                                 BROKER_TYPE_LOGBACK_SOCKET_LOGGER,
+                                                                 session);
+        }
+        finally
+        {
+            session.close();
+        }
+    }
+
+    private void createBrokerSocketLogger(final String loggerName,
+                                          final String classQualifiedTestName,
+                                          final AmqpManagementFacade amqpManagementFacade, final Connection connection)
+            throws JMSException
+    {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("name", loggerName);
+        attributes.put("port", "${" + SYSTEST_PROPERTY_LOGBACK_SOCKET_PORT + "}");
+        attributes.put("type", "BrokerLogbackSocket");
+        attributes.put("qpid-type", "BrokerLogbackSocket");
+        attributes.put("contextProperties", "{\"classQualifiedTestName\" : \"" + classQualifiedTestName + "\"}");
+        attributes.put("mappedDiagnosticContext", "{\"origin\" : \"" + BROKER_LOG_PREFIX + "-" + loggerName + "\"}");
+
+        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        try
+        {
+            amqpManagementFacade.createEntityUsingAmqpManagement(loggerName,
+                                                                 BROKER_TYPE_LOGBACK_SOCKET_LOGGER,
+                                                                 attributes,
+                                                                 session);
+        }
+        finally
+        {
+            session.close();
+        }
+    }
+
+    private void createBrokerLoggerRule(final String brokerLoggerName,
+                                        final String ruleName,
+                                        final String loggerName,
+                                        final String loggerLevel,
+                                        final AmqpManagementFacade amqpManagementFacade, final Connection connection)
+            throws JMSException
+    {
+        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        try
+        {
+            final Map<String, Object> attributes = new HashMap<>();
+            attributes.put("name", ruleName);
+            attributes.put("type", "NameAndLevel");
+            attributes.put("qpid-type", "NameAndLevel");
+            attributes.put("object-path", brokerLoggerName);
+            attributes.put("loggerName", loggerName);
+            attributes.put("level", loggerLevel);
+            amqpManagementFacade.createEntityUsingAmqpManagement(ruleName,
+                                                                 BROKER_TYPE_NAME_AND_LEVEL_LOG_INCLUSION_RULE,
+                                                                 attributes,
+                                                                 session);
         }
         finally
         {

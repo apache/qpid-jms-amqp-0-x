@@ -161,6 +161,7 @@
             <properties>
                 <qpid.amqp.version>0-10</qpid.amqp.version>
                 <surefire.working.directory>${project.build.directory}${file.separator}surefire-reports${file.separator}${qpid.amqp.version}</surefire.working.directory>
+                <qpid.systest.broker.clean.between.tests>true</qpid.systest.broker.clean.between.tests>
                 <qpid-broker-j-version>7.0.0</qpid-broker-j-version>
                 <qpid.systest.broker_admin>org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin</qpid.systest.broker_admin>
                 <qpid.systest.java8.executable>java</qpid.systest.java8.executable>
@@ -184,7 +185,7 @@
                                 <qpid.systest.virtualhostnode.type>JSON</qpid.systest.virtualhostnode.type>
                                 <qpid.systest.virtualhost.blueprint>${qpid.systest.virtualhost.blueprint}</qpid.systest.virtualhost.blueprint>
                                 <qpid.systest.logback.logs_dir>${surefire.working.directory}</qpid.systest.logback.logs_dir>
-                                <qpid.systest.broker.clean.between.tests>true</qpid.systest.broker.clean.between.tests>
+                                <qpid.systest.broker.clean.between.tests>${qpid.systest.broker.clean.between.tests}</qpid.systest.broker.clean.between.tests>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
