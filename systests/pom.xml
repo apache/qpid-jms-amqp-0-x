@@ -30,10 +30,6 @@
     <name>Apache Qpid JMS AMQP 0-x System Tests</name>
     <description>Apache Qpid JMS AMQP 0-x System Tests</description>
 
-    <properties>
-        <qpid.amqp.version>0-10</qpid.amqp.version>
-    </properties>
-
     <dependencies>
 
         <dependency>
@@ -120,11 +116,23 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <skip>true</skip>
                     <systemPropertyVariables>
-                       <qpid.amqp.version>${qpid.amqp.version}</qpid.amqp.version>
                         <qpid.dest_syntax>BURL</qpid.dest_syntax>
                     </systemPropertyVariables>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -144,13 +152,15 @@
             For example, -Dqpid.amqp.version=0-9-1 can be set to test 0-9-1.
 
             Examples of running tests:
-             mvn test -Pbroker-j
-             mvn test -Pbroker-j -Dqpid.amqp.version=0-9-1 -Dqpid.systest.java8.executable=/usr/java/jdk1.8.0_121/bin/java
+             mvn verify -Pbroker-j
+             mvn verify -Pbroker-j -Dqpid.amqp.version=0-9-1 -Dqpid.systest.java8.executable=/usr/java/jdk1.8.0_121/bin/java
         -->
         <profile>
             <id>broker-j</id>
 
             <properties>
+                <qpid.amqp.version>0-10</qpid.amqp.version>
+                <surefire.working.directory>${project.build.directory}${file.separator}surefire-reports${file.separator}${qpid.amqp.version}</surefire.working.directory>
                 <qpid-broker-j-version>7.0.0</qpid-broker-j-version>
                 <qpid.systest.broker_admin>org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin</qpid.systest.broker_admin>
                 <qpid.systest.java8.executable>java</qpid.systest.java8.executable>
@@ -163,7 +173,9 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
+                            <workingDirectory>${surefire.working.directory}</workingDirectory>
                             <systemPropertyVariables>
+                                <qpid.amqp.version>${qpid.amqp.version}</qpid.amqp.version>
                                 <qpid.systest.brokerj.dependencies>${qpid.systest.brokerj.dependencies}</qpid.systest.brokerj.dependencies>
                                 <qpid.systest.java8.executable>${qpid.systest.java8.executable}</qpid.systest.java8.executable>
                                 <qpid.systest.build.classpath.file>${project.build.directory}/qpid.build.classpath.txt</qpid.systest.build.classpath.file>
@@ -171,7 +183,7 @@
                                 <qpid.systest.broker_admin>${qpid.systest.broker_admin}</qpid.systest.broker_admin>
                                 <qpid.systest.virtualhostnode.type>JSON</qpid.systest.virtualhostnode.type>
                                 <qpid.systest.virtualhost.blueprint>${qpid.systest.virtualhost.blueprint}</qpid.systest.virtualhost.blueprint>
-                                <qpid.systest.logback.logs_dir>${project.basedir}${file.separator}target${file.separator}surefire-reports</qpid.systest.logback.logs_dir>
+                                <qpid.systest.logback.logs_dir>${surefire.working.directory}</qpid.systest.logback.logs_dir>
                                 <qpid.systest.broker.clean.between.tests>true</qpid.systest.broker.clean.between.tests>
                             </systemPropertyVariables>
                         </configuration>

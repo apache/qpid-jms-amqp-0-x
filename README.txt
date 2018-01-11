@@ -18,6 +18,18 @@ Perform a subset of the tests
 
   mvn verify -Dtest=TestNamePattern* -DfailIfNoTests=false
 
+Execute system tests against Broker-J using Java 8 or above
+
+  mvn verify -Pbroker-j
+
+Execute system tests with AMQP 0-9-1 against Broker-J using Java 8 and above
+
+  mvn verify -Pbroker-j  -Dqpid.amqp.version=0-9-1
+
+Execute system tests against Broker-J using Java 7 and specifying a path to Java 8 executable to run the broker
+
+  mvn verify -Pbroker-j -Dqpid.systest.java8.executable=/usr/java/jdk1.8.0_121/bin/java
+
 Execute the unit tests and then produce the code coverage report
 
   mvn test jacoco:report

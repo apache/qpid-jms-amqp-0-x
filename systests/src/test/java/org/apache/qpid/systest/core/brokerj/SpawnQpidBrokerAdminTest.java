@@ -20,19 +20,16 @@
  */
 package org.apache.qpid.systest.core.brokerj;
 
-import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_PROPERTY_BROKERJ_DEPENDECIES;
+import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_PROPERTY_BROKERJ_DEPENDENCIES;
 import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_PROPERTY_BUILD_CLASSPATH_FILE;
 import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_PROPERTY_INITIAL_CONFIGURATION_LOCATION;
-import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_PROPERTY_JAVA8_EXECUTABLE;
 import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_PROPERTY_VIRTUALHOST_BLUEPRINT;
 import static org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin.SYSTEST_PROPERTY_VIRTUALHOSTNODE_TYPE;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 
-import java.io.File;
 import java.util.Hashtable;
 
 import javax.jms.Connection;
@@ -270,8 +267,8 @@ public class SpawnQpidBrokerAdminTest
     {
         assumeThat(String.format("Broker-J classpath property (%s) is not set", SYSTEST_PROPERTY_BUILD_CLASSPATH_FILE),
                    System.getProperty(SYSTEST_PROPERTY_BUILD_CLASSPATH_FILE), is(notNullValue()));
-        assumeThat(String.format("Broker dependencies property (%s) is not set", SYSTEST_PROPERTY_BROKERJ_DEPENDECIES),
-                   System.getProperty(SYSTEST_PROPERTY_BROKERJ_DEPENDECIES), is(notNullValue()));
+        assumeThat(String.format("Broker dependencies property (%s) is not set", SYSTEST_PROPERTY_BROKERJ_DEPENDENCIES),
+                   System.getProperty(SYSTEST_PROPERTY_BROKERJ_DEPENDENCIES), is(notNullValue()));
         assumeThat(String.format("Broker-J initial configuration property (%s) is not set", SYSTEST_PROPERTY_INITIAL_CONFIGURATION_LOCATION),
                    System.getProperty(SYSTEST_PROPERTY_INITIAL_CONFIGURATION_LOCATION), is(notNullValue()));
     }

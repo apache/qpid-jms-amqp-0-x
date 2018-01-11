@@ -23,7 +23,6 @@ package org.apache.qpid.systest.core.brokerj;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -74,8 +73,8 @@ import org.apache.qpid.systest.core.BrokerAdmin;
 import org.apache.qpid.systest.core.BrokerAdminException;
 import org.apache.qpid.systest.core.dependency.ClasspathQuery;
 import org.apache.qpid.systest.core.logback.LogbackPropertyValueDiscriminator;
-import org.apache.qpid.systest.core.util.FileUtils;
 import org.apache.qpid.systest.core.logback.LogbackSocketPortNumberDefiner;
+import org.apache.qpid.systest.core.util.FileUtils;
 import org.apache.qpid.systest.core.util.SystemUtils;
 
 public class SpawnQpidBrokerAdmin implements BrokerAdmin
@@ -89,13 +88,13 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
     private static final String SYSTEST_PROPERTY_BROKER_PROCESS = "qpid.systest.broker.process";
     private static final String SYSTEST_PROPERTY_SPAWN_BROKER_STARTUP_TIME = "qpid.systest.broker_startup_time";
     private static final String SYSTEST_PROPERTY_BROKER_CLEAN_BETWEEN_TESTS = "qpid.systest.broker.clean.between.tests";
+    private static final String SYSTEST_PROPERTY_JAVA_EXECUTABLE = "qpid.systest.java8.executable";
 
     static final String SYSTEST_PROPERTY_VIRTUALHOSTNODE_TYPE = "qpid.systest.virtualhostnode.type";
     static final String SYSTEST_PROPERTY_VIRTUALHOST_BLUEPRINT = "qpid.systest.virtualhost.blueprint";
     static final String SYSTEST_PROPERTY_INITIAL_CONFIGURATION_LOCATION = "qpid.systest.initialConfigurationLocation";
     static final String SYSTEST_PROPERTY_BUILD_CLASSPATH_FILE = "qpid.systest.build.classpath.file";
-    static final String SYSTEST_PROPERTY_JAVA8_EXECUTABLE = "qpid.systest.java8.executable";
-    static final String SYSTEST_PROPERTY_BROKERJ_DEPENDECIES = "qpid.systest.brokerj.dependencies";
+    static final String SYSTEST_PROPERTY_BROKERJ_DEPENDENCIES = "qpid.systest.brokerj.dependencies";
 
     private final static AtomicLong BROKER_INSTANCE_COUNTER = new AtomicLong();
 
@@ -305,7 +304,7 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
         File file = new File(System.getProperty(SYSTEST_PROPERTY_BUILD_CLASSPATH_FILE));
         if (!file.exists())
         {
-            String dependencies = System.getProperty(SYSTEST_PROPERTY_BROKERJ_DEPENDECIES);
+            String dependencies = System.getProperty(SYSTEST_PROPERTY_BROKERJ_DEPENDENCIES);
             final ClasspathQuery classpathQuery = new ClasspathQuery(SpawnQpidBrokerAdmin.class,
                                                                      Arrays.asList(dependencies.split(",")));
             classpath = classpathQuery.getClasspath();
@@ -328,7 +327,7 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
             }
         }
 
-        jvmArguments.add(0, System.getProperty(SYSTEST_PROPERTY_JAVA8_EXECUTABLE, "/usr/bin/java"));
+        jvmArguments.add(0, System.getProperty(SYSTEST_PROPERTY_JAVA_EXECUTABLE, "java"));
         jvmArguments.add(1, "-cp");
         jvmArguments.add(2, classpath);
         jvmArguments.add("-Dqpid.systest.logback.socket.port="
@@ -587,7 +586,7 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
         }
         catch (JMSException e)
         {
-            throw new BrokerAdminException(String.format("Cannot create virtual host %s", virtualHostNodeName), e);
+            throw new BrokerAdminException(String.format("Cannot create virtual host '%s'", virtualHostNodeName), e);
         }
     }
 
@@ -605,7 +604,7 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
         }
         catch (AmqpManagementFacade.OperationUnsuccessfulException e)
         {
-            throw new BrokerAdminException(String.format("Cannot create test virtual host '%s'", virtualHostNodeName),
+            throw new BrokerAdminException(String.format("Cannot update test virtual host '%s'", virtualHostNodeName),
                                            e);
         }
         finally
@@ -757,23 +756,19 @@ public class SpawnQpidBrokerAdmin implements BrokerAdmin
 
     private String dumpThreads()
     {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try
         {
             Process process = Runtime.getRuntime().exec("jstack " + _pid);
-            InputStream is = process.getInputStream();
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) != -1)
+            try (InputStream is = process.getInputStream())
             {
-                baos.write(buffer, 0, length);
+                return new String(ByteStreams.toByteArray(is));
             }
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             LOGGER.error("Error whilst collecting thread dump for " + _pid, e);
         }
-        return new String(baos.toByteArray());
+        return "";
     }
 
 
