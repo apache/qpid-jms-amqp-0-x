@@ -42,7 +42,7 @@ import javax.jms.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-class AmqpManagementFacade
+public class AmqpManagementFacade
 {
     private static final String AMQP_0_X_REPLY_TO_DESTINATION = "ADDR:!response";
     private static final String AMQP_0_X_CONSUMER_REPLY_DESTINATION =
@@ -50,7 +50,7 @@ class AmqpManagementFacade
     private final String _managementAddress;
 
 
-    AmqpManagementFacade()
+    public AmqpManagementFacade()
     {
         _managementAddress = "ADDR:$management";
     }
@@ -140,7 +140,7 @@ class AmqpManagementFacade
         }
     }
 
-    void updateEntityUsingAmqpManagement(final String name,
+    public void updateEntityUsingAmqpManagement(final String name,
                                          final String type,
                                          final Map<String, Object> attributes,
                                          final Session session)
@@ -245,8 +245,7 @@ class AmqpManagementFacade
         }
     }
 
-    @SuppressWarnings("unused")
-    Object performOperationUsingAmqpManagement(final String name,
+    public Object performOperationUsingAmqpManagement(final String name,
                                                final String type,
                                                final String operation,
                                                final Map<String, Object> arguments,
