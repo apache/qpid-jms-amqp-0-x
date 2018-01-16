@@ -19,9 +19,13 @@
 package org.apache.qpid.systest.connection;
 
 import static org.apache.qpid.configuration.ClientProperties.QPID_HEARTBEAT_INTERVAL;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -128,6 +132,9 @@ public class HeartbeatTest extends JmsTestBase
     @Test
     public void testUnidirectionalHeartbeating() throws Exception
     {
+        assumeThat("QPID-2796 : JMS client for AMQP 0-10 only sends heartbeats in response to heartbeats "
+                   + "fromthe server, not timeout based.",
+                   getBrokerAdmin().getBrokerType(), is(equalTo(BrokerAdmin.BrokerType.BROKERJ)));
         System.setProperty(QPID_HEARTBEAT_INTERVAL,"1");
         AMQConnection receiveConn = (AMQConnection) getConnection();
         AMQConnection sendConn = (AMQConnection) getConnection();
