@@ -133,6 +133,12 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
     }
 
     @Override
+    public void stop()
+    {
+        end(_currentTestClass, _currentTestMethod);
+    }
+
+    @Override
     public InetSocketAddress getBrokerAddress(final PortType portType)
     {
         Integer port = null;

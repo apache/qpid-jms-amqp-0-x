@@ -119,6 +119,16 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
     }
 
     @Override
+    public void stop()
+    {
+        if (_virtualHostNodeName == null)
+        {
+            throw new BrokerAdminException("Virtual host is not started");
+        }
+        stopVirtualHost(_virtualHostNodeName);
+    }
+
+    @Override
     protected void setUp(final Class testClass)
     {
         try
@@ -403,7 +413,29 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
         }
         catch (JMSException e)
         {
-            throw new BrokerAdminException(String.format("Cannot create virtual host '%s'", virtualHostNodeName), e);
+            throw new BrokerAdminException(String.format("Cannot restart virtual host '%s'", virtualHostNodeName), e);
+        }
+    }
+
+    void stopVirtualHost(final String virtualHostNodeName)
+    {
+        try
+        {
+            Connection connection = createManagementConnection();
+            try
+            {
+                connection.start();
+                updateVirtualHostNode(virtualHostNodeName,
+                                      Collections.<String, Object>singletonMap("desiredState", "STOPPED"), connection);
+            }
+            finally
+            {
+                connection.close();
+            }
+        }
+        catch (JMSException e)
+        {
+            throw new BrokerAdminException(String.format("Cannot stop virtual host '%s'", virtualHostNodeName), e);
         }
     }
 

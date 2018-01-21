@@ -35,6 +35,7 @@ public interface BrokerAdmin
     void afterTestMethod(final Class testClass, final Method method);
     void afterTestClass(final Class testClass);
     void restart();
+    void stop();
 
     InetSocketAddress getBrokerAddress(PortType portType);
     boolean supportsPersistence();
