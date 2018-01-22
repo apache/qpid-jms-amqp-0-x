@@ -397,7 +397,7 @@ public class AmqpManagementFacade
     }
 
     @SuppressWarnings("unused")
-    Map<String, Object> readEntityUsingAmqpManagement(final String name,
+    public Map<String, Object> readEntityUsingAmqpManagement(final String name,
                                                       final String type,
                                                       final boolean actuals,
                                                       final Session session)
