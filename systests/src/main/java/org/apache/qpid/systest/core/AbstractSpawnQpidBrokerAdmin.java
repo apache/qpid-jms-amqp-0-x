@@ -342,7 +342,7 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
             }
             _pid = null;
             _process = null;
-            if (Boolean.getBoolean(SYSTEST_PROPERTY_BROKER_CLEAN_BETWEEN_TESTS))
+            if (_currentWorkDirectory != null && Boolean.getBoolean(SYSTEST_PROPERTY_BROKER_CLEAN_BETWEEN_TESTS))
             {
                 if (FileUtils.delete(new File(_currentWorkDirectory), true))
                 {
