@@ -521,7 +521,7 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
 
     Connection createManagementConnection() throws JMSException
     {
-        return createConnection("$management", null);
+        return getConnection("$management", null);
     }
 
     private String findOldLogger(final AmqpManagementFacade amqpManagementFacade, final Connection connection)

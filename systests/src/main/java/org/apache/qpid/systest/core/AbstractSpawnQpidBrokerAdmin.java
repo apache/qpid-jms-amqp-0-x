@@ -167,13 +167,13 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
     @Override
     public Connection getConnection() throws JMSException
     {
-        return createConnection(getVirtualHostName(), null);
+        return getConnection(getVirtualHostName(), null);
     }
 
     @Override
     public Connection getConnection(final Map<String, String> options) throws JMSException
     {
-        return createConnection(getVirtualHostName(), options);
+        return getConnection(getVirtualHostName(), options);
     }
 
     protected abstract void setUp(final Class testClass);
@@ -364,8 +364,9 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
         }
     }
 
-    protected Connection createConnection(final String virtualHostName,
-                                        final Map<String, String> options) throws JMSException
+    @Override
+    public Connection getConnection(final String virtualHostName,
+                                       final Map<String, String> options) throws JMSException
     {
         final Hashtable<Object, Object> initialContextEnvironment = new Hashtable<>();
         initialContextEnvironment.put(Context.INITIAL_CONTEXT_FACTORY,

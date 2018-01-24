@@ -24,6 +24,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assume.assumeThat;
 
+import java.util.Collections;
 import java.util.Map;
 
 import javax.jms.Connection;
@@ -104,5 +105,10 @@ public abstract class JmsTestBase extends BrokerAdminUsingTestBase
     protected String getTestQueueName()
     {
         return getTestName();
+    }
+
+    public Connection getBrokerManagementConnection() throws JMSException
+    {
+        return getBrokerAdmin().getConnection("$management", Collections.<String, String>emptyMap());
     }
 }

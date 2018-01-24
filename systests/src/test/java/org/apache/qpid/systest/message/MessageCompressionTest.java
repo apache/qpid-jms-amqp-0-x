@@ -46,11 +46,13 @@ import javax.naming.NamingException;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.qpid.QpidException;
 import org.apache.qpid.client.AMQConnection;
 import org.apache.qpid.jms.ConnectionURL;
 import org.apache.qpid.systest.core.BrokerAdmin;
 import org.apache.qpid.systest.core.JmsTestBase;
 import org.apache.qpid.systest.core.brokerj.AmqpManagementFacade;
+import org.apache.qpid.url.URLSyntaxException;
 
 public class MessageCompressionTest extends JmsTestBase
 {
@@ -238,17 +240,7 @@ public class MessageCompressionTest extends JmsTestBase
 
     private void enableMessageCompression(final boolean value) throws Exception
     {
-        BrokerAdmin admin = getBrokerAdmin();
-        InetSocketAddress brokerAddress = admin.getBrokerAddress(BrokerAdmin.PortType.AMQP);
-
-        String url = String.format("amqp://%s:%s@%s/%s?brokerlist='tcp://%s:%d'",
-                                   admin.getValidUsername(),
-                                   admin.getValidPassword(),
-                                   getTestName(),
-                                   "$management",
-                                   brokerAddress.getHostName(),
-                                   brokerAddress.getPort());
-        Connection connection = new AMQConnection(url);
+        Connection connection = getBrokerManagementConnection();
         try
         {
             connection.start();

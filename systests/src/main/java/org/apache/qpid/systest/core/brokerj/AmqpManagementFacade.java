@@ -64,7 +64,7 @@ public class AmqpManagementFacade
         return createEntityUsingAmqpManagement(name, type, Collections.<String, Object>emptyMap(), session);
     }
 
-    Map<String, Object> createEntityUsingAmqpManagement(final String name,
+    public Map<String, Object> createEntityUsingAmqpManagement(final String name,
                                                         final String type,
                                                         Map<String, Object> attributes,
                                                         final Session session)
