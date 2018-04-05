@@ -29,6 +29,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 
+import org.apache.qpid.client.BrokerDetails;
 import org.apache.qpid.configuration.CommonProperties;
 import org.apache.qpid.ssl.SSLContextFactory;
 import org.apache.qpid.transport.ByteBufferSender;
@@ -122,7 +123,16 @@ public class SecurityLayerFactory
                     CommonProperties.QPID_SECURITY_TLS_CIPHER_SUITE_BLACK_LIST_DEFAULT);
             try
             {
-                _engine = sslCtx.createSSLEngine();
+                if (BrokerDetails.SOCKET.equals(settings.getTransport())
+                                                || settings.getHost() == null
+                                                || settings.getHost().length() == 0)
+                {
+                    _engine = sslCtx.createSSLEngine();
+                }
+                else
+                {
+                    _engine = sslCtx.createSSLEngine(settings.getHost(), settings.getPort());
+                }
                 _engine.setUseClientMode(true);
                 SSLUtil.updateEnabledTlsProtocols(_engine, protocolWhiteList, protocolBlackList);
                 SSLUtil.updateEnabledCipherSuites(_engine, cipherSuiteWhiteList, cipherSuiteBlackList);
