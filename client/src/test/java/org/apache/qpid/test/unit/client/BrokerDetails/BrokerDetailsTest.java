@@ -144,6 +144,28 @@ public class BrokerDetailsTest extends QpidTestCase
         assertEquals("Unexpected toString", expectedToString, actualToString);
     }
 
+    public void testToStringMasksEncryptionTrustStorePassword() throws Exception
+    {
+        String url = "tcp://localhost:5672?encryption_trust_store_password='password'";
+        BrokerDetails details = new BrokerDetails(url);
+
+        String expectedToString = "tcp://localhost:5672?encryption_trust_store_password='********'";
+        String actualToString = details.toString();
+
+        assertEquals("Unexpected toString", expectedToString, actualToString);
+    }
+
+    public void testToStringMasksEncryptionKeyStorePassword() throws Exception
+    {
+        String url = "tcp://localhost:5672?encryption_key_store_password='password'";
+        BrokerDetails details = new BrokerDetails(url);
+
+        String expectedToString = "tcp://localhost:5672?encryption_key_store_password='********'";
+        String actualToString = details.toString();
+
+        assertEquals("Unexpected toString", expectedToString, actualToString);
+    }
+
     public void testDefaultSsl() throws URLSyntaxException
     {
         String brokerURL = "tcp://localhost:5672";
