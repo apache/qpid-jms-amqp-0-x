@@ -23,8 +23,12 @@ package org.apache.qpid.client;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.qpid.configuration.ClientProperties;
 import org.apache.qpid.transport.ConnectionSettings;
@@ -65,6 +69,12 @@ public class BrokerDetails implements Serializable
     public static final String OPTIONS_ENCRYPTION_KEY_STORE = "encryption_key_store";
     public static final String OPTIONS_ENCRYPTION_KEY_STORE_PASSWORD = "encryption_key_store_password";
 
+    private static final Set<String> PASSWORD_YIELDING_OPTIONS =
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                    OPTIONS_TRUST_STORE_PASSWORD,
+                    OPTIONS_KEY_STORE_PASSWORD,
+                    OPTIONS_ENCRYPTION_TRUST_STORE_PASSWORD,
+                    OPTIONS_ENCRYPTION_KEY_STORE_PASSWORD)));
 
     public static final int DEFAULT_PORT = 5672;
     public static final String TCP = "tcp";
@@ -427,7 +437,7 @@ public class BrokerDetails implements Serializable
 
                 optionsURL.append("='");
 
-                if (OPTIONS_TRUST_STORE_PASSWORD.equals(key) || OPTIONS_KEY_STORE_PASSWORD.equals(key))
+                if (PASSWORD_YIELDING_OPTIONS.contains(key))
                 {
                     optionsURL.append("********");
                 }
