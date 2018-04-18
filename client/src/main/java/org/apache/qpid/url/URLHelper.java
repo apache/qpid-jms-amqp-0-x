@@ -20,7 +20,9 @@
  */
 package org.apache.qpid.url;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 public class URLHelper
 {
@@ -145,6 +147,11 @@ public class URLHelper
 
     public static String printOptions(Map<String, String> options)
     {
+        return printOptions(options, Collections.<String>emptySet());
+    }
+
+    public static String printOptions(Map<String, String> options, Set<String> optionNamesToMask)
+    {
         if (options.isEmpty())
         {
             return "";
@@ -159,7 +166,14 @@ public class URLHelper
 
                 sb.append("='");
 
-                sb.append(entry.getValue());
+                if (optionNamesToMask.contains(entry.getKey()))
+                {
+                    sb.append("********");
+                }
+                else
+                {
+                    sb.append(entry.getValue());
+                }
 
                 sb.append("'");
                 sb.append(DEFAULT_OPTION_SEPERATOR);
