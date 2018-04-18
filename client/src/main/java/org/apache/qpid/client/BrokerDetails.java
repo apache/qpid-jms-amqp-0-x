@@ -69,7 +69,7 @@ public class BrokerDetails implements Serializable
     public static final String OPTIONS_ENCRYPTION_KEY_STORE = "encryption_key_store";
     public static final String OPTIONS_ENCRYPTION_KEY_STORE_PASSWORD = "encryption_key_store_password";
 
-    private static final Set<String> PASSWORD_YIELDING_OPTIONS =
+    static final Set<String> PASSWORD_YIELDING_OPTIONS =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
                     OPTIONS_TRUST_STORE_PASSWORD,
                     OPTIONS_KEY_STORE_PASSWORD,
@@ -424,38 +424,7 @@ public class BrokerDetails implements Serializable
 
     private String printOptionsURL()
     {
-        StringBuffer optionsURL = new StringBuffer();
-
-        optionsURL.append('?');
-
-        if (!(_options.isEmpty()))
-        {
-
-            for (String key : _options.keySet())
-            {
-                optionsURL.append(key);
-
-                optionsURL.append("='");
-
-                if (PASSWORD_YIELDING_OPTIONS.contains(key))
-                {
-                    optionsURL.append("********");
-                }
-                else
-                {
-                    optionsURL.append(_options.get(key));
-                }
-
-                optionsURL.append("'");
-
-                optionsURL.append(URLHelper.DEFAULT_OPTION_SEPERATOR);
-            }
-        }
-
-        //removeKey the extra DEFAULT_OPTION_SEPERATOR or the '?' if there are no options
-        optionsURL.deleteCharAt(optionsURL.length() - 1);
-
-        return optionsURL.toString();
+        return URLHelper.printOptions(_options, PASSWORD_YIELDING_OPTIONS);
     }
 
     public static String checkTransport(String broker)

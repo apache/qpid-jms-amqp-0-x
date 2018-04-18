@@ -20,6 +20,8 @@
  */
 package org.apache.qpid.client;
 
+import static org.apache.qpid.client.BrokerDetails.PASSWORD_YIELDING_OPTIONS;
+
 import org.apache.qpid.client.url.URLParser;
 import org.apache.qpid.jms.ConnectionURL;
 import org.apache.qpid.url.URLHelper;
@@ -351,17 +353,18 @@ public class AMQConnectionURL implements ConnectionURL, Serializable
 
     private String optionsToString()
     {
-        StringBuffer sb = new StringBuffer("?");
+        StringBuilder sb = new StringBuilder();
         
         if (!_options.isEmpty())
         {
-            for (Map.Entry<String, String> option : _options.entrySet())
-            {
-                sb.append(option.getKey()).append("='").append(option.getValue()).append("'");
-                sb.append(URLHelper.DEFAULT_OPTION_SEPERATOR);
-            }
+            sb.append(URLHelper.printOptions(_options, PASSWORD_YIELDING_OPTIONS));
+            sb.append(URLHelper.DEFAULT_OPTION_SEPERATOR);
         }
-        
+        else
+        {
+            sb.append("?");
+        }
+
         sb.append(OPTIONS_BROKERLIST).append("='");
         for (BrokerDetails service : _brokers)
         {

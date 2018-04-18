@@ -285,6 +285,38 @@ public class ConnectionURLTest extends QpidTestCase
         assertEquals("Unexpected toString form", expectedToString, actualToString);
     }
 
+    public void testToStringMasksConnectionOptionForEncryptionTrustStorePassword() throws Exception
+    {
+        ConnectionURL url = new AMQConnectionURL("amqp://user:pass@temp/test?encryption_trust_store_password='password'&brokerlist='tcp://localhost:5672'");
+
+        String expectedToString = "amqp://user:********@temp/test?encryption_trust_store_password='********'&brokerlist='tcp://localhost:5672'";
+        assertEquals("Unexpected toString", expectedToString, url.toString());
+    }
+
+    public void testToStringMasksConnectionOptionForEncryptionKeyStorePassword() throws Exception
+    {
+        ConnectionURL url = new AMQConnectionURL("amqp://user:pass@temp/test?encryption_key_store_password='password'&brokerlist='tcp://localhost:5672'");
+
+        String expectedToString = "amqp://user:********@temp/test?encryption_key_store_password='********'&brokerlist='tcp://localhost:5672'";
+        assertEquals("Unexpected toString", expectedToString, url.toString());
+    }
+
+    public void testToStringMasksConnectionOptionForTrustStorePassword() throws Exception
+    {
+        ConnectionURL url = new AMQConnectionURL("amqp://user:pass@temp/test?trust_store_password='password'&brokerlist='tcp://localhost:5672'");
+
+        String expectedToString = "amqp://user:********@temp/test?trust_store_password='********'&brokerlist='tcp://localhost:5672'";
+        assertEquals("Unexpected toString", expectedToString, url.toString());
+    }
+
+    public void testToStringMasksConnectionOptionForKeyStorePassword() throws Exception
+    {
+        ConnectionURL url = new AMQConnectionURL("amqp://user:pass@temp/test?key_store_password='password'&brokerlist='tcp://localhost:5672'");
+
+        String expectedToString = "amqp://user:********@temp/test?key_store_password='********'&brokerlist='tcp://localhost:5672'";
+        assertEquals("Unexpected toString", expectedToString, url.toString());
+    }
+
     /**
      * Test for QPID-3662 to ensure the {@code toString()} representation is correct.
      */
