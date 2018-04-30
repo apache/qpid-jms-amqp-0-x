@@ -373,6 +373,54 @@ public class AddressBasedDestinationTest extends JmsTestBase
         }
     }
 
+    @Test
+    public void ensureQueueDestinationAlwaysResolved() throws Exception
+    {
+        String address = String.format("ADDR:%s; {create: always, node: {type: queue}}", getTestName());
+
+        Session session = _connection.createSession(true, Session.SESSION_TRANSACTED);
+
+        MessageProducer producer = session.createProducer(null);
+        producer.send(session.createQueue(address), session.createTextMessage("A"));
+        producer.send(session.createQueue(address), session.createTextMessage("B"));
+        session.commit();
+
+        MessageConsumer consumer = session.createConsumer(session.createQueue(address));
+        Message messageA = consumer.receive(getReceiveTimeout());
+        assertNotNull("Message A is not received", messageA);
+        assertTrue("Unexpected type of message A", messageA instanceof TextMessage);
+        assertEquals("Unexpected content of message A", "A", ((TextMessage) messageA).getText());
+
+        Message messageB = consumer.receive(getReceiveTimeout());
+        assertNotNull("Message B is not received", messageB);
+        assertTrue("Unexpected type of message B", messageB instanceof TextMessage);
+        assertEquals("Unexpected content of message B", "B", ((TextMessage) messageB).getText());
+    }
+
+
+    @Test
+    public void ensureTopicDestinationAlwaysResolved() throws Exception
+    {
+        String address = String.format("ADDR:amq.topic/%s; {node: {type: topic}}", getTestName());
+        Session session = _connection.createSession(true, Session.SESSION_TRANSACTED);
+        MessageConsumer consumer = session.createConsumer(session.createTopic(address));
+
+        MessageProducer producer = session.createProducer(null);
+        producer.send(session.createTopic(address), session.createTextMessage("A"));
+        producer.send(session.createTopic(address), session.createTextMessage("B"));
+        session.commit();
+
+        Message messageA = consumer.receive(getReceiveTimeout());
+        assertNotNull("Message A is not received", messageA);
+        assertTrue("Unexpected type of message A", messageA instanceof TextMessage);
+        assertEquals("Unexpected content of message A", "A", ((TextMessage) messageA).getText());
+
+        Message messageB = consumer.receive(getReceiveTimeout());
+        assertNotNull("Message B is not received", messageB);
+        assertTrue("Unexpected type of message B", messageB instanceof TextMessage);
+        assertEquals("Unexpected content of message B", "B", ((TextMessage) messageB).getText());
+    }
+
     private void createExchangeImpl(final boolean withExchangeArgs,
                                     final boolean useNonsenseArguments,
                                     final boolean useNonsenseExchangeType) throws Exception

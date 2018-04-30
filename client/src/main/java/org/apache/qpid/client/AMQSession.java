@@ -676,7 +676,30 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
     boolean isResolved(final AMQDestination dest)
     {
-        return _resolvedDestinations.contains(dest);
+        if (!_resolvedDestinations.contains(dest))
+        {
+            return false;
+        }
+
+        if (dest.getAddressType() == AMQDestination.QUEUE_TYPE)
+        {
+            // verify legacy fields are set
+            return dest.getQueueName() != null
+                   && dest.getQueueName().equals(dest.getAddressName())
+                   && dest.getExchangeName() != null
+                   && dest.getExchangeClass() != null
+                   && dest.getRoutingKey() != null;
+        }
+        else if (dest.getAddressType() == AMQDestination.TOPIC_TYPE)
+        {
+            // verify legacy fields are set
+            return dest.getExchangeName() != null
+                   && dest.getExchangeName().equals(dest.getAddressName())
+                   && dest.getExchangeClass() != null
+                   && (dest.getSubject() == null
+                        || (dest.getSubject() != null && dest.getSubject().equals(dest.getRoutingKey())));
+        }
+        return false;
     }
 
     public abstract int resolveAddressType(AMQDestination dest) throws QpidException;
