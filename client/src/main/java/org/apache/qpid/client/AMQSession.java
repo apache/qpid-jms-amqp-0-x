@@ -676,31 +676,38 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
     boolean isResolved(final AMQDestination dest)
     {
-        if (!_resolvedDestinations.contains(dest))
-        {
-            return false;
-        }
-
-        if (dest.getAddressType() == AMQDestination.QUEUE_TYPE)
-        {
-            // verify legacy fields are set
-            return dest.getQueueName() != null
-                   && dest.getQueueName().equals(dest.getAddressName())
-                   && dest.getExchangeName() != null
-                   && dest.getExchangeClass() != null
-                   && dest.getRoutingKey() != null;
-        }
-        else if (dest.getAddressType() == AMQDestination.TOPIC_TYPE)
-        {
-            // verify legacy fields are set
-            return dest.getExchangeName() != null
-                   && dest.getExchangeName().equals(dest.getAddressName())
-                   && dest.getExchangeClass() != null
-                   && (dest.getSubject() == null
-                        || (dest.getSubject() != null && dest.getSubject().equals(dest.getRoutingKey())));
-        }
-        return false;
+        return _resolvedDestinations.contains(dest);
     }
+
+    private <T extends AMQDestination> T getResolvedOfSameClassOrRemoveResolved(final T destination, Class<T> destinationClass)
+    {
+        if (isResolved(destination))
+        {
+            AMQDestination resolved = getResolved(destination);
+            if (resolved != null && destinationClass.isInstance(resolved))
+            {
+                return (T) resolved;
+            }
+            else
+            {
+                setUnresolved(destination);
+            }
+        }
+        return destination;
+    }
+
+    private AMQDestination getResolved(AMQDestination destination)
+    {
+        for(AMQDestination resolved : _resolvedDestinations)
+        {
+            if (resolved.equals(destination))
+            {
+                return resolved;
+            }
+        }
+        return null;
+    }
+
 
     public abstract int resolveAddressType(AMQDestination dest) throws QpidException;
 
@@ -1336,14 +1343,13 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
                 }
                 else
                 {
-                    AMQQueue queue = new AMQQueue(queueName);
-                    return queue;
+                    return getResolvedOfSameClassOrRemoveResolved(new AMQQueue(queueName), AMQQueue.class);
 
                 }
             }
             else
             {
-                return new AMQQueue(queueName);
+                return getResolvedOfSameClassOrRemoveResolved(new AMQQueue(queueName), AMQQueue.class);
             }
         }
         catch (URISyntaxException urlse)
@@ -1641,12 +1647,13 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
                 }
                 else
                 {
-                    return new AMQTopic("ADDR:" + getDefaultTopicExchangeName() + "/" + topicName);
+                    AMQTopic topic = new AMQTopic("ADDR:" + getDefaultTopicExchangeName() + "/" + topicName);
+                    return getResolvedOfSameClassOrRemoveResolved(topic, AMQTopic.class);
                 }
             }
             else
             {
-                return new AMQTopic(topicName);
+                return getResolvedOfSameClassOrRemoveResolved(new AMQTopic(topicName), AMQTopic.class);
             }
 
         }
