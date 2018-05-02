@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -150,8 +150,8 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
      */
     protected final boolean DAEMON_DISPATCHER_THREAD = Boolean.getBoolean(ClientProperties.DAEMON_DISPATCHER);
 
-    private final Set<AMQDestination>
-            _resolvedDestinations = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<AMQDestination, Boolean>()));
+    private final Map<AMQDestination, AMQDestination>
+            _resolvedDestinations = Collections.synchronizedMap(new WeakHashMap<AMQDestination, AMQDestination>());
 
     private final long _dispatcherShutdownTimeoutMs;
 
@@ -661,7 +661,7 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
     void setResolved(final AMQDestination dest)
     {
-        _resolvedDestinations.add(dest);
+        _resolvedDestinations.put(dest, dest);
     }
 
     void setUnresolved(final AMQDestination dest)
@@ -676,30 +676,22 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
     boolean isResolved(final AMQDestination dest)
     {
-        if (!_resolvedDestinations.contains(dest))
+        AMQDestination resolvedDest = _resolvedDestinations.get(dest);
+        if (resolvedDest == dest)
+        {
+            return true;
+        }
+        else if (resolvedDest == null)
         {
             return false;
         }
 
-        if (dest.getAddressType() == AMQDestination.QUEUE_TYPE)
-        {
-            // verify legacy fields are set
-            return dest.getQueueName() != null
-                   && dest.getQueueName().equals(dest.getAddressName())
-                   && dest.getExchangeName() != null
-                   && dest.getExchangeClass() != null
-                   && dest.getRoutingKey() != null;
-        }
-        else if (dest.getAddressType() == AMQDestination.TOPIC_TYPE)
-        {
-            // verify legacy fields are set
-            return dest.getExchangeName() != null
-                   && dest.getExchangeName().equals(dest.getAddressName())
-                   && dest.getExchangeClass() != null
-                   && (dest.getSubject() == null
-                        || (dest.getSubject() != null && dest.getSubject().equals(dest.getRoutingKey())));
-        }
-        return false;
+        // verify legacy fields are equal
+        return Objects.equals(dest.getQueueName(), resolvedDest.getQueueName()) &&
+               Objects.equals(dest.getExchangeName(), resolvedDest.getExchangeName()) &&
+               Objects.equals(dest.getExchangeClass(), resolvedDest.getExchangeClass()) &&
+               Objects.equals(dest.getRoutingKey(), resolvedDest.getRoutingKey()) &&
+               Objects.equals(dest.getSubject(), resolvedDest.getSubject());
     }
 
     public abstract int resolveAddressType(AMQDestination dest) throws QpidException;
