@@ -26,6 +26,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -373,16 +374,21 @@ public class AddressBasedDestinationTest extends JmsTestBase
         }
     }
 
+    /** QPID-8141 - Publishing to a duplicately declared queue silently dropped messages.  */
     @Test
-    public void ensureQueueDestinationAlwaysResolved() throws Exception
+    public void publishToDuplicatelyDeclaredQueue() throws Exception
     {
         String address = String.format("ADDR:%s; {create: always, node: {type: queue}}", getTestName());
 
         Session session = _connection.createSession(true, Session.SESSION_TRANSACTED);
 
         MessageProducer producer = session.createProducer(null);
-        producer.send(session.createQueue(address), session.createTextMessage("A"));
-        producer.send(session.createQueue(address), session.createTextMessage("B"));
+        Queue queue = session.createQueue(address);
+        Queue dupQueue = session.createQueue(address);
+        assertNotSame(queue, dupQueue);
+
+        producer.send(queue, session.createTextMessage("A"));
+        producer.send(dupQueue, session.createTextMessage("B"));
         session.commit();
 
         MessageConsumer consumer = session.createConsumer(session.createQueue(address));
@@ -397,17 +403,20 @@ public class AddressBasedDestinationTest extends JmsTestBase
         assertEquals("Unexpected content of message B", "B", ((TextMessage) messageB).getText());
     }
 
-
     @Test
-    public void ensureTopicDestinationAlwaysResolved() throws Exception
+    public void publishToDuplicatelyDeclaredTopic() throws Exception
     {
         String address = String.format("ADDR:amq.topic/%s; {node: {type: topic}}", getTestName());
         Session session = _connection.createSession(true, Session.SESSION_TRANSACTED);
         MessageConsumer consumer = session.createConsumer(session.createTopic(address));
 
         MessageProducer producer = session.createProducer(null);
-        producer.send(session.createTopic(address), session.createTextMessage("A"));
-        producer.send(session.createTopic(address), session.createTextMessage("B"));
+        Topic topic = session.createTopic(address);
+        Topic dupTopic = session.createTopic(address);
+        assertNotSame(topic, dupTopic);
+
+        producer.send(topic, session.createTextMessage("A"));
+        producer.send(dupTopic, session.createTextMessage("B"));
         session.commit();
 
         Message messageA = consumer.receive(getReceiveTimeout());
