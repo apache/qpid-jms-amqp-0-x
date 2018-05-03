@@ -21,6 +21,7 @@
 package org.apache.qpid.client;
 
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -150,8 +151,8 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
      */
     protected final boolean DAEMON_DISPATCHER_THREAD = Boolean.getBoolean(ClientProperties.DAEMON_DISPATCHER);
 
-    private final Map<AMQDestination, AMQDestination>
-            _resolvedDestinations = Collections.synchronizedMap(new WeakHashMap<AMQDestination, AMQDestination>());
+    private final Map<AMQDestination, WeakReference<AMQDestination>>
+            _resolvedDestinations = Collections.synchronizedMap(new WeakHashMap<AMQDestination, WeakReference<AMQDestination>> ());
 
     private final long _dispatcherShutdownTimeoutMs;
 
@@ -661,7 +662,7 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
     void setResolved(final AMQDestination dest)
     {
-        _resolvedDestinations.put(dest, dest);
+        _resolvedDestinations.put(dest, new WeakReference<>(dest));
     }
 
     void setUnresolved(final AMQDestination dest)
@@ -676,7 +677,8 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
     boolean isResolved(final AMQDestination dest)
     {
-        AMQDestination resolvedDest = _resolvedDestinations.get(dest);
+        final WeakReference<AMQDestination> resolvedDestRef = _resolvedDestinations.get(dest);
+        final AMQDestination resolvedDest = resolvedDestRef == null ? null : resolvedDestRef.get();
         if (resolvedDest == dest)
         {
             return true;
