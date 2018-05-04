@@ -73,7 +73,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
 
     private final AMQProtocolHandler _protocolHandler;
 
-    private ConcurrentMap<Integer,AMQSession<?,?>> _closingChannels = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer,AMQSession<?,?>> _closingChannels = new ConcurrentHashMap<>();
 
     /**
      * Maps from a channel id to an unprocessed message. This is used to tie together the JmsDeliverBody (which arrives
@@ -317,7 +317,19 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
 
     protected AMQSession getSession(int channelId)
     {
-        return _connection.getSession(channelId);
+        AMQSession session = _connection.getSession(channelId);
+        if (session == null)
+        {
+            if (_closingChannels.containsKey(channelId))
+            {
+                throw new IllegalStateException(String.format("Channel %d is being closed.", channelId));
+            }
+            else
+            {
+                throw new IllegalStateException(String.format("Channel %d does not exist", channelId));
+            }
+        }
+        return session;
     }
 
     @Override
