@@ -28,9 +28,9 @@ public class SpecificMethodFrameListener extends BlockingMethodFrameListener
 {
     private final Class _expectedClass;
 
-    public SpecificMethodFrameListener(int channelId, Class expectedClass)
+    public SpecificMethodFrameListener(int channelId, Class expectedClass, final String connectionDetails)
     {
-        super(channelId);
+        super(channelId, connectionDetails);
         _expectedClass = expectedClass;
     }
 

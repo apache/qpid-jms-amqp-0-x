@@ -672,8 +672,16 @@ public class AMQProtocolHandler implements ExceptionHandlingByteBufferReceiver, 
     /** More convenient method to write a frame and wait for it's response. */
     public AMQMethodEvent syncWrite(AMQFrame frame, Class responseClass, long timeout) throws QpidException, FailoverException
     {
-        return writeCommandFrameAndWaitForReply(frame, new SpecificMethodFrameListener(frame.getChannel(), responseClass),
+        return writeCommandFrameAndWaitForReply(frame,
+                                                new SpecificMethodFrameListener(frame.getChannel(),
+                                                                                responseClass,
+                                                                                getConnectionDetails()),
                                                 timeout);
+    }
+
+    public String getConnectionDetails()
+    {
+        return getLocalAddress() + "-" + getRemoteAddress();
     }
 
     public void closeSession(AMQSession session) throws QpidException
@@ -707,16 +715,18 @@ public class AMQProtocolHandler implements ExceptionHandlingByteBufferReceiver, 
                 final AMQFrame frame = body.generateFrame(0);
 
                 syncWrite(frame, ConnectionCloseOkBody.class, timeout);
-                _network.close();
-                closed();
-            }
+             }
             catch (AMQTimeoutException e)
             {
-                closed();
+                _logger.debug("Timeout on sending connection close : " + e);
             }
             catch (FailoverException e)
             {
                 _logger.debug("FailoverException interrupted connection close, ignoring as connection closed anyway.");
+            }
+            finally
+            {
+                _network.close();
             }
         }
     }

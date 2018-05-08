@@ -55,6 +55,7 @@ import org.apache.qpid.protocol.AMQMethodListener;
 public abstract class BlockingMethodFrameListener extends BlockingWaiter<AMQMethodEvent> implements AMQMethodListener
 {
 
+    private final String _connectionDetails;
     /** Holds the channel id for the channel upon which this listener is waiting for a response. */
     private int _channelId;
 
@@ -62,10 +63,12 @@ public abstract class BlockingMethodFrameListener extends BlockingWaiter<AMQMeth
      * Creates a new method listener, that filters incoming method to just those that match the specified channel id.
      *
      * @param channelId The channel id to filter incoming methods with.
+     * @param connectionDetails
      */
-    public BlockingMethodFrameListener(int channelId)
+    public BlockingMethodFrameListener(int channelId, final String connectionDetails)
     {
         _channelId = channelId;
+        _connectionDetails = connectionDetails;
     }
 
     /**
@@ -121,4 +124,9 @@ public abstract class BlockingMethodFrameListener extends BlockingWaiter<AMQMeth
         }
     }
 
+    @Override
+    public String getConnectionDetails()
+    {
+        return _connectionDetails;
+    }
 }

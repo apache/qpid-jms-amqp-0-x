@@ -1203,7 +1203,7 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
                 }
                 catch (JMSException e)
                 {
-                    _logger.error("Error closing connection", e);
+                    _logger.warn("Error closing connection", e);
                     throw JMSExceptionHelper.chainJMSException(new JMSException("Error closing connection: " + e), e);
                 }
                 finally
@@ -1271,7 +1271,7 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
                 }
                 catch (JMSException e)
                 {
-                    _logger.error("Error closing session: " + e);
+                    _logger.warn("Error closing session: " + e);
                     sessionException = e;
                 }
             }

@@ -362,17 +362,19 @@ public class BasicMessageProducer_0_8 extends BasicMessageProducer
                               && (connectionDelegate80.isConfirmedPublishSupported()
                                || (!getSession().isTransacted() && connectionDelegate80.isConfirmedPublishNonTransactionalSupported()));
 
+        AMQProtocolHandler protocolHandler = getConnection().getProtocolHandler();
         if(!useConfirms)
         {
-            getConnection().getProtocolHandler().writeFrame(compositeFrame);
+            protocolHandler.writeFrame(compositeFrame);
         }
         else
         {
-            final PublishConfirmMessageListener frameListener = new PublishConfirmMessageListener(getChannelId());
+            final PublishConfirmMessageListener frameListener = new PublishConfirmMessageListener(getChannelId(),
+                                                                                                  protocolHandler.getConnectionDetails());
             try
             {
 
-                getConnection().getProtocolHandler().writeCommandFrameAndWaitForReply(compositeFrame,
+                protocolHandler.writeCommandFrameAndWaitForReply(compositeFrame,
                                                                                       frameListener);
 
                 if(frameListener.isRejected())
@@ -468,9 +470,9 @@ public class BasicMessageProducer_0_8 extends BasicMessageProducer
          *
          * @param channelId The channel id to filter incoming methods with.
          */
-        public PublishConfirmMessageListener(final int channelId)
+        public PublishConfirmMessageListener(final int channelId, String connectionDetails)
         {
-            super(channelId);
+            super(channelId, connectionDetails);
         }
 
         @Override

@@ -170,8 +170,8 @@ public abstract class BlockingWaiter<T>
                             final String errorMsg = String.format(
                                     "The server's response was not received within the time-out period of %d ms. "
                                     + "Possible reasons include: the server may be too busy, the network may be "
-                                    + "overloaded, or this JVM itself may be too busy to process the response.",
-                                    timeout);
+                                    + "overloaded, or this JVM itself may be too busy to process the response. [%s]",
+                                    timeout, getConnectionDetails() == null ? "" : getConnectionDetails());
                             _error = new AMQTimeoutException(errorMsg, null);
                             _ready = true;
                         }
@@ -337,5 +337,7 @@ public abstract class BlockingWaiter<T>
     {
         return new QpidException("Waiter was closed.", null);
     }
+
+    public abstract String getConnectionDetails();
 
 }
