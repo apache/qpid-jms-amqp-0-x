@@ -82,6 +82,12 @@ public class StateWaiter extends BlockingWaiter<AMQState>
         return _awaitStates.contains(state);
     }
 
+    @Override
+    public String getConnectionDetails()
+    {
+        return null;
+    }
+
     /**
      * Await for the required State to be achieved within the default timeout.
      * @return The achieved state that was requested.

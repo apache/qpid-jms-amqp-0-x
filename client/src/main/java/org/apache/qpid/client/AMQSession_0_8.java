@@ -929,7 +929,7 @@ public class AMQSession_0_8 extends AMQSession<BasicMessageConsumer_0_8, BasicMe
 
         public QueueDeclareOkHandler()
         {
-            super(getChannelId(), QueueDeclareOkBody.class);
+            super(getChannelId(), QueueDeclareOkBody.class, getProtocolHandler().getConnectionDetails());
         }
 
         public boolean processMethod(int channelId, AMQMethodBody frame) //throws AMQException

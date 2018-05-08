@@ -286,7 +286,7 @@ public class AMQProtocolHandlerTest extends QpidTestCase
          */
         public BlockToAccessFrameListener(int channelId)
         {
-            super(channelId);
+            super(channelId, "Test");
             _logger.info("Creating a listener:" + this);
         }
 
