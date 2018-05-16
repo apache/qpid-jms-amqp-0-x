@@ -36,7 +36,7 @@ Execute system tests against cpp broker available on PATH
 
 Execute system tests against cpp broker by providing path to broker executable explicitly
 
-  mvn verify -Pcpp -Dqpid.systest.broker.executable=/home/alex/qpid/qpidd
+  mvn verify -Pcpp -Dqpid.systest.broker.executable=/home/alex/qpid/qpidd -Dqpid.systest.broker.moduleDir=/home/alex/qpid/
 
 Execute the unit tests and then produce the code coverage report
 

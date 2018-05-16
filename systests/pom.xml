@@ -213,6 +213,7 @@
 
             <properties>
                 <qpid.systest.broker.executable>qpidd</qpid.systest.broker.executable>
+                <qpid.systest.broker.moduleDir></qpid.systest.broker.moduleDir>
                 <qpid.systest.broker_admin>org.apache.qpid.systest.core.cpp.SpawnQpidBrokerAdmin</qpid.systest.broker_admin>
             </properties>
             <build>
@@ -222,6 +223,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
+                                <qpid.systest.broker.moduleDir>${qpid.systest.broker.moduleDir}</qpid.systest.broker.moduleDir>
                                 <qpid.systest.broker.executable>${qpid.systest.broker.executable}</qpid.systest.broker.executable>
                                 <qpid.systest.broker_admin>${qpid.systest.broker_admin}</qpid.systest.broker_admin>
                                 <qpid.systest.broker.clean.between.tests>${qpid.systest.broker.clean.between.tests}</qpid.systest.broker.clean.between.tests>

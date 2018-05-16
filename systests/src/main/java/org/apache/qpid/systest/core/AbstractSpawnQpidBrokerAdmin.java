@@ -72,10 +72,9 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
     private volatile List<ListeningPort> _ports;
     private volatile Process _process;
     private volatile Integer _pid;
-    private volatile String _currentWorkDirectory;
     private ExecutorService _executorService;
-    private Class _currentTestClass;
-    private Method _currentTestMethod;
+    protected Class _currentTestClass;
+    protected Method _currentTestMethod;
 
     @Override
     public void beforeTestClass(final Class testClass)
@@ -186,31 +185,31 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
 
     protected abstract ProcessBuilder createBrokerProcessBuilder(final String workDirectory, final Class testClass) throws IOException;
 
+    public LogConsumer getLogConsumer()
+    {
+        return new LogConsumer()
+        {
+            @Override
+            public void accept(final String line)
+            {
+            }
+        };
+    }
 
     protected void runBroker(final Class testClass,
                              final Method method,
                              final String readyLogPattern,
                              final String stopLogPattern,
                              final String portListeningLogPattern,
-                             final String processPIDLogPattern) throws IOException
+                             final String processPIDLogPattern, String currentWorkDirectory) throws IOException
     {
-        String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System.currentTimeMillis()));
-        String test = testClass.getSimpleName();
-        if (method != null)
-        {
-            test += "-" + method.getName();
-        }
-        _currentWorkDirectory =
-                Files.createTempDirectory(String.format("qpid-work-%s-%s-", timestamp, test))
-                     .toString();
-
-        LOGGER.debug("Spawning broker working folder: {}", _currentWorkDirectory);
+        LOGGER.debug("Spawning broker working folder: {}", currentWorkDirectory);
 
         int startUpTime = Integer.getInteger(SYSTEST_PROPERTY_SPAWN_BROKER_STARTUP_TIME, 30000);
 
         LOGGER.debug("Spawning broker permitted start-up time: {}", startUpTime);
 
-        ProcessBuilder processBuilder = createBrokerProcessBuilder(_currentWorkDirectory, testClass);
+        ProcessBuilder processBuilder = createBrokerProcessBuilder(currentWorkDirectory, testClass);
         processBuilder.redirectErrorStream(true);
 
         Map<String, String> processEnvironment = processBuilder.environment();
@@ -223,6 +222,7 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
         _process = processBuilder.start();
 
         BrokerSystemOutputHandler brokerSystemOutputHandler = new BrokerSystemOutputHandler(_process.getInputStream(),
+                                                                                            getLogConsumer(),
                                                                                             readyLogPattern,
                                                                                             stopLogPattern,
                                                                                             processPIDLogPattern,
@@ -312,6 +312,25 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
         }
     }
 
+    protected String getWorkingDirectory(final Class testClass, final Method method)
+    {
+        try
+        {
+            String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System.currentTimeMillis()));
+            String test = testClass.getSimpleName();
+            if (method != null)
+            {
+                test += "-" + method.getName();
+            }
+            return Files.createTempDirectory(String.format("qpid-work-%s-%s-", timestamp, test))
+                         .toString();
+        }
+        catch (IOException e)
+        {
+            throw new IllegalStateException(e);
+        }
+    }
+
     protected void shutdownBroker()
     {
         try
@@ -342,13 +361,14 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
             }
             _pid = null;
             _process = null;
-            if (_currentWorkDirectory != null && Boolean.getBoolean(SYSTEST_PROPERTY_BROKER_CLEAN_BETWEEN_TESTS))
-            {
-                if (FileUtils.delete(new File(_currentWorkDirectory), true))
-                {
-                    _currentWorkDirectory = null;
-                }
-            }
+        }
+    }
+
+    protected void cleanWorkDirectory(final String currentWorkDirectory)
+    {
+        if (currentWorkDirectory != null && Boolean.getBoolean(SYSTEST_PROPERTY_BROKER_CLEAN_BETWEEN_TESTS))
+        {
+            FileUtils.delete(new File(currentWorkDirectory), true);
         }
     }
 
@@ -493,11 +513,13 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
         private final Pattern _pidPattern;
         private final Pattern _amqpPortPattern;
         private final CountDownLatch _readyLatch;
+        private final LogConsumer _logConsumer;
 
         private volatile boolean _seenReady;
         private volatile int _pid;
 
         private BrokerSystemOutputHandler(InputStream in,
+                                          LogConsumer logConsumer,
                                           String readyRegExp,
                                           String stoppedRedExp,
                                           String pidRegExp,
@@ -505,6 +527,7 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
                                           CountDownLatch readyLatch,
                                           String loggerName)
         {
+            _logConsumer = logConsumer;
             _amqpPorts = new ArrayList<>();
             _seenReady = false;
             _in = new BufferedReader(new InputStreamReader(in));
@@ -524,6 +547,7 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
                 String line;
                 while ((line = _in.readLine()) != null)
                 {
+                    _logConsumer.accept(line);
                     _out.info(line);
 
                     checkPortListeningLog(line, _amqpPortPattern, _amqpPorts);

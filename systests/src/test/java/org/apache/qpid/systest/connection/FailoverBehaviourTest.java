@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
+import static org.junit.Assume.assumeTrue;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -306,6 +307,7 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
     @Test
     public void testRollbackAfterReceivingAfterFailover() throws Exception
     {
+        assumeTrue(getBrokerAdmin().supportsPersistence());
         init(Session.SESSION_TRANSACTED, true);
 
         produceMessages();

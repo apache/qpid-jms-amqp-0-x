@@ -20,23 +20,52 @@
 
 package org.apache.qpid.systest.core.cpp;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.qpid.systest.core.AbstractSpawnQpidBrokerAdmin;
 import org.apache.qpid.systest.core.BrokerAdminException;
+import org.apache.qpid.systest.core.LogConsumer;
 
 public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
 {
     private static final String SYSTEST_PROPERTY_BROKER_EXECUTABLE = "qpid.systest.broker.executable";
+    private static final String SYSTEST_PROPERTY_BROKER_MODULE_DIR = "qpid.systest.broker.moduleDir";
+    private static final String SYSTEST_PROPERTY_BROKER_STORE_INITIALIZED = "qpid.systest.broker.storeInitialized";
     private static final String BROKER_OUTPUT_LOG_RUNNING = "Broker \\(pid=([0-9]+)\\) running";
     private static final String BROKER_OUTPUT_LOG_SHUT_DOWN = "Broker \\(pid=([0-9]+)\\) shut-down";
+    private static final String BROKER_OUTPUT_STORE_INITIALIZED = "Store module initialized";
     private static final String BROKER_OUTPUT_LOG_LISTENING = "Listening on (TCP/TCP6) port ([0-9]+)";
+    private final String _storeInitalised;
+    private final String _moduleDir;
+    private final String _ready;
+    private final String _stopped;
+    private final String _amqpListening;
+    private final String _process;
+    private volatile String _workingDirectory;
+    private boolean _supportsPersistence = false;
+    private int _previousPort = 0;
+
+    public SpawnQpidBrokerAdmin()
+    {
+        _storeInitalised = System.getProperty(SYSTEST_PROPERTY_BROKER_STORE_INITIALIZED, BROKER_OUTPUT_STORE_INITIALIZED);
+        _moduleDir = System.getProperty(SYSTEST_PROPERTY_BROKER_MODULE_DIR);
+        _ready = System.getProperty(SYSTEST_PROPERTY_BROKER_READY_LOG, BROKER_OUTPUT_LOG_RUNNING);
+        _stopped = System.getProperty(SYSTEST_PROPERTY_BROKER_STOPPED_LOG, BROKER_OUTPUT_LOG_SHUT_DOWN);
+        _amqpListening = System.getProperty(SYSTEST_PROPERTY_BROKER_LISTENING_LOG,
+                                                  BROKER_OUTPUT_LOG_LISTENING);
+        _process = System.getProperty(SYSTEST_PROPERTY_BROKER_PROCESS_LOG, BROKER_OUTPUT_LOG_RUNNING);
+    }
+
 
     @Override
     public boolean supportsPersistence()
     {
-        return false;
+        return _supportsPersistence;
     }
 
     @Override
@@ -75,16 +104,35 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
     }
 
     @Override
+    public LogConsumer getLogConsumer()
+    {
+        final LogConsumer superConsumer = super.getLogConsumer();
+        return new LogConsumer()
+        {
+            @Override
+            public void accept(final String line)
+            {
+                superConsumer.accept(line);
+                if (line != null && line.contains(_storeInitalised))
+                {
+                    _supportsPersistence = true;
+                }
+            }
+        };
+    }
+
+    @Override
     protected void begin(final Class testClass, final Method method)
+    {
+        _workingDirectory = getWorkingDirectory(testClass, method);
+        doRunBroker(testClass, method);
+    }
+
+    private void doRunBroker(final Class testClass, final Method method)
     {
         try
         {
-            String ready = System.getProperty(SYSTEST_PROPERTY_BROKER_READY_LOG, BROKER_OUTPUT_LOG_RUNNING);
-            String stopped = System.getProperty(SYSTEST_PROPERTY_BROKER_STOPPED_LOG, BROKER_OUTPUT_LOG_SHUT_DOWN);
-            String amqpListening = System.getProperty(SYSTEST_PROPERTY_BROKER_LISTENING_LOG,
-                                                      BROKER_OUTPUT_LOG_LISTENING);
-            String process = System.getProperty(SYSTEST_PROPERTY_BROKER_PROCESS_LOG, BROKER_OUTPUT_LOG_RUNNING);
-            runBroker(testClass, method, ready, stopped, amqpListening, process);
+            runBroker(testClass, method, _ready, _stopped, _amqpListening, _process, _workingDirectory);
         }
         catch (IOException e)
         {
@@ -93,26 +141,59 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
     }
 
     @Override
-    protected void end(final Class testClass, final Method method)
+    public void restart()
     {
-        shutdownBroker();
+        try
+        {
+            _previousPort = getBrokerAddress(PortType.AMQP).getPort();
+        }
+        catch (IllegalArgumentException e)
+        {
+            _previousPort = 0;
+        }
+
+        try
+        {
+            shutdownBroker();
+            doRunBroker(_currentTestClass, _currentTestMethod);
+        }
+        finally
+        {
+            _previousPort = 0;
+        }
     }
 
     @Override
-    protected ProcessBuilder createBrokerProcessBuilder(final String workDirectory, final Class testClass)
-            throws IOException
+    protected void end(final Class testClass, final Method method)
     {
-        String[] cmd = new String[]{
+        shutdownBroker();
+        cleanWorkDirectory(_workingDirectory);
+        _workingDirectory = null;
+    }
+
+    @Override
+    protected ProcessBuilder createBrokerProcessBuilder(final String workDirectory,
+                                                        final Class testClass)
+    {
+        List<String> cmd = new ArrayList<>(Arrays.asList(
                 System.getProperty(SYSTEST_PROPERTY_BROKER_EXECUTABLE, "qpidd"),
                 "-p",
-                "0",
+                String.format("%d", _previousPort),
                 "--data-dir",
                 escapePath(workDirectory),
                 "-t",
                 "--auth",
-                "no",
-                "--no-module-dir"
-        };
+                "no"));
+
+        if (_moduleDir != null && _moduleDir.length() > 0  && new File(_moduleDir).isDirectory())
+        {
+            cmd.add("--module-dir");
+            cmd.add(escapePath(_moduleDir));
+        }
+        else
+        {
+            cmd.add("--no-module-dir");
+        }
 
         return new ProcessBuilder(cmd);
     }

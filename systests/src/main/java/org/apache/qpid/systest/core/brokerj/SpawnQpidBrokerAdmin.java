@@ -77,6 +77,7 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
 
     private volatile boolean _isPersistentStore;
     private volatile String _virtualHostNodeName;
+    private volatile String _workingDirectory;
 
     @Override
     public boolean supportsPersistence()
@@ -138,7 +139,8 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
             String amqpListening = System.getProperty(SYSTEST_PROPERTY_BROKER_LISTENING_LOG,
                                                       "BRK-1002 : Starting : Listening on (\\w*) port ([0-9]+)");
             String process = System.getProperty(SYSTEST_PROPERTY_BROKER_PROCESS_LOG, "BRK-1017 : Process : PID : ([0-9]+)");
-            runBroker(testClass, null, ready, stopped, amqpListening, process);
+            _workingDirectory = getWorkingDirectory(testClass, null);
+            runBroker(testClass, null, ready, stopped, amqpListening, process, _workingDirectory);
         }
         catch (IOException e)
         {
@@ -150,6 +152,8 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
     protected void cleanUp(final Class testClass)
     {
         shutdownBroker();
+        cleanWorkDirectory(_workingDirectory);
+        _workingDirectory = null;
     }
 
     @Override
