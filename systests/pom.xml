@@ -165,7 +165,7 @@
             <properties>
                 <qpid.amqp.version>0-10</qpid.amqp.version>
                 <surefire.working.directory>${project.build.directory}${file.separator}surefire-reports${file.separator}${qpid.amqp.version}</surefire.working.directory>
-                <qpid-broker-j-version>7.0.0</qpid-broker-j-version>
+                <qpid-broker-j-version>7.0.3</qpid-broker-j-version>
                 <qpid.systest.broker_admin>org.apache.qpid.systest.core.brokerj.SpawnQpidBrokerAdmin</qpid.systest.broker_admin>
                 <qpid.systest.java8.executable>java</qpid.systest.java8.executable>
                 <qpid.systest.virtualhost.blueprint>{"type":"BDB","globalAddressDomains":"[]"}</qpid.systest.virtualhost.blueprint>
