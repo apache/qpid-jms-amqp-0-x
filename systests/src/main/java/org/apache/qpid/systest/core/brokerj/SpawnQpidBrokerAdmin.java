@@ -281,7 +281,7 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
         jvmArguments.add("--initial-config-path");
         jvmArguments.add(escapePath(testInitialConfiguration.toString()));
 
-        LOGGER.debug("Spawning broker JVM :", jvmArguments);
+        LOGGER.debug("Spawning broker JVM : {}", jvmArguments);
         String[] cmd = jvmArguments.toArray(new String[jvmArguments.size()]);
 
         return new ProcessBuilder(cmd);

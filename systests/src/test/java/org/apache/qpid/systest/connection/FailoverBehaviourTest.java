@@ -232,6 +232,7 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
     @Test
     public void testTransactionRolledBackExceptionThrownOnCommitAfterFailoverOnMessageReceiving() throws Exception
     {
+        assumeTrue(getBrokerAdmin().supportsPersistence());
         init(Session.SESSION_TRANSACTED, true);
         produceMessages();
         _producerSession.commit();
@@ -284,6 +285,7 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
     @Test
     public void testRollbackAfterFailover() throws Exception
     {
+        assumeTrue(getBrokerAdmin().supportsPersistence());
         init(Session.SESSION_TRANSACTED, true);
 
         produceMessages();
@@ -332,6 +334,7 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
     @Test
     public void testRecoverAfterFailover() throws Exception
     {
+        assumeTrue(getBrokerAdmin().supportsPersistence());
         init(Session.CLIENT_ACKNOWLEDGE, true);
 
         produceMessages();
@@ -356,6 +359,7 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
     @Test
     public void testRecoverWithConsumedMessagesAfterFailover() throws Exception
     {
+        assumeTrue(getBrokerAdmin().supportsPersistence());
         init(Session.CLIENT_ACKNOWLEDGE, true);
 
         produceMessages();
@@ -385,7 +389,7 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
     @Test
     public void testAcknowledgeAfterFailover() throws Exception
     {
-        LOGGER.debug("KWDEBUG");
+        assumeTrue(getBrokerAdmin().supportsPersistence());
         init(Session.CLIENT_ACKNOWLEDGE, true);
 
         produceMessages();
@@ -442,6 +446,7 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
     @Test
     public void testAcknowledgeAfterMessageReceivingAfterFailover() throws Exception
     {
+        assumeTrue(getBrokerAdmin().supportsPersistence());
         init(Session.CLIENT_ACKNOWLEDGE, true);
 
         produceMessages();
@@ -830,6 +835,7 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
     @Test
     public void testFailoverWhenConnectionStopped() throws Exception
     {
+        assumeTrue(getBrokerAdmin().supportsPersistence());
         init(Session.SESSION_TRANSACTED, true);
 
         produceMessages();

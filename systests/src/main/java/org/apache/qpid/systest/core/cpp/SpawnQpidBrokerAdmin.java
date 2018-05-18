@@ -27,12 +27,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.qpid.systest.core.AbstractSpawnQpidBrokerAdmin;
 import org.apache.qpid.systest.core.BrokerAdminException;
 import org.apache.qpid.systest.core.LogConsumer;
 
 public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpawnQpidBrokerAdmin.class);
+
     private static final String SYSTEST_PROPERTY_BROKER_EXECUTABLE = "qpid.systest.broker.executable";
     private static final String SYSTEST_PROPERTY_BROKER_MODULE_DIR = "qpid.systest.broker.moduleDir";
     private static final String SYSTEST_PROPERTY_BROKER_STORE_INITIALIZED = "qpid.systest.broker.storeInitialized";
@@ -143,6 +148,7 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
     @Override
     public void restart()
     {
+        LOGGER.info("Restarting the broker");
         try
         {
             _previousPort = getBrokerAddress(PortType.AMQP).getPort();
@@ -195,6 +201,7 @@ public class SpawnQpidBrokerAdmin extends AbstractSpawnQpidBrokerAdmin
             cmd.add("--no-module-dir");
         }
 
+        LOGGER.info("Spawning cpp broker : {}", cmd );
         return new ProcessBuilder(cmd);
     }
 }
