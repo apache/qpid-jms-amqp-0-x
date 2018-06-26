@@ -3751,6 +3751,11 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
         return super.isClosed() || _connection.isClosed();
     }
 
+    public boolean isSessionClosed()
+    {
+        return super.isClosed();
+    }
+
     /**
      * Checks if the Session and its parent connection are capable of performing
      * closing operations

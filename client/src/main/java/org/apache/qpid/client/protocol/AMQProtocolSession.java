@@ -545,7 +545,7 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
     private boolean isClosedForInput(final int channelId)
     {
         AMQSession session;
-        return channelId > 0 && ((session = _connection.getSession(channelId)) == null || session.isClosed());
+        return channelId > 0 && ((session = _connection.getSession(channelId)) == null || session.isSessionClosed());
     }
 
 }
