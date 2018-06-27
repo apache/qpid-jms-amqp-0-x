@@ -311,15 +311,6 @@ public class SSLUtil
         return ks;
     }
 
-    public static X509Certificate[] readCertificates(URL certFile)
-            throws IOException, GeneralSecurityException
-    {
-        try (InputStream is = certFile.openStream())
-        {
-            return readCertificates(certFile.openStream());
-        }
-    }
-
     public static X509Certificate[] readCertificates(InputStream input)
             throws IOException, GeneralSecurityException
     {
