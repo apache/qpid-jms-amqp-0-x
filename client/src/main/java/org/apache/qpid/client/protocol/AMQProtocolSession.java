@@ -482,15 +482,13 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
     @Override
     public void methodFrameReceived(final int channel, final AMQMethodBody amqMethodBody) throws QpidException
     {
-        if ( channel == 0
-             || !isClosedForInput(channel)
-             || (isClosing(channel) && (amqMethodBody instanceof ChannelCloseBody || amqMethodBody instanceof ChannelCloseOkBody)))
+        try
         {
             _protocolHandler.methodBodyReceived(channel, amqMethodBody);
         }
-        else
+        catch (IllegalStateException e)
         {
-            _logger.debug("Ignoring method {} as channel {} closed on {}", amqMethodBody, channel);
+            throw new QpidException("Unexpected exception on receiving method " + amqMethodBody, e);
         }
     }
 
