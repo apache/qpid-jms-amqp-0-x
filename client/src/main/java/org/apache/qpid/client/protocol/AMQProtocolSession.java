@@ -480,15 +480,45 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
     }
 
     @Override
-    public void methodFrameReceived(final int channel, final AMQMethodBody amqMethodBody) throws QpidException
+    public void methodFrameReceived(final int channelId, final AMQMethodBody amqMethodBody) throws QpidException
     {
         try
         {
-            _protocolHandler.methodBodyReceived(channel, amqMethodBody);
+            _protocolHandler.methodBodyReceived(channelId, amqMethodBody);
         }
         catch (IllegalStateException e)
         {
-            throw new QpidException("Unexpected exception on receiving method " + amqMethodBody, e);
+            AMQSession session = _connection.getSession(channelId);
+            if (session == null)
+            {
+                if (isClosing(channelId))
+                {
+                    _logger.debug(
+                            "Ignoring incoming method {} of class {} on closing channel {}",
+                            amqMethodBody.getMethod(),
+                            amqMethodBody.getClazz(),
+                            channelId, e);
+                    _protocolHandler.propagateExceptionToMethodFrameListener(channelId,
+                                                                             amqMethodBody,
+                                                                             new QpidException("Session is closing", e));
+                }
+                else
+                {
+                    throw new QpidException(String.format(
+                            "Method '%d' of class '%d' is received on unknown channel '%d'",
+                            amqMethodBody.getMethod(),
+                            amqMethodBody.getClazz(),
+                            channelId));
+                }
+            }
+            else
+            {
+                throw new QpidException(String.format(
+                        "Unexpected exception on receiving method '%d' of class '%d' on channel '%d'",
+                        amqMethodBody.getMethod(),
+                        amqMethodBody.getClazz(),
+                        channelId), e);
+            }
         }
     }
 
