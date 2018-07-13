@@ -42,8 +42,6 @@ import org.apache.qpid.client.state.AMQStateManager;
 import org.apache.qpid.framing.AMQDataBlock;
 import org.apache.qpid.framing.AMQMethodBody;
 import org.apache.qpid.framing.AMQShortString;
-import org.apache.qpid.framing.ChannelCloseBody;
-import org.apache.qpid.framing.ChannelCloseOkBody;
 import org.apache.qpid.framing.ContentBody;
 import org.apache.qpid.framing.ContentHeaderBody;
 import org.apache.qpid.framing.FieldTable;
@@ -498,9 +496,6 @@ public class AMQProtocolSession implements AMQVersionAwareProtocolSession
                             amqMethodBody.getMethod(),
                             amqMethodBody.getClazz(),
                             channelId, e);
-                    _protocolHandler.propagateExceptionToMethodFrameListener(channelId,
-                                                                             amqMethodBody,
-                                                                             new QpidException("Session is closing", e));
                 }
                 else
                 {
