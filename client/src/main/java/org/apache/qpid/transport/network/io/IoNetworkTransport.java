@@ -41,7 +41,7 @@ public class IoNetworkTransport
 
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(IoNetworkTransport.class);
-    private static final int TIMEOUT = Integer.getInteger(CommonProperties.IO_NETWORK_TRANSPORT_TIMEOUT_PROP_NAME,
+    private static final int TIMEOUT = Integer.getInteger(System.getProperty(CommonProperties.IO_NETWORK_TRANSPORT_TIMEOUT_PROP_NAME),
                                                               CommonProperties.IO_NETWORK_TRANSPORT_TIMEOUT_DEFAULT);
     private NetworkConnection _connection;
 
