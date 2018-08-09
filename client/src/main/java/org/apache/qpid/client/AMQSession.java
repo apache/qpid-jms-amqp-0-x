@@ -2417,15 +2417,20 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
         // return the first <total number of msgs received on session>
         // messages sent by the brokers following the first rollback
         // after failover
-        _highestDeliveryTag.set(-1);
+        resetRollbackMarkers();
 
         _unacknowledgedMessageTags.clear();
         _prefetchedMessageTags.clear();
 
-        _rollbackMark.set(-1);
         clearResolvedDestinations();
         resubscribeProducers();
         resubscribeConsumers();
+    }
+
+    void resetRollbackMarkers()
+    {
+        _highestDeliveryTag.set(-1);
+        _rollbackMark.set(-1);
     }
 
     void setHasMessageListeners()
@@ -3594,7 +3599,7 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
                 try
                 {
-                    while (connectionStopped())
+                    while (!getAMQConnection().isFailingOver() && connectionStopped())
                     {
                         _lock.wait();
                     }
@@ -3868,11 +3873,6 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
         {
             suspendChannel(true);
         }
-    }
-
-    protected void clearDispatchQueue()
-    {
-        _queue.clear();
     }
 
     private void shutdownFlowControlNoAckTaskPool()

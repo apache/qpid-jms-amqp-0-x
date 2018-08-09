@@ -560,6 +560,36 @@ public class FailoverBehaviourTest extends JmsTestBase implements ExceptionListe
         doFailoverWhilstPublishingInFlight();
     }
 
+    @Test
+    public void testFailoverWithDirtyStoppedTransactionSessionHavingPrefetchedMessages() throws Exception
+    {
+        assumeTrue(getBrokerAdmin().supportsPersistence());
+        init(Session.SESSION_TRANSACTED, true);
+
+        produceMessages();
+        _producerSession.commit();
+
+        Message message = _consumer.receive(getReceiveTimeout());
+        assertNotNull("Message is not received", message);
+
+        _connection.stop();
+
+        MessageProducer messageProducer = _consumerSession.createProducer(_destination);
+        messageProducer.send(_consumerSession.createTextMessage("Test"));
+
+        getBrokerAdmin().restart();
+
+        try
+        {
+            _consumerSession.commit();
+            fail("Exception is expected");
+        }
+        catch (JMSException e)
+        {
+            // pass
+        }
+    }
+
     private void doFailoverWhilstPublishingInFlight() throws Exception
     {
         init(Session.SESSION_TRANSACTED, false);
