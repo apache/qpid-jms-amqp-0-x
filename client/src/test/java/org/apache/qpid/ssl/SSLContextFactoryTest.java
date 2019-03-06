@@ -30,7 +30,7 @@ import java.io.IOException;
 
 public class SSLContextFactoryTest extends QpidTestCase
 {
-    private static final String STORE_TYPE = "JKS";
+    private static final String STORE_TYPE = "pkcs12";
     private static final String DEFAULT_KEY_MANAGER_ALGORITHM = KeyManagerFactory.getDefaultAlgorithm();
     private static final String DEFAULT_TRUST_MANAGER_ALGORITHM = TrustManagerFactory.getDefaultAlgorithm();
 
