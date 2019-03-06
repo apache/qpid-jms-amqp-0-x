@@ -38,7 +38,7 @@ import org.apache.qpid.transport.network.security.ssl.SSLUtil;
 
 public class TrustManagerTest extends QpidTestCase
 {
-    private static final String STORE_TYPE = "JKS";
+    private static final String STORE_TYPE = "PKCS12";
     private static final String DEFAULT_TRUST_MANAGER_ALGORITHM = TrustManagerFactory.getDefaultAlgorithm();
 
     // retrieves the client certificate's chain from store and returns it as an array

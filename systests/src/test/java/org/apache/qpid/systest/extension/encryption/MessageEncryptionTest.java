@@ -100,11 +100,18 @@ public class MessageEncryptionTest extends JmsTestBase
         {
             Files.copy(in, _trustStore, REPLACE_EXISTING);
         }
+        // QPID-8283: Setting password with JVM setting due to client defect
+        System.setProperty("javax.net.ssl.trustStorePassword", STORE_PASSWORD);
+        System.setProperty("javax.net.ssl.trustStoreType", "pkcs12");
+        System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
     }
 
     @After
     public void tearDown()
     {
+        System.clearProperty("javax.net.ssl.trustStorePassword");
+        System.clearProperty("javax.net.ssl.trustStoreType");
+        System.clearProperty("javax.net.ssl.keyStoreType");
         if (_trustStore != null)
         {
             _trustStore.toFile().delete();
@@ -497,6 +504,7 @@ public class MessageEncryptionTest extends JmsTestBase
         peerStoreAttributes.put("type", "FileTrustStore");
         peerStoreAttributes.put("qpid-type", "FileTrustStore");
         peerStoreAttributes.put("exposedAsMessageSource", true);
+        peerStoreAttributes.put("trustStoreType", "pkcs12");
         peerStoreAttributes.putAll(additionalAttributes);
 
         createEntity(peerStoreName, "org.apache.qpid.server.security.FileTrustStore", peerStoreAttributes);
