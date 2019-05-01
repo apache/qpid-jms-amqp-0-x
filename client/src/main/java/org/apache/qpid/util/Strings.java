@@ -22,6 +22,7 @@ package org.apache.qpid.util;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -32,9 +33,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.bind.DatatypeConverter;
-
 
 /**
  * Strings
@@ -135,7 +133,7 @@ public final class Strings
             throw new IllegalArgumentException("Cannot convert string '"+ base64String+ "'to a byte[] - it does not appear to be base64 data");
         }
 
-        return DatatypeConverter.parseBase64Binary(base64String);
+        return Base64.getDecoder().decode(base64String);
     }
 
     public static interface Resolver
