@@ -77,9 +77,9 @@
 
   <properties>
     <minimum-maven-version>3.0.0</minimum-maven-version>
-    <minimum-java-version>1.7.0</minimum-java-version>
-    <java.source>1.7</java.source>
-    <java.target>1.7</java.target>
+    <minimum-java-version>1.8.0</minimum-java-version>
+    <java.source>1.8</java.source>
+    <java.target>1.8</java.target>
 
     <!-- Directory used for per test log file output -->
     <test.output.dir>${basedir}${file.separator}target${file.separator}surefire-reports${file.separator}junit</test.output.dir>
@@ -455,8 +455,8 @@
                 <configuration>
                   <rules>
                     <requireJavaVersion>
-                      <version>[1.7,1.8)</version>
-                      <message>Please, use JDK 1.7 for release</message>
+                      <version>${minimum-java-version}</version>
+                      <message>Please, use JDK 1.8 for release</message>
                     </requireJavaVersion>
                   </rules>
                 </configuration>
