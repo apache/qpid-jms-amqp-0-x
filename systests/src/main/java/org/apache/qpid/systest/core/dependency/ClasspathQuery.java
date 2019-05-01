@@ -154,7 +154,12 @@ public class ClasspathQuery
 
     private String buildClassPath(final Class<?> clientClazz, final Collection<String> gavs)
     {
-        List<File> classpathElements = new ArrayList<>(_classpathCache.getUnchecked(gavs));
+        final List<File> cached = _classpathCache.getUnchecked(gavs);
+        List<File> classpathElements = new ArrayList<>();
+        if (cached != null)
+        {
+            classpathElements.addAll(cached);
+        }
         classpathElements.add(getLocalClasspathElement(clientClazz));
 
         return Joiner.on(System.getProperty("path.separator")).join(classpathElements);
