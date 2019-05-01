@@ -21,10 +21,10 @@
 package org.apache.qpid.client.message;
 
 
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -112,10 +112,9 @@ public class AbstractJMSMessageTest extends QpidTestCase
         return argThat( new ArgumentMatcher<AMQDestination>()
         {
             @Override
-            public boolean matches(Object argument)
+            public boolean matches(AMQDestination argument)
             {
-                AMQDestination actual = (AMQDestination) argument;
-                return actual.getAddressName().equals(expectedAddress);
+                return argument.getAddressName().equals(expectedAddress);
             }
         });
     }
