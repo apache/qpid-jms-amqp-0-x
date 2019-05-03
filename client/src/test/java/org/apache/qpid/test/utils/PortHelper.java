@@ -49,6 +49,7 @@ public class PortHelper
      * Gets the next available port starting from given point.
      *
      * @param fromPort the port to scan for availability
+     * @return port number
      * @throws java.util.NoSuchElementException if there are no ports available
      */
     public int getNextAvailable(int fromPort)
@@ -74,7 +75,7 @@ public class PortHelper
     /**
      * Gets the next available port that is higher than all other port numbers issued
      * thus far.  If no port numbers have been issued, a default is used.
-     *
+     * @return port number
      * @throws java.util.NoSuchElementException if there are no ports available
      */
     public int getNextAvailable()
