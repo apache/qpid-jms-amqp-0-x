@@ -455,10 +455,9 @@ public class AddressBasedDestinationTest extends JmsTestBase
 
         AMQDestination dest = new AMQAnyDestination(addr);
 
-        MessageConsumer cons;
         try
         {
-            cons = jmsSession.createConsumer(dest);
+            jmsSession.createConsumer(dest);
             if (useNonsenseArguments || useNonsenseExchangeType)
             {
                 fail("Expected execution exception during exchange declare did not occur");
@@ -472,6 +471,11 @@ public class AddressBasedDestinationTest extends JmsTestBase
             {
                 //expected because we used an argument which the broker doesn't have functionality
                 //for. We can't do the rest of the test as a result of the exception, just stop.
+                return;
+            }
+            else if (useNonsenseArguments && ( e.getMessage().contains(String.valueOf(ExecutionErrorCode.ILLEGAL_ARGUMENT.getValue())))
+                     || e.getMessage().contains(String.valueOf(ExecutionErrorCode.INVALID_ARGUMENT.getValue())))
+            {
                 return;
             }
             else if (useNonsenseExchangeType && (e.getErrorCode().equals(String.valueOf(404))))
@@ -499,7 +503,7 @@ public class AddressBasedDestinationTest extends JmsTestBase
 
         // The client should be able to query and verify the existence of my-exchange (QPID-2774)
         dest = new AMQAnyDestination("ADDR:my-exchange; {create: never}");
-        cons = jmsSession.createConsumer(dest);
+        jmsSession.createConsumer(dest).close();
     }
 
     private String createExchangeArgsString(final boolean withExchangeArgs,
