@@ -88,7 +88,7 @@ public class Encrypted091MessageFactoryTest extends QpidTestCase
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, _secretKeySpec, new IvParameterSpec(_initializeVector));
             _encryptedMessage = cipher.doFinal(_unencrypted);
-            _keyStore = KeyStore.getInstance("pkcs12");
+            _keyStore = KeyStore.getInstance("jks");
             _keyStore.load(getClass().getClassLoader().getResourceAsStream(TestSSLConstants.KEYSTORE),
                            TestSSLConstants.KEYSTORE_PASSWORD.toCharArray());
 
