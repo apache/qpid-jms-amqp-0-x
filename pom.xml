@@ -104,10 +104,9 @@
     <javacc-maven-plugin-version>2.6</javacc-maven-plugin-version>
     <maven-rar-plugin-version>2.3</maven-rar-plugin-version>
     <license-maven-plugin-version>1.6</license-maven-plugin-version>
-    <jacoco-plugin-version>0.7.0.201403182114</jacoco-plugin-version>
     <maven-jxr-plugin-version>2.3</maven-jxr-plugin-version>
     <findbugs-maven-plugin-version>2.5.2</findbugs-maven-plugin-version>
-    <jacoco-plugin-version>0.7.5.201505241946</jacoco-plugin-version>
+    <jacoco-plugin-version>0.8.2</jacoco-plugin-version>
     <apache-rat-plugin-version>0.11</apache-rat-plugin-version>
     <maven-docbx-plugin-version>2.0.15</maven-docbx-plugin-version>
     <maven-docbook-xml-plugin-version>5.0-all</maven-docbook-xml-plugin-version>
