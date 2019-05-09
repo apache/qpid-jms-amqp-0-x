@@ -32,10 +32,11 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.TrustManagerFactory;
-import javax.xml.bind.DatatypeConverter;
+
 
 import org.apache.qpid.test.utils.QpidTestCase;
 import org.apache.qpid.transport.TransportException;
+import org.apache.qpid.util.Base64;
 
 public class SSLUtilTest extends QpidTestCase
 {
@@ -320,7 +321,7 @@ public class SSLUtilTest extends QpidTestCase
         return clientEngine;
     }
 
-    private static byte[] TRUSTSTORE = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAANAAAAAgAPa2V5c3RvcmUyLWFsaWFzAAABVutBZIkABVguNTA5AAAGHzCCBhsw"
+    private static byte[] TRUSTSTORE = Base64.decode("/u3+7QAAAAIAAAANAAAAAgAPa2V5c3RvcmUyLWFsaWFzAAABVutBZIkABVguNTA5AAAGHzCCBhsw"
                                                                            +"ggQDoAMCAQICCQCrOvhXap7bYTANBgkqhkiG9w0BAQUFADBcMQswCQYDVQQGEwJVUzEQMA4GA1UE"
                                                                            +"CBMHcHJpdmF0ZTERMA8GA1UEBxMIcHJvdmluY2UxDTALBgNVBAoTBGNpdHkxGTAXBgNVBAMTEGFt"
                                                                            +"cXAuZXhhbXBsZS5jb20wHhcNMTYwOTAyMTQxNTE1WhcNMjYwNzEyMTQxNTE1WjBcMQswCQYDVQQG"
@@ -689,7 +690,7 @@ public class SSLUtilTest extends QpidTestCase
     //            X509v3 Subject Alternative Name:
     //                DNS:amqp.example.com
 
-    private static byte[] KEYSTORE_1 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQOSYAAAJhjCCCYIwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_1 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQOSYAAAJhjCCCYIwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJbpiFtanggVFjHUoiw5SBLNdnZpIbHao5oqJ6X7ra2IYE5pAYc8lA00P8GAt8ZfVFU/r1"
                                                                            +"iSj26gWQzbnOqgICfLEe1UNPzMmutxCKHUkZIqlXgvc/Ga7eNhZFxLYoJcjSHcH3rXjfiLihR7fi"
                                                                            +"ig7OavC88c3qnZld9SHcVSGquUQf65UlMDcLz5ro4JCWojxP0HqmaysTfVW0qGNSeGZcLM4F8siO"
@@ -766,7 +767,7 @@ public class SSLUtilTest extends QpidTestCase
     //        Subject: C=US, ST=private, L=province, O=city, CN=amqp.example.com
     //            X509v3 Subject Alternative Name:
     //                DNS:amqp1.example.com
-    private static byte[] KEYSTORE_2 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQOxJAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_2 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQOxJAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJb7B1Wn+7tr/UMY9U5S1jldHUBVs55D+bq9mEnI+15JSYH0HOgTeG2GHUMFg5s+P9sMX6"
                                                                            +"OQL5awZrIrj/IBm3H1JGYvQ90tGNZpbIyPxx912QRfM9qwx4x9q8/EX4C4HqUYzHPrwhtdauGuM7"
                                                                            +"0v2QMKG6ZKTb9f8VSXhhrntVA0V3hmHpFozpIm1vFjFHQvKwOk0H/ig0ZBCPEBGT447lSn8DyM42"
@@ -844,7 +845,7 @@ public class SSLUtilTest extends QpidTestCase
     //        Subject: C=US, ST=private, L=province, O=city, CN=amqp.example.com
     //            X509v3 Subject Alternative Name:
     //                DNS:amqp1.example.com, DNS:amqp2.example.com
-    private static byte[] KEYSTORE_3 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQPpoAAAJiDCCCYQwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_3 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQPpoAAAJiDCCCYQwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJcMesQe4dg1MYgHKVJCEUzCTpgJu3iTGwbnLOOhraGFn02YXh0Axbwws2hD0SH8XYF4h3"
                                                                            +"pVI+YbXCWHiQzzn0/5mbSEAQcNBqPR+UTQULdDpI5jGWlf3oPRdqRLP/zAXzgb5N2bmbtdLQ02NK"
                                                                            +"pvhRHNnLWmTBUokkBRUkh8kiUH3Xu8qIaJbK7ge0yglerFOK6kzic1PZwfvdzsoBxgb0CTHfzOK2"
@@ -923,7 +924,7 @@ public class SSLUtilTest extends QpidTestCase
     //        Subject: C=US, ST=private, L=province, O=city, CN=amqp.example.com
     //            X509v3 Subject Alternative Name:
     //                DNS:amqp1.example.com, DNS:*.example.com
-    private static byte[] KEYSTORE_4 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQP7OAAAJiDCCCYQwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_4 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQP7OAAAJiDCCCYQwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJcM11nToM9HiebwkA/+F9HTYV7bjlRO04+J09z8yiaerv82Iik4bIZjsl2V8IPIjUACxM"
                                                                            +"7ToGh+WiELoTTDtcjTrfAxk8CM1buiugzN8do8/VwTHpIyDmKQoEY+54Ma2S1r52mqpl5B4sJT3U"
                                                                            +"25g1ahx23Ytwti9TNKf5NGDLuKrVzbidoYNc2p8yFQe7gaktKVSmIyaZOjRrwm9quoopKNdB/73k"
@@ -1002,7 +1003,7 @@ public class SSLUtilTest extends QpidTestCase
     //        Subject: C=US, ST=private, L=province, O=city, CN=*.example.com
     //            X509v3 Subject Alternative Name:
     //                DNS:amqp1.example.net, DNS:*.org
-    private static byte[] KEYSTORE_5 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQQX7AAAJhjCCCYIwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_5 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQQX7AAAJhjCCCYIwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJbhJZvU/boEm92Z+W8kebBumXt/3K9qwGBIntSvmLduW4HIVcQ6+W3Q5Kbd7JiQbAut7b"
                                                                            +"jicmydwnibrk7DimQAfCGsqud2ywj6eZwkXXa5ZNbuQKUQxP0me82awrQHYBkSaHJv2kwSdTQU7O"
                                                                            +"la3CoRhtps1pInt00GjVbBEtBERcUrCVG7GtLbxKaOnDEaixK/ewS+7FnG83SfjEKCc5yso/aKaG"
@@ -1080,7 +1081,7 @@ public class SSLUtilTest extends QpidTestCase
     //        Subject: C=US, ST=private, L=province, O=city, CN=amqp.example.com
     //            X509v3 Subject Alternative Name:
     //                DNS:*
-    private static byte[] KEYSTORE_6 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQQ/fAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_6 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQQ/fAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJb3fs2zcPchqg7CgqHGxwNehB9UogWD1nbgdXd5RtWrIg8Gifp05miLKUjPxQp1/L0D36"
                                                                            +"XVyqVO7hINZZE3wb9p7PR+bzo7DWMuPZ7+2YzcX2fSLRLcT2h88L3wHjblYH19Bk19/H44JI6j2H"
                                                                            +"NwVXbAJRAR/6gQJWDewRmkDmSwbiLZ+0pYGz6P5lucXWFt8T2h+pAqz0Ui400RxrpM49AadvCK6v"
@@ -1157,7 +1158,7 @@ public class SSLUtilTest extends QpidTestCase
     //        Subject: C=US, ST=private, L=province, O=city, CN=*
     //            X509v3 Subject Alternative Name:
     //                DNS:amqp.example.org, DNS:amqp1.example.org, DNS:amqp2.example.org
-    private static byte[] KEYSTORE_7 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQRyQAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_7 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQRyQAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJb+vOaA9ERF3UR5QStjyDSVyHQneIIdOijZfbIxzvUHqZLXOZ6g03xiRs0mJ/RPgPPXo2"
                                                                            +"EzR8U19YIljUdVw37yro4LpsH1buo+tzPC5p6PhLS28jaMCsLWKpnabAQfWptCgjSoOvKJ26XdxB"
                                                                            +"NVJVPrBBscwP+ytgcwJ1wsAkkvOGazygincn7MJiBUNkd7HpJ2VjueeqgttwMKFKFifFdE390Has"
@@ -1234,7 +1235,7 @@ public class SSLUtilTest extends QpidTestCase
     //        Subject: C=US, ST=private, L=province, O=city, CN=*
     //            X509v3 Subject Alternative Name:
     //                DNS:amqp.example.org, DNS:example.org
-    private static byte[] KEYSTORE_8 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQTD+AAAJhjCCCYIwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_8 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQTD+AAAJhjCCCYIwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJbjpQpyUW3ZmF8P1gwRce6uQCTe3hN+4Mft8FrnZRnv4kx0YW1cMRfyig89HYONM8KsS0"
                                                                            +"BMoqT3xa5iCQ/oHBymb82OC4YWSAomHFNT2JoDWelNQfnMqjGt3UETBP7g06+ulDjEA5+DAsdcxy"
                                                                            +"Jtt3Tpfjpe0s0I5jY3blGPV8yQDCNkahhqET6Jvg3PJYsHBE3ssPkTNKI5rMjzbt36pai/HlmjdU"
@@ -1308,7 +1309,7 @@ public class SSLUtilTest extends QpidTestCase
                                                                           );
 
     //        Subject: C=US, ST=private, L=province, O=city, CN=amqp.example.org
-    private static byte[] KEYSTORE_9 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQTqYAAAJhjCCCYIwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_9 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQTqYAAAJhjCCCYIwDgYKKwYBBAEqAhEB"
                                                                            +"AQUABIIJbnd59Bys8FgK8FREpm5Vsbq0uIbSE3nZFBNRVaYostRXeNA1fJok01wXBqrf05NfelKj"
                                                                            +"+ttyFHwE8AKzLfF6vDusoEH4r3HUaQWoWMiOfCzljxjtrr/eQQFx92dX5+Z17BH4+92HZUzVPbSg"
                                                                            +"31eoaZ24lTO7X8XXq0a43mnC/m3Vs9K590oCfXSDRsx8Ucr0VbUjR8jyLMxE6f4/cxBIhg2PTzCi"
@@ -1383,7 +1384,7 @@ public class SSLUtilTest extends QpidTestCase
                                                                           );
 
     //        Subject: C=US, ST=private, L=province, O=city, CN=*.example.org
-    private static byte[] KEYSTORE_10 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQT/DAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_10 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQT/DAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
                                                                             +"AQUABIIJb5zVRh9eulhVb9JI6dbHdLyWN/AwqIfERSIFCr/n0jn7MvWHPiMYQtYtzv+z7bkNVTv+"
                                                                             +"Uec6wagRxHGu4bjcVuIs6zX2lUrO0L5rN3Jwcbu6bpMIxw7sAPw4/k7Kgvf1ddSOIn4WGiHrJf8G"
                                                                             +"WvMy3rs9dnxSe8Z+TvUBn3yfFemMRpwnfGn6TuJsdBfzU/bm9dX8RBjMmwQgyHqVgzuvJtAkaQb8"
@@ -1457,7 +1458,7 @@ public class SSLUtilTest extends QpidTestCase
                                                                            );
 
     //        Subject: C=US, ST=private, L=province, O=city, CN=*.org
-    private static byte[] KEYSTORE_11 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQUx1AAAJhjCCCYIwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_11 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQUx1AAAJhjCCCYIwDgYKKwYBBAEqAhEB"
                                                                             +"AQUABIIJbuNPa7B2d1Mjkq6EBTzELi9V6XgirTYklPyKB3sQ5DUjlK+KoAsUI4oqAGOYPJDzHteq"
                                                                             +"ocv5Dj2+741/Pi5Y6DDvls+6fHrmlJk3QOuVJT4yaI5vo9FJ3FUCUyDohvYrRfpA6gfTfO+QU6DI"
                                                                             +"9G+D4+6gZtz2k4tdoFymtLQRzBS7+L3pFzl5uP7FA1UVWRZlHwsFyLmEmQhZlZcecYtCdTr018iV"
@@ -1531,7 +1532,7 @@ public class SSLUtilTest extends QpidTestCase
                                                                            );
 
     //        Subject: C=US, ST=private, L=province, O=city, CN=*.*.org
-    private static byte[] KEYSTORE_12 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQVfLAAAJhjCCCYIwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_12 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQVfLAAAJhjCCCYIwDgYKKwYBBAEqAhEB"
                                                                             +"AQUABIIJbrIYGAiHi9UXY3+A7AqtiNSK6KUzH4bilTLdy875582mryHmiv7372P049JZ2NtA0FXk"
                                                                             +"z/Idna6VGQmQfC7V/RWYpcCiiDcNFwpwCrnplPZw/6ItTDFaZQruZjIrgT3joyWGHvDvnzrTOGwt"
                                                                             +"l/yAc3DPnOThuqRogsUHUHpCAxii7/a3fsy4bPvZowSn2s0xJKAt0wBtSEAywahpzbax2pHWFwff"
@@ -1605,7 +1606,7 @@ public class SSLUtilTest extends QpidTestCase
                                                                            );
 
     //        Subject: C=US, ST=private, L=province, O=city, CN=*
-    private static byte[] KEYSTORE_13 = DatatypeConverter.parseBase64Binary("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQWJoAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
+    private static byte[] KEYSTORE_13 = Base64.decode("/u3+7QAAAAIAAAABAAAAAQAKc2VsZnNpZ25lZAAAAVbrQWJoAAAJhzCCCYMwDgYKKwYBBAEqAhEB"
                                                                             +"AQUABIIJb2KqIXFhF34E/cZLKwQIiZncYFYOrfP3HUNTvAXWuX1F2prq4VIiq8zrsLpFB07UrfdL"
                                                                             +"7+xfuC9WJJ09455608neFGtH7K6V5ntULLicLOEkz/jH0WgHBsZjUFXhAl+DivFI880OT7z2FC2E"
                                                                             +"odYUp35Un/cSbfyxjYBQtu64X+u5g+05UW5GhxHCUrHik/5sJYimER/ZrM3SV1ctnllqtJeZx6sn"

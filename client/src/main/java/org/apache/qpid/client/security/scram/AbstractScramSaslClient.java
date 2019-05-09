@@ -37,8 +37,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.sasl.SaslClient;
 import javax.security.sasl.SaslException;
-import javax.xml.bind.DatatypeConverter;
 
+import org.apache.qpid.util.Base64;
 import org.apache.qpid.util.Strings;
 
 public abstract class AbstractScramSaslClient implements SaslClient
@@ -194,7 +194,7 @@ public abstract class AbstractScramSaslClient implements SaslClient
 
 
             String clientFinalMessageWithoutProof =
-                    "c=" + DatatypeConverter.printBase64Binary(GS2_HEADER.getBytes(ASCII))
+                    "c=" + Base64.encode(GS2_HEADER.getBytes(ASCII))
                     + ",r=" + _serverNonce;
 
             String authMessage = _clientFirstMessageBare + "," + serverFirstMessage + "," + clientFinalMessageWithoutProof;
@@ -213,7 +213,7 @@ public abstract class AbstractScramSaslClient implements SaslClient
             _serverSignature = computeHmac(serverKey, authMessage);
 
             String finalMessageWithProof = clientFinalMessageWithoutProof
-                                           + ",p=" + DatatypeConverter.printBase64Binary(clientProof);
+                                           + ",p=" + Base64.encode(clientProof);
             return finalMessageWithProof.getBytes();
         }
         catch (UnsupportedEncodingException e)
