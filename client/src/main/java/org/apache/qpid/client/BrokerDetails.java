@@ -559,7 +559,7 @@ public class BrokerDetails implements Serializable
 
         if (getProperty(BrokerDetails.OPTIONS_ENCRYPTION_TRUST_STORE_PASSWORD) != null)
         {
-            conSettings.setEncryptionKeyStorePassword(
+            conSettings.setEncryptionTrustStorePassword(
                     getProperty(BrokerDetails.OPTIONS_ENCRYPTION_TRUST_STORE_PASSWORD));
         }
 

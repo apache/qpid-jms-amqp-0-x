@@ -247,4 +247,28 @@ public class BrokerDetailsTest extends QpidTestCase
         assertNull(String.format("Unexpected '%s' property value", BrokerDetails.OPTIONS_SSL_VERIFY_HOSTNAME),
                 broker.getProperty(BrokerDetails.OPTIONS_SSL_VERIFY_HOSTNAME));
     }
+
+    public void testEncryptionKeyStorePath() throws Exception
+    {
+        String brokerURL = "tcp://localhost:5672?ssl='true'&encryption_key_store='path'";
+        BrokerDetails broker = new BrokerDetails(brokerURL);
+        ConnectionSettings connectionSettings = broker.buildConnectionSettings();
+        assertEquals("path", connectionSettings.getEncryptionKeyStorePath());
+    }
+
+    public void testEncryptionKeyStorePassword() throws Exception
+    {
+        String brokerURL = "tcp://localhost:5672?ssl='true'&encryption_key_store_password='pass'&encryption_trust_store_password='foo'";
+        BrokerDetails broker = new BrokerDetails(brokerURL);
+        ConnectionSettings connectionSettings = broker.buildConnectionSettings();
+        assertEquals("pass", connectionSettings.getEncryptionKeyStorePassword());
+    }
+
+    public void testEncryptionTrustStorePassword() throws Exception
+    {
+        String brokerURL = "tcp://localhost:5672?ssl='true'&encryption_key_store_password='pass'&encryption_trust_store_password='foo'";
+        BrokerDetails broker = new BrokerDetails(brokerURL);
+        ConnectionSettings connectionSettings = broker.buildConnectionSettings();
+        assertEquals("foo", connectionSettings.getEncryptionTrustStorePassword());
+    }
 }
