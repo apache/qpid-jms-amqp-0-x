@@ -20,32 +20,29 @@
  */
 package org.apache.qpid.transport;
 
-import static org.apache.qpid.transport.LegacyClientProperties.AMQJ_HEARTBEAT_DELAY;
-import static org.apache.qpid.transport.LegacyClientProperties.AMQJ_HEARTBEAT_TIMEOUT_FACTOR;
-import static org.apache.qpid.transport.LegacyClientProperties.IDLE_TIMEOUT_PROP_NAME;
 import static org.apache.qpid.configuration.ClientProperties.QPID_HEARTBEAT_INTERVAL;
 import static org.apache.qpid.configuration.ClientProperties.QPID_HEARTBEAT_INTERVAL_010_DEFAULT;
 import static org.apache.qpid.configuration.ClientProperties.QPID_HEARTBEAT_TIMEOUT_FACTOR;
 import static org.apache.qpid.configuration.ClientProperties.QPID_HEARTBEAT_TIMEOUT_FACTOR_DEFAULT;
-import static org.apache.qpid.transport.LegacyClientProperties.AMQJ_TCP_NODELAY_PROP_NAME;
 import static org.apache.qpid.configuration.ClientProperties.QPID_SSL_KEY_MANAGER_FACTORY_ALGORITHM_PROP_NAME;
-import static org.apache.qpid.transport.LegacyClientProperties.QPID_SSL_KEY_STORE_CERT_TYPE_PROP_NAME;
 import static org.apache.qpid.configuration.ClientProperties.QPID_SSL_TRUST_MANAGER_FACTORY_ALGORITHM_PROP_NAME;
-import static org.apache.qpid.transport.LegacyClientProperties.QPID_SSL_TRUST_STORE_CERT_TYPE_PROP_NAME;
 import static org.apache.qpid.configuration.ClientProperties.QPID_TCP_NODELAY_PROP_NAME;
 import static org.apache.qpid.configuration.ClientProperties.RECEIVE_BUFFER_SIZE_PROP_NAME;
 import static org.apache.qpid.configuration.ClientProperties.SEND_BUFFER_SIZE_PROP_NAME;
+import static org.apache.qpid.transport.LegacyClientProperties.AMQJ_HEARTBEAT_DELAY;
+import static org.apache.qpid.transport.LegacyClientProperties.AMQJ_HEARTBEAT_TIMEOUT_FACTOR;
+import static org.apache.qpid.transport.LegacyClientProperties.AMQJ_TCP_NODELAY_PROP_NAME;
+import static org.apache.qpid.transport.LegacyClientProperties.IDLE_TIMEOUT_PROP_NAME;
 import static org.apache.qpid.transport.LegacyClientProperties.LEGACY_RECEIVE_BUFFER_SIZE_PROP_NAME;
 import static org.apache.qpid.transport.LegacyClientProperties.LEGACY_SEND_BUFFER_SIZE_PROP_NAME;
+import static org.apache.qpid.transport.LegacyClientProperties.QPID_SSL_KEY_STORE_CERT_TYPE_PROP_NAME;
+import static org.apache.qpid.transport.LegacyClientProperties.QPID_SSL_TRUST_STORE_CERT_TYPE_PROP_NAME;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -62,6 +59,7 @@ import org.apache.qpid.configuration.QpidProperty;
 import org.apache.qpid.ssl.SSLContextFactory;
 import org.apache.qpid.transport.network.security.ssl.QpidClientX509KeyManager;
 import org.apache.qpid.transport.network.security.ssl.SSLUtil;
+import org.apache.qpid.util.Strings;
 
 
 /**
@@ -73,8 +71,6 @@ import org.apache.qpid.transport.network.security.ssl.SSLUtil;
 public class ConnectionSettings
 {
     public static final String WILDCARD_ADDRESS = "*";
-
-    private static final SecureRandom RANDOM = new SecureRandom();
 
     private String _transport = "tcp";
     private String host = "localhost";
@@ -658,10 +654,7 @@ public class ConnectionSettings
             java.security.KeyStore inMemoryKeyStore =
                     java.security.KeyStore.getInstance(java.security.KeyStore.getDefaultType());
 
-            byte[] bytes = new byte[64];
-            char[] chars = new char[64];
-            RANDOM.nextBytes(bytes);
-            StandardCharsets.US_ASCII.decode(ByteBuffer.wrap(bytes)).get(chars);
+            char[] chars = Strings.randomAlphaNumericString(64).toCharArray();
             inMemoryKeyStore.load(null, chars);
             inMemoryKeyStore.setKeyEntry("1", privateKey, chars, certs);
 
