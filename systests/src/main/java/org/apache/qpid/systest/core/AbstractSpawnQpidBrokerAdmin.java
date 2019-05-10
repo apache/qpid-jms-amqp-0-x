@@ -144,14 +144,7 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
         switch (portType)
         {
             case AMQP:
-                for (ListeningPort p : _ports)
-                {
-                    if (p.getTransport().contains("TCP"))
-                    {
-                        port = p.getPort();
-                        break;
-                    }
-                }
+                port = getPort("TCP");
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unknown port type '%s'", portType));
@@ -161,6 +154,20 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
             throw new IllegalArgumentException(String.format("Cannot find port of type '%s'", portType));
         }
         return new InetSocketAddress(port);
+    }
+
+    private Integer getPort(final String transport)
+    {
+        Integer port = null;
+        for (ListeningPort p : _ports)
+        {
+            if (p.getTransport().contains(transport))
+            {
+                port = p.getPort();
+                break;
+            }
+        }
+        return port;
     }
 
     @Override
@@ -386,7 +393,15 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
 
     @Override
     public Connection getConnection(final String virtualHostName,
-                                       final Map<String, String> options) throws JMSException
+                                    final Map<String, String> options) throws JMSException
+    {
+        return getConnection(virtualHostName, options, getBrokerAddress(PortType.AMQP).getPort());
+    }
+
+    @Override
+    public Connection getConnection(final String virtualHostName,
+                                    final Map<String, String> options,
+                                    final int port) throws JMSException
     {
         final Hashtable<Object, Object> initialContextEnvironment = new Hashtable<>();
         initialContextEnvironment.put(Context.INITIAL_CONTEXT_FACTORY,
@@ -396,7 +411,7 @@ public abstract class AbstractSpawnQpidBrokerAdmin implements BrokerAdmin
         StringBuilder url = new StringBuilder(String.format(urlTemplate,
                                                             "spawn_broker_admin",
                                                             virtualHostName,
-                                                            getBrokerAddress(PortType.AMQP).getPort()));
+                                                            port));
         if (options != null)
         {
             for (Map.Entry<String, String> option : options.entrySet())

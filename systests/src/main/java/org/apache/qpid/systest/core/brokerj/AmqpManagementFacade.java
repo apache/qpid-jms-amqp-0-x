@@ -348,8 +348,7 @@ public class AmqpManagementFacade
         }
     }
 
-    @SuppressWarnings(value = {"unused", "unchecked"})
-    List<Map<String, Object>> managementQueryObjects(final String type, final Session session)
+    public List<Map<String, Object>> managementQueryObjects(final String type, final Session session)
             throws JMSException
     {
         Destination replyToDestination = session.createQueue(AMQP_0_X_REPLY_TO_DESTINATION);

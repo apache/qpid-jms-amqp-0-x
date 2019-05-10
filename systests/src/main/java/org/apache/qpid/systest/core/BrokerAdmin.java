@@ -49,6 +49,9 @@ public interface BrokerAdmin
     Connection getConnection(Map<String, String> options) throws JMSException;
     Connection getConnection(String virtualHostName,
                              Map<String, String> options) throws JMSException;
+    Connection getConnection(String virtualHostName,
+                             Map<String, String> options,
+                             int port) throws JMSException;
 
     enum PortType
     {
