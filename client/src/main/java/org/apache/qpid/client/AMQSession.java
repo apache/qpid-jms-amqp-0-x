@@ -2330,7 +2330,7 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
             final CountDownLatch signal = new CountDownLatch(1);
 
-            _queue.add(new Dispatchable()
+            _queue.add(new DispatchableControl()
             {
                 public void dispatch(AMQSession ssn)
                 {
@@ -2382,7 +2382,7 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
 
             final CountDownLatch signal = new CountDownLatch(1);
 
-            _queue.add(new Dispatchable()
+            _queue.add(new DispatchableControl()
             {
                 public void dispatch(AMQSession ssn)
                 {
@@ -3385,6 +3385,10 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
         void dispatch(AMQSession ssn);
     }
 
+    public interface DispatchableControl extends Dispatchable
+    {
+    }
+
     public void dispatch(UnprocessedMessage message)
     {
         if (_dispatcher == null)
@@ -3535,10 +3539,9 @@ public abstract class AMQSession<C extends BasicMessageConsumer, P extends Basic
                     {
                         synchronized (_lock)
                         {
-                            if (!isClosed() && !isClosing() && !_closed.get())
+                            final Dispatchable disp = _queue.nonBlockingTake();
+                            if (disp instanceof DispatchableControl || (!isClosed() && !isClosing() && !_closed.get()))
                             {
-                                Dispatchable disp = _queue.nonBlockingTake();
-
                                 if(disp != null)
                                 {
                                     disp.dispatch(AMQSession.this);
