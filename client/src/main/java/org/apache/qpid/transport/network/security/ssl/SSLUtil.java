@@ -75,7 +75,7 @@ public class SSLUtil
     private static final Logger LOGGER = LoggerFactory.getLogger(SSLUtil.class);
 
     private static final Integer DNS_NAME_TYPE = 2;
-    public static final String[] TLS_PROTOCOL_PREFERENCES = new String[]{"TLSv1.2", "TLSv1.1", "TLS", "TLSv1"};
+    public static final String[] TLS_PROTOCOL_PREFERENCES = new String[]{"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLS", "TLSv1"};
 
     private static final Method SSL_PARAMETERS_SET_USE_CIPHER_SUITES_ORDER;
 
