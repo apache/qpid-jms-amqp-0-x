@@ -60,7 +60,7 @@ public class CommonProperties
     public static final String QPID_SECURITY_TLS_PROTOCOL_WHITE_LIST = "qpid.security.tls.protocolWhiteList";
     public static final String QPID_SECURITY_TLS_PROTOCOL_WHITE_LIST_DEFAULT = "TLSv1\\.[0-9]+";
     public static final String QPID_SECURITY_TLS_PROTOCOL_BLACK_LIST = "qpid.security.tls.protocolBlackList";
-    public static final String QPID_SECURITY_TLS_PROTOCOL_BLACK_LIST_DEFAULT = "TLSv1\\.0";
+    public static final String QPID_SECURITY_TLS_PROTOCOL_BLACK_LIST_DEFAULT = "TLSv1\\.[0-1]";
 
     public static final String QPID_SECURITY_TLS_CIPHER_SUITE_WHITE_LIST = "qpid.security.tls.cipherSuiteWhiteList";
     public static final String QPID_SECURITY_TLS_CIPHER_SUITE_WHITE_LIST_DEFAULT = "";
