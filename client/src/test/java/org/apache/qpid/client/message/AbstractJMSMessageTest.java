@@ -33,8 +33,6 @@ import java.util.List;
 
 import javax.jms.JMSException;
 
-import org.mockito.ArgumentMatcher;
-
 import org.apache.qpid.QpidException;
 import org.apache.qpid.client.AMQDestination;
 import org.apache.qpid.client.AMQSession;
@@ -51,7 +49,7 @@ public class AbstractJMSMessageTest extends QpidTestCase
 
     public void testIncoming08ReplyTo() throws Exception
     {
-        when(_session.isQueueBound(isNull(String.class), eq("knownQueue"), isNull(String.class))).thenReturn(true);
+        when(_session.isQueueBound(isNull(), eq("knownQueue"), isNull())).thenReturn(true);
         when(_session.isExchangeExist(isDestinationWithAddress("knownExchange"), anyBoolean())).thenReturn(true);
 
         doReplyToTest("direct://amq.direct/knownQueue?routingkey='knownQueue'", "direct://amq.direct/knownQueue/knownQueue?routingkey='knownQueue'");
@@ -109,13 +107,6 @@ public class AbstractJMSMessageTest extends QpidTestCase
 
     private AMQDestination isDestinationWithAddress(final String expectedAddress)
     {
-        return argThat( new ArgumentMatcher<AMQDestination>()
-        {
-            @Override
-            public boolean matches(AMQDestination argument)
-            {
-                return argument.getAddressName().equals(expectedAddress);
-            }
-        });
+        return argThat(argument -> argument.getAddressName().equals(expectedAddress));
     }
 }
