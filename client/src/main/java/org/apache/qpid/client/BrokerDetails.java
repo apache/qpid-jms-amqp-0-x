@@ -54,8 +54,10 @@ public class BrokerDetails implements Serializable
     public static final String OPTIONS_SASL_SERVER_NAME = "sasl_server";
     public static final String OPTIONS_TRUST_STORE = "trust_store";
     public static final String OPTIONS_TRUST_STORE_PASSWORD = "trust_store_password";
+    public static final String OPTIONS_TRUST_STORE_TYPE = "trust_store_type";
     public static final String OPTIONS_KEY_STORE = "key_store";
     public static final String OPTIONS_KEY_STORE_PASSWORD = "key_store_password";
+    public static final String OPTIONS_KEY_STORE_TYPE = "key_store_type";
     public static final String OPTIONS_SSL_VERIFY_HOSTNAME = "ssl_verify_hostname";
     public static final String OPTIONS_SSL_CERT_ALIAS = "ssl_cert_alias";
     public static final String OPTIONS_CLIENT_CERT_PRIV_KEY_PATH = "client_cert_priv_key_path";
@@ -65,9 +67,11 @@ public class BrokerDetails implements Serializable
 
     public static final String OPTIONS_ENCRYPTION_TRUST_STORE = "encryption_trust_store";
     public static final String OPTIONS_ENCRYPTION_TRUST_STORE_PASSWORD = "encryption_trust_store_password";
+    public static final String OPTIONS_ENCRYPTION_TRUST_STORE_TYPE = "encryption_trust_store_type";
     public static final String OPTIONS_ENCRYPTION_REMOTE_TRUST_STORE = "encryption_remote_trust_store";
     public static final String OPTIONS_ENCRYPTION_KEY_STORE = "encryption_key_store";
     public static final String OPTIONS_ENCRYPTION_KEY_STORE_PASSWORD = "encryption_key_store_password";
+    public static final String OPTIONS_ENCRYPTION_KEY_STORE_TYPE = "encryption_key_store_type";
 
     static final Set<String> PASSWORD_YIELDING_OPTIONS =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
@@ -488,6 +492,12 @@ public class BrokerDetails implements Serializable
                     getProperty(BrokerDetails.OPTIONS_TRUST_STORE_PASSWORD));
         }
 
+        if (getProperty(BrokerDetails.OPTIONS_TRUST_STORE_TYPE) != null)
+        {
+            conSettings.setTrustStoreType(
+                    getProperty(BrokerDetails.OPTIONS_TRUST_STORE_TYPE));
+        }
+
         if (getProperty(BrokerDetails.OPTIONS_KEY_STORE) != null)
         {
             conSettings.setKeyStorePath(
@@ -498,6 +508,12 @@ public class BrokerDetails implements Serializable
         {
             conSettings.setKeyStorePassword(
                     getProperty(BrokerDetails.OPTIONS_KEY_STORE_PASSWORD));
+        }
+
+        if (getProperty(BrokerDetails.OPTIONS_KEY_STORE_TYPE) != null)
+        {
+            conSettings.setKeyStoreType(
+                    getProperty(BrokerDetails.OPTIONS_KEY_STORE_TYPE));
         }
 
         if (getProperty(BrokerDetails.OPTIONS_SSL_CERT_ALIAS) != null)
@@ -550,6 +566,11 @@ public class BrokerDetails implements Serializable
                     getProperty(BrokerDetails.OPTIONS_ENCRYPTION_KEY_STORE_PASSWORD));
         }
 
+        if (getProperty(BrokerDetails.OPTIONS_ENCRYPTION_KEY_STORE_TYPE) != null)
+        {
+            conSettings.setEncryptionKeyStoreType(
+                    getProperty(BrokerDetails.OPTIONS_ENCRYPTION_KEY_STORE_TYPE));
+        }
 
         if (getProperty(BrokerDetails.OPTIONS_ENCRYPTION_TRUST_STORE) != null)
         {
@@ -561,6 +582,13 @@ public class BrokerDetails implements Serializable
         {
             conSettings.setEncryptionTrustStorePassword(
                     getProperty(BrokerDetails.OPTIONS_ENCRYPTION_TRUST_STORE_PASSWORD));
+        }
+
+
+        if (getProperty(BrokerDetails.OPTIONS_ENCRYPTION_TRUST_STORE_TYPE) != null)
+        {
+            conSettings.setEncryptionTrustStoreType(
+                    getProperty(BrokerDetails.OPTIONS_ENCRYPTION_TRUST_STORE_TYPE));
         }
 
 

@@ -271,4 +271,32 @@ public class BrokerDetailsTest extends QpidTestCase
         ConnectionSettings connectionSettings = broker.buildConnectionSettings();
         assertEquals("foo", connectionSettings.getEncryptionTrustStorePassword());
     }
+
+    public void testEncryptionKeyStoreType() throws Exception
+    {
+        BrokerDetails broker = new BrokerDetails("tcp://localhost:5672?encryption_key_store_type='foo'");
+        ConnectionSettings connectionSettings = broker.buildConnectionSettings();
+        assertEquals("foo", connectionSettings.getEncryptionKeyStoreType());
+    }
+
+    public void testEncryptionTrustStoreType() throws Exception
+    {
+        BrokerDetails broker = new BrokerDetails("tcp://localhost:5672?encryption_trust_store_type='foo'");
+        ConnectionSettings connectionSettings = broker.buildConnectionSettings();
+        assertEquals("foo", connectionSettings.getEncryptionTrustStoreType());
+    }
+
+    public void testKeyStoreType() throws Exception
+    {
+        BrokerDetails details = new BrokerDetails("tcp://localhost:5672?key_store_type='foo'");
+        ConnectionSettings connectionSettings = details.buildConnectionSettings();
+        assertEquals("foo", connectionSettings.getKeyStoreType());
+    }
+
+    public void testTrustStoreType() throws Exception
+    {
+        BrokerDetails details = new BrokerDetails("tcp://localhost:5672?trust_store_type='foo'");
+        ConnectionSettings connectionSettings = details.buildConnectionSettings();
+        assertEquals("foo", connectionSettings.getTrustStoreType());
+    }
 }
