@@ -84,7 +84,7 @@
     <!-- Directory used for per test log file output -->
     <test.output.dir>${basedir}${file.separator}target${file.separator}surefire-reports${file.separator}junit</test.output.dir>
 
-    <logback-version>1.2.2</logback-version>
+    <logback-version>1.2.3</logback-version>
     <guava-version>27.0-jre</guava-version>
     <fasterxml-jackson-version>2.10.0</fasterxml-jackson-version>
     <slf4j-version>1.7.30</slf4j-version>
