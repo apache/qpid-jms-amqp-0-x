@@ -151,12 +151,6 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
 
     private String _clientName;
 
-    /** The user name to use for authentication */
-    private String _username;
-
-    /** The password to use for authentication */
-    private String _password;
-
     /** The virtual path to connect to on the AMQ server */
     private String _virtualHost;
 
@@ -482,8 +476,6 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
             _connectionURL = connectionURL;
 
             _clientName = connectionURL.getClientName();
-            _username = connectionURL.getUsername();
-            _password = connectionURL.getPassword();
 
             setVirtualHost(connectionURL.getVirtualHost());
 
@@ -1356,17 +1348,17 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
 
     public String getUsername()
     {
-        return _username;
+        return _connectionURL.getUsername();
     }
 
     public void setUsername(String id)
     {
-        _username = id;
+        _connectionURL.setUsername(id);
     }
 
     public String getPassword()
     {
-        return _password;
+        return _connectionURL.getPassword();
     }
 
     public String getVirtualHost()

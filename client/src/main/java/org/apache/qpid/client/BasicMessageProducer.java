@@ -193,6 +193,10 @@ public abstract class BasicMessageProducer extends Closeable implements org.apac
         {
             declareDestination(_destination);
         }
+        if (_connection.isPopulateUserId())
+        {
+            _userID = _connection.getUsername();
+        }
     }
 
     abstract void declareDestination(AMQDestination destination) throws QpidException;

@@ -240,7 +240,11 @@ public class AMQConnectionDelegate_0_10 implements AMQConnectionDelegate, Connec
             _qpidConnection.connect(conSettings);
 
             _conn.setConnected(true);
-            _conn.setUsername(_qpidConnection.getUserID());
+
+            if (_qpidConnection.getUserID() != null)
+            {
+                _conn.setUsername(_qpidConnection.getUserID());
+            }
             _conn.setMaximumChannelCount(_qpidConnection.getChannelMax());
             _conn.getFailoverPolicy().attainedConnection();
             _conn.logConnected(_qpidConnection.getLocalAddress(), _qpidConnection.getRemoteSocketAddress());

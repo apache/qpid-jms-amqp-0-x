@@ -21,47 +21,54 @@
 package org.apache.qpid.systest.connection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.net.InetSocketAddress;
 
-import javax.jms.Connection;
+import javax.jms.JMSException;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.qpid.client.AMQConnection;
 import org.apache.qpid.client.AMQConnectionFactory;
+import org.apache.qpid.client.ConnectionExtension;
 import org.apache.qpid.systest.core.BrokerAdmin;
 import org.apache.qpid.systest.core.JmsTestBase;
 
 public class ConnectionFactoryTest extends JmsTestBase
 {
-    private static final String CONNECTION_URL = "amqp://guest:guest@clientID/?brokerlist='tcp://%s:%d'";
-    private String _url;
+    private static final String CONNECTION_URL = "amqp://%s:%s@clientID/?brokerlist='tcp://%s:%d'";
+    private String _urlWithCredentials;
+    private String _urlWithoutCredentials;
+    private String _userName;
+    private String _password;
 
     @Before
     public void setUp()
     {
-        final InetSocketAddress brokerAddress = getBrokerAdmin().getBrokerAddress(BrokerAdmin.PortType.AMQP);
-        _url = String.format(CONNECTION_URL,
-                             brokerAddress.getHostString(),
-                             brokerAddress.getPort());
+        final BrokerAdmin brokerAdmin = getBrokerAdmin();
+        final InetSocketAddress brokerAddress = brokerAdmin.getBrokerAddress(BrokerAdmin.PortType.AMQP);
+        _userName = brokerAdmin.getValidUsername();
+        _password = brokerAdmin.getValidPassword();
+        final String host = brokerAddress.getHostString();
+        final int port = brokerAddress.getPort();
+        _urlWithCredentials = String.format(CONNECTION_URL, _userName, _password, host, port);
+        _urlWithoutCredentials = String.format(CONNECTION_URL, "", "", host, port);
     }
-    /**
-     * The username & password specified should not override the default
-     * specified in the URL.
-     */
+
     @Test
-    public void testCreateConnectionWithUsernamePassword() throws Exception
+    public void testCreateConnectionWithUsernamePasswordSetOnConnectionURL() throws Exception
     {
-        AMQConnectionFactory factory = new AMQConnectionFactory(_url);
+        AMQConnectionFactory factory = new AMQConnectionFactory(_urlWithCredentials);
 
         AMQConnection con = null;
         try
         {
             con = factory.createConnection();
-            assertEquals("Usernames used is different from the one in URL","guest",con.getConnectionURL().getUsername());
-            assertEquals("Password used is different from the one in URL","guest",con.getConnectionURL().getPassword());
+            assertEquals("Usernames used is different from the one in URL", _userName, con.getUsername());
+            assertEquals("Password used is different from the one in URL", _password, con.getPassword());
         }
         finally
         {
@@ -70,17 +77,18 @@ public class ConnectionFactoryTest extends JmsTestBase
                 con.close();
             }
         }
+    }
 
+    @Test
+    public void testCreateConnectionWithUsernamePasswordPassedIntoCreateConnection() throws Exception
+    {
+        AMQConnectionFactory factory = new AMQConnectionFactory(_urlWithCredentials);
         AMQConnection con2 = null;
         try
         {
-            con2 = factory.createConnection("user", "pass");
-            assertEquals("Usernames used is different from the one in URL","user",con2.getConnectionURL().getUsername());
-            assertEquals("Password used is different from the one in URL","pass",con2.getConnectionURL().getPassword());
-        }
-        catch(Exception e)
-        {
-            // ignore
+            con2 = factory.createConnection("admin", "admin");
+            assertEquals("Usernames used is different from the one in URL", "admin", con2.getUsername());
+            assertEquals("Password used is different from the one in URL", "admin", con2.getPassword());
         }
         finally
         {
@@ -89,13 +97,20 @@ public class ConnectionFactoryTest extends JmsTestBase
                 con2.close();
             }
         }
+    }
 
+
+    @Test
+    public void testCreateConnectionWithUsernamePasswordPassedIntoCreateConnectionWhenConnectionUrlWithoutCredentials()
+            throws Exception
+    {
+        AMQConnectionFactory factory = new AMQConnectionFactory(_urlWithoutCredentials);
         AMQConnection con3 = null;
         try
         {
-            con3 = factory.createConnection();
-            assertEquals("Usernames used is different from the one in URL","guest",con3.getConnectionURL().getUsername());
-            assertEquals("Password used is different from the one in URL","guest",con3.getConnectionURL().getPassword());
+            con3 = factory.createConnection(_userName, _password);
+            assertEquals("Usernames used is different from the one in URL", _userName, con3.getUsername());
+            assertEquals("Password used is different from the one in URL", _password, con3.getPassword());
         }
         finally
         {
@@ -106,20 +121,73 @@ public class ConnectionFactoryTest extends JmsTestBase
         }
     }
 
-    /**
-     * Verifies that a connection can be made using an instance of AMQConnectionFactory created with the
-     * default constructor and provided with the connection url via setter.
-     */
     @Test
     public void testCreatingConnectionWithInstanceMadeUsingDefaultConstructor() throws Exception
     {
         AMQConnectionFactory factory = new AMQConnectionFactory();
-        factory.setConnectionURLString(_url);
+        factory.setConnectionURLString(_urlWithCredentials);
 
-        Connection con = null;
+        AMQConnection con = null;
         try
         {
             con = factory.createConnection();
+            assertNotNull(con);
+            assertEquals(_userName, con.getUsername());
+            assertEquals(_password, con.getPassword());
+        }
+        finally
+        {
+            if (con != null)
+            {
+                con.close();
+            }
+        }
+    }
+
+    @Test
+    public void testCreatingConnectionUsingUserNameAndPasswordExtensions() throws Exception
+    {
+        AMQConnectionFactory factory = new AMQConnectionFactory();
+        factory.setConnectionURLString(_urlWithoutCredentials);
+        factory.setExtension(ConnectionExtension.PASSWORD_OVERRIDE.getExtensionName(), (connection, uri) -> _password);
+        factory.setExtension(ConnectionExtension.USERNAME_OVERRIDE.getExtensionName(), (connection, uri) -> _userName);
+
+        AMQConnection con = null;
+        try
+        {
+            con = factory.createConnection();
+            assertNotNull(con);
+            assertEquals(_userName, con.getUsername());
+            assertEquals(_password, con.getPassword());
+        }
+        finally
+        {
+            if (con != null)
+            {
+                con.close();
+            }
+        }
+    }
+
+    @Test
+    public void testCreatingConnectionUsingUserNameAndPasswordExtensionsWhenRuntimeExceptionIsThrown() throws Exception
+    {
+        AMQConnectionFactory factory = new AMQConnectionFactory();
+        factory.setConnectionURLString(_urlWithoutCredentials);
+        factory.setExtension(ConnectionExtension.PASSWORD_OVERRIDE.getExtensionName(), (connection, uri) -> {
+            throw new RuntimeException("Test");
+        });
+        factory.setExtension(ConnectionExtension.USERNAME_OVERRIDE.getExtensionName(), (connection, uri) -> _userName);
+
+        AMQConnection con = null;
+        try
+        {
+            con = factory.createConnection();
+            fail("Exception is expected");
+        }
+        catch (JMSException e)
+        {
+            // pass
         }
         finally
         {

@@ -54,7 +54,8 @@ import java.util.Hashtable;
 import java.util.UUID;
 
 
-public class AMQConnectionFactory implements ConnectionFactory, QueueConnectionFactory, TopicConnectionFactory,
+public class AMQConnectionFactory extends AbstractConnectionFactory
+                                  implements ConnectionFactory, QueueConnectionFactory, TopicConnectionFactory,
                                              javax.naming.spi.ObjectFactory, Referenceable, XATopicConnectionFactory,
                                              XAQueueConnectionFactory, XAConnectionFactory, Serializable
 {
@@ -129,7 +130,7 @@ public class AMQConnectionFactory implements ConnectionFactory, QueueConnectionF
             {
                 _connectionDetails.setClientName(getUniqueClientID());
             }
-            return new AMQConnection(_connectionDetails);
+            return newAMQConnectionInstance(_connectionDetails);
         }
         catch (Exception e)
         {
@@ -161,7 +162,7 @@ public class AMQConnectionFactory implements ConnectionFactory, QueueConnectionF
                 {
                     connectionDetails.setClientName(getUniqueClientID());
                 }
-                return new AMQConnection(connectionDetails);
+                return newAMQConnectionInstance(connectionDetails);
             }
             catch (Exception e)
             {

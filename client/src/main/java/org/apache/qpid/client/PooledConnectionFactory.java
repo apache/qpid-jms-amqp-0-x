@@ -64,8 +64,8 @@ import org.apache.qpid.client.util.JMSExceptionHelper;
 import org.apache.qpid.jms.*;
 import org.apache.qpid.url.URLSyntaxException;
 
-public class PooledConnectionFactory implements ConnectionFactory, QueueConnectionFactory, TopicConnectionFactory,
-                                                Referenceable
+public class PooledConnectionFactory extends AbstractConnectionFactory
+        implements ConnectionFactory, QueueConnectionFactory, TopicConnectionFactory, Referenceable
 {
 
     public static final String JNDI_ADDRESS_MAX_POOL_SIZE = "maxPoolSize";
@@ -260,11 +260,6 @@ public class PooledConnectionFactory implements ConnectionFactory, QueueConnecti
             throw JMSExceptionHelper.chainJMSException(new JMSException("Error creating connection: " + e.getMessage()),
                                                        e);
         }
-    }
-
-    protected CommonConnection newConnectionInstance(final ConnectionURL connectionDetails) throws QpidException
-    {
-        return new AMQConnection(connectionDetails);
     }
 
     private ConnectionURL getConnectionURLOrError() throws IllegalStateException

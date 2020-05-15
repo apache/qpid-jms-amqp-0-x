@@ -223,7 +223,6 @@ public class Connection extends ConnectionInvoker
             conSettings = settings;
             _redirecting.set(false);
             state = OPENING;
-            userID = settings.getUsername();
             connectionLost.set(false);
 
             securityLayer = SecurityLayerFactory.newInstance(getConnectionSettings());

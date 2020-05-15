@@ -22,7 +22,7 @@
 
 <appendix xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="JMS-Client-0-8-Appendix-JMS-Extensions">
   <title>JMS Extensions</title>
-  <para>This section illustrates using Qpid specific extentions to JMS for the managament of queues,
+  <para>This section illustrates using Qpid specific extensions to JMS for the management of connections, queues,
   exchanges and bindings.</para>
   <!-- TODO perhaps mention ConnectionListener?-->
   <important>
@@ -30,6 +30,104 @@
       subject to change and will not be supported in this form for AMQP 1.0. Instead, the reader is
       directed towards the Managment interfaces of the Broker.</para>
   </important>
+  <section xml:id="JMS-Client-0-8-Appendix-JMS-Extensions-Connection">
+      <title>Connection extensions</title>
+      <para>Connection extensions allows overriding connection configurations like username or password
+          in response to some environment changes like account rotation or authentication token expiration.</para>
+      <para>
+          The extensions take the form of a BiFunction&lt;Connection, URI, Object&gt; passed into the
+          ConnectionFactory using the AMQConnectionFactory#setExtension(String, BiFunction).
+      </para>
+      <para>A table below lists supported extensions.</para>
+      <table pgwide="1">
+      <title>Connection Extensions</title>
+      <tgroup cols="2">
+      <thead>
+          <row>
+              <entry>Extension Name</entry>
+              <entry>Description</entry>
+          </row>
+      </thead>
+      <tbody>
+      <row>
+          <entry>username</entry>
+          <entry><para>Allows to hook a custom code for provisioning of user name which would be used in authentication
+              with a remote host.</para></entry>
+      </row>
+          <row>
+              <entry>password</entry>
+              <entry><para>Allows to hook a custom code for provisioning of user password which would be used in
+                  authentication with a remote host.</para></entry>
+          </row>
+      </tbody>
+      </tgroup>
+      </table>
+      <para>The following example illustrates how expirate OAUTH2 authentication token can be recreated</para>
+      <example>
+          <title>Inject password extension</title>
+          <programlisting>
+final String connectionURL = "...";                                                                    <co xml:id="ext-token-url" linkends="callout-ext-token-url"/>
+final TokenGenerator tokenGenerator = new TokenGenerator(...);                                         <co xml:id="ext-token-generator" linkends="callout-ext-token-generator"/>
+
+final BiFunction&lt;Connection, URI, Object&gt; tokenExtension = new BiFunction&lt;Connection, URI, Object&gt;()   <co xml:id="ext-token-extension" linkends="callout-ext-token-extension"/>
+{
+    private volatile String token;
+    private long currentTokenExpirationTime;
+
+    @Override
+    public Object apply(final Connection connection, final URI uri)
+    {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime &gt; currentTokenExpirationTime)                                                  <co xml:id="ext-token-expiration-check" linkends="callout-ext-token-expiration-check"/>
+        {
+            this.token = tokenGenerator.generateAccessToken();                                         <co xml:id="ext-token-generation" linkends="callout-ext-token-generation"/>
+            this.currentTokenExpirationTime = tokenGenerator.getTokenExpirationTime(token);            <co xml:id="ext-token-exp-time" linkends="callout-ext-token-exp-time"/>
+        }
+        return this.token;
+    }
+};
+final AMQConnectionFactory factory = new AMQConnectionFactory(connectionURL);                          <co xml:id="ext-token-connection-factory" linkends="callout-ext-token-connection-factory"/>
+factory.setExtension(ConnectionExtension.PASSWORD_OVERRIDE.name(), tokenExtension);                    <co xml:id="ext-token-override" linkends="callout-ext-token-override"/>
+
+final Connection connection = factory.createConnection();                                              <co xml:id="ext-token-connection" linkends="callout-ext-token-connection"/>
+          </programlisting>
+      </example><calloutlist>
+          <callout xml:id="callout-ext-token-url" arearefs="ext-token-url">
+              <para>Connection URL</para>
+          </callout>
+          <callout xml:id="callout-ext-token-generator" arearefs="ext-token-generator">
+              <para>Helper object to generate access token for a specific OAUTH2 implementation </para>
+          </callout>
+          <callout xml:id="callout-ext-token-extension" arearefs="ext-token-extension">
+              <para>Password extension for token renewal</para>
+          </callout>
+          <callout xml:id="callout-ext-token-expiration-check" arearefs="ext-token-expiration-check">
+              <para>Check token expiration</para>
+          </callout>
+          <callout xml:id="callout-ext-token-generation" arearefs="ext-token-generation">
+              <para>Get new token</para>
+          </callout>
+          <callout xml:id="callout-ext-token-exp-time" arearefs="ext-token-exp-time">
+              <para>Preserve token expiration time</para>
+          </callout>
+          <callout xml:id="callout-ext-token-connection-factory" arearefs="ext-token-connection-factory">
+              <para>Create connection factory</para>
+          </callout>
+          <callout xml:id="callout-ext-token-override" arearefs="ext-token-override">
+              <para>Register password extension for token regeneration</para>
+          </callout>
+          <callout xml:id="callout-ext-token-connection" arearefs="ext-token-connection">
+              <para>Open connection</para>
+          </callout>
+      </calloutlist>
+      <para>In the snippet above an implementation of  BiFunction&lt;Connection, URI, Object&gt; is created at (3) for
+          access token provisioning. The function implementation checks the token expiration at (4) and regenerate
+          the token at (5) using a helper object (2) implementing calls to OAUTH2 specific API.
+          The token expiration time is preserved at (6) for the following reconnects attempts.
+          An instance of AMQConnectionFactory is created  at (7) for a given connection URL (1).
+          A password extension is registered at (8). JMS connection is open at (9). The example uses a hypothetical
+          class TokenGenerator invoking underlying  OAUTH2 API to generate/renew access token and get token expiration time.</para>
+  </section>
   <section xml:id="JMS-Client-0-8-Appendix-JMS-Extensions-Queue">
     <title>Queue Management</title>
     <para>These extensions allow queues to be created or removed.</para>
