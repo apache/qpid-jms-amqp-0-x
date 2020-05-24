@@ -128,6 +128,62 @@ final Connection connection = factory.createConnection();                       
           A password extension is registered at (8). JMS connection is open at (9). The example uses a hypothetical
           class TokenGenerator invoking underlying  OAUTH2 API to generate/renew access token and get token expiration time.</para>
   </section>
+  <section xml:id="JMS-Client-0-8-Appendix-JMS-Extensions-ConnectAttemptListener">
+    <title>ConnectAttemptListener</title>
+    <para>An implementation of <emphasis>ConnectAttemptListener</emphasis> can be set on <emphasis>AMQConnectionFactory</emphasis>
+        or <emphasis>PooledConnectionFactory</emphasis> in order to notify messaging application about every successful
+        and unsuccessful connectivity attempt.
+    </para>
+    <para>
+        The failed attempt notification can be used as a mechanism to rotate expired credentials,
+        if those are set as connection extensions.
+        The  implementation can examine the error code reported as part of JMSException, and, if the error code corresponds
+        to authentication failure codes ("530" is reported by AMQP 0-8..0-91, "320" is reported by AMQP 0-10), the
+        credentials could be swapped with new ones using the connection extension mechanism.
+        See <xref linkend="JMS-Client-0-8-Appendix-JMS-Extensions-Connection"/> for details.
+    </para>
+    <para>The following <emphasis>ConnectAttemptListener</emphasis> illustrate the idea</para>
+    <example>
+      <title>Inject password extension</title>
+      <programlisting>
+class CredentialsRotatingListener implements ConnectAttemptListener
+{
+
+    @Override
+    public boolean connectAttemptFailed(final URI brokerURI, final JMSException e)
+    {
+        boolean reattempt = "530".equals(e.getErrorCode()) || "320".equals(e.getErrorCode());
+        if (reattempt)
+        {
+            rotateCredentials(brokerURI);
+        }
+        return reattempt;
+    }
+
+    @Override
+    public void connectAttemptSucceeded(final URI brokerURI)
+    {
+          credentialsRotatedSuccessfully(brokerURI);
+    }
+
+    private void rotateCredentials(inal URI brokerURI)
+    {
+        // credential rotating logic
+    }
+
+    private void credentialsRotatedSuccessfully(final URI brokerURI)
+    {
+         // notify that credentials have been rotated successfully
+    }
+}
+      </programlisting>
+    </example>
+   <para>
+       The method <emphasis>connectAttemptFailed</emphasis> can return true, if connection attempt needs to be repeated
+       to the same broker immediately and without incrementing a failover re-try counter.
+       Otherwise, the connection would be attempted as per failover settings.
+   </para>
+  </section>
   <section xml:id="JMS-Client-0-8-Appendix-JMS-Extensions-Queue">
     <title>Queue Management</title>
     <para>These extensions allow queues to be created or removed.</para>

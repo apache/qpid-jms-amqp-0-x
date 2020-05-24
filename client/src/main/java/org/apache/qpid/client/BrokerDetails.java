@@ -30,6 +30,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.qpid.configuration.ClientProperties;
 import org.apache.qpid.transport.ConnectionSettings;
 import org.apache.qpid.url.URLHelper;
@@ -37,6 +40,7 @@ import org.apache.qpid.url.URLSyntaxException;
 
 public class BrokerDetails implements Serializable
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrokerDetails.class);
     /*
      * Known URL Options
      * @see ConnectionURL
@@ -384,7 +388,12 @@ public class BrokerDetails implements Serializable
 
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        return toURL(true);
+    }
+
+    private String toURL(boolean maskPasswords)
+    {
+        StringBuilder sb = new StringBuilder();
 
         sb.append(_transport);
         sb.append("://");
@@ -392,7 +401,7 @@ public class BrokerDetails implements Serializable
         sb.append(':');
         sb.append(_port);
 
-        sb.append(printOptionsURL());
+        sb.append(printOptionsURL(maskPasswords));
 
         return sb.toString();
     }
@@ -426,9 +435,9 @@ public class BrokerDetails implements Serializable
         return result;
     }
 
-    private String printOptionsURL()
+    private String printOptionsURL(boolean maskPassword)
     {
-        return URLHelper.printOptions(_options, PASSWORD_YIELDING_OPTIONS);
+        return URLHelper.printOptions(_options, maskPassword? PASSWORD_YIELDING_OPTIONS : Collections.emptySet());
     }
 
     public static String checkTransport(String broker)
@@ -623,5 +632,19 @@ public class BrokerDetails implements Serializable
     public void setConnectionUrl(final AMQConnectionURL connectionUrl)
     {
         _connectionUrl = connectionUrl;
+    }
+
+    public URI getURI()
+    {
+        URI uri = null;
+        try
+        {
+            uri = URI.create(toURL(false));
+        }
+        catch (RuntimeException unexpected)
+        {
+            LOGGER.warn("Unexpected exception occurred on evaluation of broker URI", unexpected);
+        }
+        return uri;
     }
 }

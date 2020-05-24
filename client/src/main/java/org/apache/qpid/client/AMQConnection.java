@@ -129,6 +129,7 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
     private final Object _failoverMutex = new Object();
 
     private final Object _sessionCreationLock = new Object();
+    private final ConnectAttemptListener _connectAttemptListener;
 
     /**
      * A channel is roughly analogous to a session. The server can negotiate the maximum number of channels per session
@@ -306,6 +307,13 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
 
     public AMQConnection(ConnectionURL connectionURL) throws QpidException
     {
+        this(connectionURL, null);
+    }
+
+    AMQConnection(final ConnectionURL connectionURL, final ConnectAttemptListener connectAttemptListener)
+            throws QpidException
+    {
+        _connectAttemptListener = connectAttemptListener;
         boolean success = false;
         try
         {
@@ -565,10 +573,12 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
             }
         }
         BrokerDetails brokerDetails = _failoverPolicy.getCurrentBrokerDetails();
+        BrokerDetails lastBrokerDetails = null;
         boolean retryAllowed = true;
         Exception connectionException = null;
         while (!isConnected() && retryAllowed && brokerDetails != null)
         {
+            lastBrokerDetails = brokerDetails;
             ProtocolVersion pe = null;
             try
             {
@@ -605,11 +615,17 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
                 }
                 else
                 {
-                    retryAllowed = _failoverPolicy.failoverAllowed();
-                    brokerDetails = _failoverPolicy.getNextBrokerDetails();
+                    if (repeatLastConnectAttempt(connectionException, brokerDetails))
+                    {
+                        brokerDetails = _failoverPolicy.getCurrentBrokerDetails();
+                    }
+                    else
+                    {
+                        retryAllowed = _failoverPolicy.failoverAllowed();
+                        brokerDetails = _failoverPolicy.getNextBrokerDetails();
+                    }
                     _protocolHandler.setStateManager(new AMQStateManager(_protocolHandler.getProtocolSession()));
                 }
-
             }
         }
         verifyClientID();
@@ -668,9 +684,51 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
         {
         	_logger.debug("Connected with ProtocolHandler Version:"+_protocolHandler.getProtocolVersion());
         }
-
+        notifySuccessfulConnectAttempt(lastBrokerDetails);
         _sessions.setMaxChannelID(_delegate.getMaxChannelID());
         _sessions.setMinChannelID(_delegate.getMinChannelID());
+    }
+
+    private boolean repeatLastConnectAttempt(final Exception e, final BrokerDetails brokerDetails)
+    {
+        boolean repeatLastReconnectAttempt = false;
+        if (_connectAttemptListener != null)
+        {
+            final AMQException amqException;
+            if (e instanceof AMQException)
+            {
+                amqException = (AMQException) e;
+            }
+            else
+            {
+                amqException = new AMQException(ErrorCodes.CONNECTION_FORCED, e.getMessage(), e);
+            }
+
+            try
+            {
+                repeatLastReconnectAttempt = _connectAttemptListener.connectAttemptFailed(brokerDetails.getURI(), convertToJMSException(amqException));
+            }
+            catch (RuntimeException unexpected)
+            {
+                _logger.warn("Unexpected exception occurred on notifying about connect attempt failure", unexpected);
+            }
+        }
+        return repeatLastReconnectAttempt;
+    }
+
+    private void notifySuccessfulConnectAttempt(final BrokerDetails brokerDetails)
+    {
+        if (_connectAttemptListener != null)
+        {
+            try
+            {
+                _connectAttemptListener.connectAttemptSucceeded(brokerDetails.getURI());
+            }
+            catch (RuntimeException unexpected)
+            {
+                _logger.warn("Unexpected exception occurred on notifying about successful connect attempt", unexpected);
+            }
+        }
     }
 
     private void initDelegate(ProtocolVersion pe) throws AMQProtocolException
@@ -745,7 +803,7 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
         try
         {
             makeBrokerConnection(bd);
-
+            notifySuccessfulConnectAttempt(bd);
             return true;
         }
         catch (Exception e)
@@ -754,8 +812,14 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
             {
                 _logger.info("Unable to connect to broker at " + bd);
             }
-
-            return useFailoverConfigOnFailure && attemptReconnection();
+            if (repeatLastConnectAttempt(e, bd))
+            {
+                return attemptReconnection(host, port, useFailoverConfigOnFailure);
+            }
+            else
+            {
+                return useFailoverConfigOnFailure && attemptReconnection();
+            }
         }
 
     }
@@ -780,6 +844,7 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
         try
         {
             makeBrokerConnection(broker);
+            notifySuccessfulConnectAttempt(broker);
             return true;
         }
         catch (Exception e)
@@ -797,6 +862,10 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
                 {
                     _logger.info(e.getMessage() + ":Unable to connect to broker at "
                                  + _failoverPolicy.getCurrentBrokerDetails());
+                }
+                if (repeatLastConnectAttempt(e, broker))
+                {
+                    return attemptConnection(broker);
                 }
             }
         }

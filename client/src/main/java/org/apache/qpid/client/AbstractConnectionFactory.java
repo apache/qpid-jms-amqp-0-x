@@ -34,6 +34,7 @@ public abstract class AbstractConnectionFactory
 {
     private final Map<ConnectionExtension, BiFunction<Connection, URI, Object>>
             _extensions = new EnumMap<>(ConnectionExtension.class);
+    private volatile ConnectAttemptListener _connectAttemptListener;
 
 
     public void setExtension(String extensionName, BiFunction<Connection, URI, Object> extension)
@@ -47,6 +48,11 @@ public abstract class AbstractConnectionFactory
         {
             _extensions.put(connectionExtension, extension);
         }
+    }
+
+    public void setConnectAttemptListener(final ConnectAttemptListener connectAttemptListener)
+    {
+        _connectAttemptListener = connectAttemptListener;
     }
 
     protected CommonConnection newConnectionInstance(final ConnectionURL connectionDetails) throws QpidException
@@ -64,7 +70,7 @@ public abstract class AbstractConnectionFactory
         final Map<ConnectionExtension, BiFunction<Connection, URI, Object>> extensions = getExtensions();
         final ConnectionURL connectionURL =
                 extensions.isEmpty() ? connectionDetails : new ExtensibleConnectionURL(connectionDetails, extensions);
-        final AMQConnection connection = new AMQConnection(connectionURL);
+        final AMQConnection connection = new AMQConnection(connectionURL, _connectAttemptListener);
         if (connectionURL instanceof ExtensibleConnectionURL)
         {
             ((ExtensibleConnectionURL) connectionURL).setConnectionSupplier(() -> connection);
