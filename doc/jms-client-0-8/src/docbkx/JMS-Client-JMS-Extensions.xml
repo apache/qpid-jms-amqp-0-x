@@ -128,24 +128,30 @@ final Connection connection = factory.createConnection();                       
           An instance of AMQConnectionFactory is created  at (7) for a given connection URL (1).
           A password extension is registered at (8). JMS connection is open at (9). The example uses a hypothetical
           class TokenGenerator invoking underlying  OAUTH2 API to generate/renew access token and get token expiration time.</para>
+      <para><emphasis>Connection Extensions</emphasis> can be used together with
+          <link linkend="JMS-Client-0-8-Appendix-JMS-Extensions-Connection">ConnectAttemptListener</link> to
+          change credentials on connectivity failures. Please check
+          <xref linkend="JMS-Client-0-8-Appendix-JMS-Extensions-ConnectAttemptListener"/> for more details.
+      </para>
   </section>
   <section xml:id="JMS-Client-0-8-Appendix-JMS-Extensions-ConnectAttemptListener">
     <title>ConnectAttemptListener</title>
     <para>An implementation of <emphasis>ConnectAttemptListener</emphasis> can be set on <emphasis>AMQConnectionFactory</emphasis>
-        or <emphasis>PooledConnectionFactory</emphasis> in order to notify messaging application about every successful
+        or <emphasis>PooledConnectionFactory</emphasis> via <emphasis>#setConnectAttemptListener(ConnectAttemptListener)</emphasis>
+        in order to notify messaging application about every successful
         and unsuccessful connectivity attempt.
     </para>
     <para>
-        The failed attempt notification can be used as a mechanism to rotate expired credentials,
-        if those are set as connection extensions.
+        The failed attempt notification can be used as a trigger to rotate expired credentials,
+        if those are set using <link linkend="JMS-Client-0-8-Appendix-JMS-Extensions-Connection">connection extensions</link>.
         The  implementation can examine the error code reported as part of JMSException, and, if the error code corresponds
         to authentication failure codes ("530" is reported by AMQP 0-8..0-91, "320" is reported by AMQP 0-10), the
         credentials could be swapped with new ones using the connection extension mechanism.
         See <xref linkend="JMS-Client-0-8-Appendix-JMS-Extensions-Connection"/> for details.
     </para>
-    <para>The following <emphasis>ConnectAttemptListener</emphasis> illustrate the idea</para>
+    <para>The following implementation of <emphasis>ConnectAttemptListener</emphasis> illustrate the idea.</para>
     <example>
-      <title>Inject password extension</title>
+      <title>Rotate credentials on authentication failure</title>
       <programlisting>
 class CredentialsRotatingListener implements ConnectAttemptListener
 {
