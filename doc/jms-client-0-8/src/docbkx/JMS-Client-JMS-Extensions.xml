@@ -36,7 +36,8 @@
           in response to some environment changes like account rotation or authentication token expiration.</para>
       <para>
           The extensions take the form of a BiFunction&lt;Connection, URI, Object&gt; passed into the
-          ConnectionFactory using the AMQConnectionFactory#setExtension(String, BiFunction).
+          ConnectionFactory using the AMQConnectionFactory#setExtension(String, BiFunction) or
+          PooledConnectionFactory#setExtension(String, BiFunction).
       </para>
       <para>A table below lists supported extensions.</para>
       <table pgwide="1">
@@ -62,7 +63,7 @@
       </tbody>
       </tgroup>
       </table>
-      <para>The following example illustrates how expirate OAUTH2 authentication token can be recreated</para>
+      <para>The following example illustrates how expired OAUTH2 authentication token can be recreated.</para>
       <example>
           <title>Inject password extension</title>
           <programlisting>
