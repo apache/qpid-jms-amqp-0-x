@@ -152,6 +152,8 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
 
     private String _clientName;
 
+    private volatile String _username;
+
     /** The virtual path to connect to on the AMQ server */
     private String _virtualHost;
 
@@ -1417,12 +1419,13 @@ public class AMQConnection extends Closeable implements CommonConnection, Refere
 
     public String getUsername()
     {
-        return _connectionURL.getUsername();
+        final String username = _username;
+        return username == null ? _connectionURL.getUsername() : username;
     }
 
     public void setUsername(String id)
     {
-        _connectionURL.setUsername(id);
+        _username = id;
     }
 
     public String getPassword()
