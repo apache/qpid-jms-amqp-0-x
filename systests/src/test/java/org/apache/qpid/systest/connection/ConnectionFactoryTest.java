@@ -41,6 +41,8 @@ import javax.jms.JMSException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.qpid.client.AMQConnection;
 import org.apache.qpid.client.AMQConnectionFactory;
@@ -53,6 +55,7 @@ import org.apache.qpid.systest.core.JmsTestBase;
 
 public class ConnectionFactoryTest extends JmsTestBase
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionFactoryTest.class);
     private static final String BROKER_URL = "tcp://%s:%d%s";
     private static final String CONNECTION_URL = "amqp://%s:%s@clientID/?brokerlist='" + BROKER_URL + "'";
     private String _urlWithCredentials;
@@ -261,13 +264,13 @@ public class ConnectionFactoryTest extends JmsTestBase
                    is(equalTo(BrokerAdmin.BrokerType.BROKERJ)));
 
         final InetSocketAddress brokerAddress = brokerAdmin.getBrokerAddress(BrokerAdmin.PortType.AMQP);
-        final String retriesOption = "?retries='1'";
+        final String retriesOption = "?retries='200'&connectdelay='1000'";
         final String url = String.format(CONNECTION_URL,
                                          "",
                                          "",
                                          brokerAddress.getHostName(),
                                          brokerAddress.getPort(),
-                                         retriesOption) + "&failover='singlebroker?cyclecount='1''";
+                                         retriesOption) + "&failover='singlebroker?cyclecount='2''";
 
         final AMQConnectionFactory factory = new AMQConnectionFactory(url);
 
@@ -368,6 +371,7 @@ public class ConnectionFactoryTest extends JmsTestBase
         @Override
         public boolean connectAttemptFailed(final URI brokerURI, final JMSException e)
         {
+            LOGGER.info(String.format("Connect attempt failed for brokerURI=%s with error code=%s", brokerURI, e.getErrorCode()), e);
             boolean reattempt = String.valueOf(ErrorCodes.CONNECTION_FORCED).equals(e.getErrorCode())
                                 || String.valueOf(ErrorCodes.NOT_ALLOWED).equals(e.getErrorCode());
             if (reattempt)
