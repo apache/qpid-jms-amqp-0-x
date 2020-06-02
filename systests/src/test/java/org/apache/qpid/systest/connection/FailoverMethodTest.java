@@ -27,26 +27,26 @@ import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 
 import com.google.common.util.concurrent.SettableFuture;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.qpid.QpidException;
 import org.apache.qpid.client.AMQConnection;
 import org.apache.qpid.client.AMQConnectionURL;
+import org.apache.qpid.client.BrokerDetails;
+import org.apache.qpid.framing.ProtocolVersion;
 import org.apache.qpid.systest.core.BrokerAdmin;
 import org.apache.qpid.systest.core.JmsTestBase;
+import org.apache.qpid.systest.core.util.PortHelper;
+import org.apache.qpid.transport.TransportException;
 import org.apache.qpid.util.SystemUtils;
 
 public class FailoverMethodTest extends JmsTestBase implements ExceptionListener
@@ -55,7 +55,6 @@ public class FailoverMethodTest extends JmsTestBase implements ExceptionListener
     private final SettableFuture<JMSException> _failoverComplete = SettableFuture.create();
     private int _freePortWithNoBroker;
     private int _port;
-    private DummyServer _dummyServer;
 
     @Before
     public void setUp() throws Exception
@@ -63,16 +62,9 @@ public class FailoverMethodTest extends JmsTestBase implements ExceptionListener
         assumeThat("Test requires redevelopment - timings/behaviour on windows mean it fails",
                    SystemUtils.isWindows(), is(not(true)));
 
-        _dummyServer = new DummyServer();
         InetSocketAddress brokerAddress = getBrokerAdmin().getBrokerAddress(BrokerAdmin.PortType.AMQP);
         _port = brokerAddress.getPort();
-        _freePortWithNoBroker = _dummyServer.start();
-    }
-
-    @After
-    public void tearDown()
-    {
-        _dummyServer.stop();
+        _freePortWithNoBroker = new PortHelper().getNextAvailable();
     }
     /**
      * Test that the round robin method has the correct delays.
@@ -98,7 +90,7 @@ public class FailoverMethodTest extends JmsTestBase implements ExceptionListener
         try
         {
             long start = System.currentTimeMillis();
-            connection = new AMQConnection(url);
+            connection = getConnection(url);
 
             connection.setExceptionListener(this);
 
@@ -150,7 +142,7 @@ public class FailoverMethodTest extends JmsTestBase implements ExceptionListener
         try
         {
             long start = System.currentTimeMillis();
-            connection = new AMQConnection(url);
+            connection = getConnection(url);
 
             connection.setExceptionListener(this);
 
@@ -186,77 +178,26 @@ public class FailoverMethodTest extends JmsTestBase implements ExceptionListener
         }
     }
 
+    private AMQConnection getConnection(final AMQConnectionURL url) throws QpidException
+    {
+        return new AMQConnection(url)
+        {
+            @Override
+            public ProtocolVersion makeBrokerConnection(final BrokerDetails brokerDetail)
+                    throws IOException, QpidException
+            {
+                if (brokerDetail.getPort() == _freePortWithNoBroker)
+                {
+                    throw new TransportException("Error creating network connection");
+                }
+                return super.makeBrokerConnection(brokerDetail);
+            }
+        };
+    }
+
     @Override
     public void onException(JMSException e)
     {
         _failoverComplete.set(e);
     }
-
-    class DummyServer implements Runnable
-    {
-        private ExecutorService _executorService;
-        private ServerSocket _serverSocket;
-        private boolean _started;
-
-        synchronized int start() throws IOException
-        {
-            if (!_started)
-            {
-                _executorService = Executors.newSingleThreadExecutor();
-                _serverSocket = new ServerSocket(0);
-                _started = true;
-                _executorService.submit(this);
-                return _serverSocket.getLocalPort();
-            }
-            return -1;
-        }
-
-        synchronized void stop()
-        {
-            if (_started)
-            {
-                _started = false;
-                closeSafely();
-            }
-        }
-
-        public void run()
-        {
-            while (_started)
-            {
-                try
-                {
-                    acceptAndClose();
-                }
-                catch (IOException e)
-                {
-                    LOGGER.warn("Failed to close client socket", e);
-                    stop();
-                }
-            }
-        }
-
-        private void acceptAndClose() throws IOException
-        {
-            final Socket socket = _serverSocket.accept();
-            socket.close();
-        }
-
-        private synchronized void closeSafely()
-        {
-            try
-            {
-                _serverSocket.close();
-            }
-            catch (IOException e)
-            {
-                LOGGER.warn("Failed to close server socket", e);
-            }
-            finally
-            {
-                _executorService.shutdown();
-            }
-        }
-    }
-
 }
