@@ -94,7 +94,7 @@
 
 
     <!-- test dependency version numbers -->
-    <junit-version>4.13</junit-version>
+    <junit-version>4.13.1</junit-version>
     <mockito-version>3.2.4</mockito-version>
     <hamcrest-version>2.2</hamcrest-version>
     <httpclient-version>4.5.3</httpclient-version>
