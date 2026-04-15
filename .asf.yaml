@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 github:
-  description: "Mirror of Apache Qpid JMS AMQP 0-x"
-  homepage: https://qpid.apache.org/components/jms/amqp-0-x.html
+  description: "Archive of Apache Qpid JMS AMQP 0-x"
+  homepage: https://qpid.apache.org
   labels:
     - qpid
     - apache
@@ -25,3 +25,5 @@ github:
     - messaging
     - amqps
     - java
+  dependabot_alerts:  false
+  dependabot_updates: false
